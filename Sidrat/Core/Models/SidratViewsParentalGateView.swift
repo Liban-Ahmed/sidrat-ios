@@ -59,8 +59,11 @@ struct ParentalGateView: View {
         self.context = context
         
         // Generate initial problem ensuring sum is between 15-30
-        let first = Int.random(in: 10...20)
-        let second = Int.random(in: 5...15)
+        // First: 8-18, Second: calculated to ensure sum is 15-30
+        let first = Int.random(in: 8...18)
+        let minSecond = max(1, 15 - first)  // Ensure sum >= 15
+        let maxSecond = min(22, 30 - first) // Ensure sum <= 30
+        let second = Int.random(in: minSecond...maxSecond)
         
         _firstNumber = State(initialValue: first)
         _secondNumber = State(initialValue: second)
@@ -169,48 +172,64 @@ struct ParentalGateView: View {
     
     private var mathProblemSection: some View {
         VStack(spacing: Spacing.md) {
-            HStack(spacing: Spacing.sm) {
-                // First number
-                numberBubble(firstNumber)
+            // Use ViewThatFits to handle different screen sizes
+            ViewThatFits(in: .horizontal) {
+                // Full size layout for larger screens
+                mathProblemRow(bubbleSize: 72, fontSize: 32, symbolSize: 36)
                 
-                // Plus symbol
-                Text("+")
-                    .font(.system(size: 36, weight: .medium))
-                    .foregroundStyle(.textSecondary)
+                // Compact layout for smaller screens
+                mathProblemRow(bubbleSize: 60, fontSize: 26, symbolSize: 30)
                 
-                // Second number
-                numberBubble(secondNumber)
-                
-                // Equals symbol
-                Text("=")
-                    .font(.system(size: 36, weight: .medium))
-                    .foregroundStyle(.textSecondary)
-                
-                // Question mark
-                ZStack {
-                    Circle()
-                        .fill(Color.brandAccent.opacity(0.1))
-                        .frame(width: 72, height: 72)
-                    
-                    Text("?")
-                        .font(.system(size: 40, weight: .bold))
-                        .foregroundStyle(.brandAccent)
-                }
+                // Extra compact layout
+                mathProblemRow(bubbleSize: 52, fontSize: 22, symbolSize: 26)
             }
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("What is \(firstNumber) plus \(secondNumber)?")
-            .accessibilityHint("Enter your answer in the text field below")
         }
     }
     
-    private func numberBubble(_ number: Int) -> some View {
+    private func mathProblemRow(bubbleSize: CGFloat, fontSize: CGFloat, symbolSize: CGFloat) -> some View {
+        HStack(spacing: Spacing.xs) {
+            // First number
+            numberBubble(firstNumber, size: bubbleSize, fontSize: fontSize)
+            
+            // Plus symbol - fixed width to prevent cutoff
+            Text("+")
+                .font(.system(size: symbolSize, weight: .medium))
+                .foregroundStyle(.textSecondary)
+                .frame(minWidth: 28)
+            
+            // Second number
+            numberBubble(secondNumber, size: bubbleSize, fontSize: fontSize)
+            
+            // Equals symbol - fixed width to prevent cutoff
+            Text("=")
+                .font(.system(size: symbolSize, weight: .medium))
+                .foregroundStyle(.textSecondary)
+                .frame(minWidth: 28)
+            
+            // Question mark
+            ZStack {
+                Circle()
+                    .fill(Color.brandAccent.opacity(0.1))
+                    .frame(width: bubbleSize, height: bubbleSize)
+                
+                Text("?")
+                    .font(.system(size: fontSize + 8, weight: .bold))
+                    .foregroundStyle(.brandAccent)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("What is \(firstNumber) plus \(secondNumber)?")
+        .accessibilityHint("Enter your answer in the text field below")
+    }
+    
+    private func numberBubble(_ number: Int, size: CGFloat, fontSize: CGFloat) -> some View {
         ZStack {
             Circle()
                 .fill(Color.brandPrimary.opacity(0.1))
-                .frame(width: 72, height: 72)
+                .frame(width: size, height: size)
             
             Text("\(number)")
-                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .font(.system(size: fontSize, weight: .bold, design: .rounded))
                 .foregroundStyle(.brandPrimary)
         }
     }
@@ -444,9 +463,11 @@ struct ParentalGateView: View {
     }
     
     private func generateNewProblem() {
-        // Generate new problem ensuring sum is between 15-30
-        firstNumber = Int.random(in: 10...20)
-        secondNumber = Int.random(in: 5...15)
+        // Generate new problem ensuring sum is exactly between 15-30
+        firstNumber = Int.random(in: 8...18)
+        let minSecond = max(1, 15 - firstNumber)  // Ensure sum >= 15
+        let maxSecond = min(22, 30 - firstNumber) // Ensure sum <= 30
+        secondNumber = Int.random(in: minSecond...maxSecond)
         
         // Announce new problem for VoiceOver users
         let announcement = "New problem: \(firstNumber) plus \(secondNumber)"

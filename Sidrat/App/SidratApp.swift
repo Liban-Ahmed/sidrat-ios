@@ -17,7 +17,7 @@ struct SidratApp: App {
     let modelContainer: ModelContainer
     
     /// Data version for one-time migrations/cleanups
-    private static let currentDataVersion = 2
+    private static let currentDataVersion = 3
     
     init() {
         // Check if we need to do a one-time data cleanup

@@ -57,8 +57,93 @@ extension View {
 
 // MARK: - Parental Gate Navigation Link
 
+/// A row component that requires parental verification before triggering navigation
+/// Use with navigation state managed at the parent view level to avoid lazy container issues
+///
+/// Usage:
+/// ```
+/// // In parent view state:
+/// @State private var navigateToCurriculum = false
+///
+/// // In List:
+/// GatedNavigationRow(
+///     context: ParentalGateContext.curriculum,
+///     isNavigating: $navigateToCurriculum
+/// ) {
+///     Label("Curriculum", systemImage: "book.fill")
+/// }
+///
+/// // At NavigationStack level:
+/// .navigationDestination(isPresented: $navigateToCurriculum) {
+///     CurriculumOverviewView()
+/// }
+/// ```
+struct GatedNavigationRow<Label: View>: View {
+    let context: String?
+    @Binding var isNavigating: Bool
+    let label: () -> Label
+    
+    @State private var showingGate = false
+    
+    init(
+        context: String? = nil,
+        isNavigating: Binding<Bool>,
+        @ViewBuilder label: @escaping () -> Label
+    ) {
+        self.context = context
+        self._isNavigating = isNavigating
+        self.label = label
+    }
+    
+    var body: some View {
+        Button {
+            showingGate = true
+        } label: {
+            HStack {
+                label()
+                Spacer()
+                Image(systemName: "lock.fill")
+                    .font(.caption)
+                    .foregroundStyle(.textTertiary)
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.textTertiary)
+            }
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.textPrimary)
+        .fullScreenCover(isPresented: $showingGate) {
+            ParentalGateView(
+                onSuccess: {
+                    showingGate = false
+                    // Small delay to ensure gate dismisses before navigation
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        isNavigating = true
+                    }
+                },
+                onDismiss: {
+                    showingGate = false
+                },
+                context: context
+            )
+            .background(Color.clear)
+            .presentationBackground(.clear)
+        }
+    }
+}
+
+/// Navigation destinations for gated settings navigation
+enum GatedSettingsDestination: Hashable {
+    case curriculum
+    case parentDashboard
+    case addChild
+}
+
 /// A navigation link that requires parental verification before navigation
-/// Provides consistent gated navigation throughout the app
+/// NOTE: This component should NOT be used inside lazy containers like List or LazyVStack
+/// For use inside List, use GatedNavigationRow with navigationDestination at the NavigationStack level
+@available(*, deprecated, message: "Use GatedNavigationRow inside List/LazyVStack containers to avoid navigation issues")
 struct ParentalGateNavigationLink<Label: View, Destination: View>: View {
     let destination: () -> Destination
     let label: () -> Label
@@ -95,14 +180,6 @@ struct ParentalGateNavigationLink<Label: View, Destination: View>: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(.textPrimary)
-        .background {
-            NavigationLink(isActive: $isNavigating) {
-                destination()
-            } label: {
-                EmptyView()
-            }
-            .opacity(0)
-        }
         .fullScreenCover(isPresented: $showingGate) {
             ParentalGateView(
                 onSuccess: {
@@ -119,6 +196,9 @@ struct ParentalGateNavigationLink<Label: View, Destination: View>: View {
             )
             .background(Color.clear)
             .presentationBackground(.clear)
+        }
+        .navigationDestination(isPresented: $isNavigating) {
+            destination()
         }
     }
 }
@@ -405,22 +485,33 @@ enum ParentalGateContext {
 
 // MARK: - Previews
 
-#Preview("Gated Navigation Link") {
-    NavigationStack {
-        List {
-            ParentalGateNavigationLink(context: ParentalGateContext.settings) {
-                Text("Secret Settings")
-            } label: {
-                Label("Protected Settings", systemImage: "gearshape.fill")
-            }
-            
-            NavigationLink {
-                Text("Regular Content")
-            } label: {
-                Label("Regular Link", systemImage: "link")
+#Preview("Gated Navigation Row") {
+    struct PreviewWrapper: View {
+        @State private var navigateToSettings = false
+        
+        var body: some View {
+            NavigationStack {
+                List {
+                    GatedNavigationRow(
+                        context: ParentalGateContext.settings,
+                        isNavigating: $navigateToSettings
+                    ) {
+                        Label("Protected Settings", systemImage: "gearshape.fill")
+                    }
+                    
+                    NavigationLink {
+                        Text("Regular Content")
+                    } label: {
+                        Label("Regular Link", systemImage: "link")
+                    }
+                }
+                .navigationDestination(isPresented: $navigateToSettings) {
+                    Text("Secret Settings")
+                }
             }
         }
     }
+    return PreviewWrapper()
 }
 
 #Preview("Gated Button") {

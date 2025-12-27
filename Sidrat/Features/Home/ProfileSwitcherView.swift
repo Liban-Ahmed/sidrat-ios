@@ -610,26 +610,68 @@ struct AddChildSheetView: View {
                             }
                         }
                         
-                        // Birth year picker
-                        VStack(alignment: .leading, spacing: Spacing.xs) {
-                            Text("Birth Year")
+                        // Birth year picker - age selection grid
+                        VStack(alignment: .leading, spacing: Spacing.sm) {
+                            Text("Child's Age")
                                 .font(.labelSmall)
                                 .foregroundStyle(.textSecondary)
                                 .textCase(.uppercase)
                                 .tracking(1)
                             
-                            Picker("Birth Year", selection: $selectedBirthYear) {
+                            LazyVGrid(columns: [
+                                GridItem(.flexible()),
+                                GridItem(.flexible()),
+                                GridItem(.flexible()),
+                                GridItem(.flexible())
+                            ], spacing: Spacing.sm) {
                                 ForEach(birthYears, id: \.self) { year in
                                     let age = Calendar.current.component(.year, from: Date()) - year
-                                    Text(verbatim: "\(year) (Age \(age))")
-                                        .tag(year)
+                                    let isSelected = selectedBirthYear == year
+                                    
+                                    Button {
+                                        withAnimation(.spring(response: 0.3)) {
+                                            selectedBirthYear = year
+                                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                        }
+                                    } label: {
+                                        VStack(spacing: Spacing.xxs) {
+                                            Text("\(age)")
+                                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                                .foregroundStyle(isSelected ? .white : .textPrimary)
+                                            
+                                            Text("years")
+                                                .font(.caption2)
+                                                .foregroundStyle(isSelected ? .white.opacity(0.8) : .textSecondary)
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 70)
+                                        .background {
+                                            if isSelected {
+                                                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                                                    .fill(LinearGradient.primaryGradient)
+                                            } else {
+                                                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                                                    .fill(Color.backgroundTertiary)
+                                            }
+                                        }
+                                        .overlay {
+                                            if isSelected {
+                                                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                                                    .stroke(Color.brandPrimary, lineWidth: 2)
+                                            }
+                                        }
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityLabel("Age \(age)")
+                                    .accessibilityAddTraits(isSelected ? [.isSelected] : [])
                                 }
                             }
-                            .pickerStyle(.wheel)
-                            .frame(height: 120)
-                            .background(Color.backgroundTertiary)
-                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
-                            .accessibilityLabel("Select birth year")
+                            
+                            Text(verbatim: "Born in \(selectedBirthYear)")
+                                .font(.caption)
+                                .foregroundStyle(.textTertiary)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.top, Spacing.xxs)
                         }
                     }
                     .padding(Spacing.lg)

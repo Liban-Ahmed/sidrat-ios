@@ -24,6 +24,11 @@ struct SettingsView: View {
     @State private var showingResetGate = false
     @State private var showingEditGate = false
     
+    // Navigation state - managed at NavigationStack level to avoid lazy container issues
+    @State private var navigateToCurriculum = false
+    @State private var navigateToParentDashboard = false
+    @State private var navigateToAddChild = false
+    
     // MARK: - Computed Properties
     
     private var currentChild: Child? {
@@ -63,6 +68,16 @@ struct SettingsView: View {
                 appInfoSection
             }
             .navigationTitle("Settings")
+            // Navigation destinations at NavigationStack level (outside lazy List)
+            .navigationDestination(isPresented: $navigateToCurriculum) {
+                CurriculumOverviewView()
+            }
+            .navigationDestination(isPresented: $navigateToParentDashboard) {
+                ParentDashboardView()
+            }
+            .navigationDestination(isPresented: $navigateToAddChild) {
+                AddChildView()
+            }
             .gatedSheet(
                 isPresented: $showingEditProfile,
                 context: ParentalGateContext.editProfile
@@ -175,11 +190,10 @@ struct SettingsView: View {
     private var learningSection: some View {
         Section {
             // Curriculum - requires parental gate
-            ParentalGateNavigationLink(
-                context: ParentalGateContext.curriculum
+            GatedNavigationRow(
+                context: ParentalGateContext.curriculum,
+                isNavigating: $navigateToCurriculum
             ) {
-                CurriculumOverviewView()
-            } label: {
                 Label("Curriculum", systemImage: "book.fill")
             }
             
@@ -206,20 +220,18 @@ struct SettingsView: View {
     private var familySection: some View {
         Section {
             // Parent Dashboard - requires parental gate
-            ParentalGateNavigationLink(
-                context: ParentalGateContext.parentDashboard
+            GatedNavigationRow(
+                context: ParentalGateContext.parentDashboard,
+                isNavigating: $navigateToParentDashboard
             ) {
-                ParentDashboardView()
-            } label: {
                 Label("Parent Dashboard", systemImage: "chart.bar.fill")
             }
             
             // Add Another Child - requires parental gate
-            ParentalGateNavigationLink(
-                context: ParentalGateContext.addChild
+            GatedNavigationRow(
+                context: ParentalGateContext.addChild,
+                isNavigating: $navigateToAddChild
             ) {
-                AddChildView()
-            } label: {
                 Label("Add Another Child", systemImage: "person.badge.plus")
             }
         } header: {
