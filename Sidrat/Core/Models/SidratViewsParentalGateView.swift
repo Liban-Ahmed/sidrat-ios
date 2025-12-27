@@ -422,12 +422,14 @@ struct ParentalGateView: View {
         
         // Check if answer is correct
         if let answer = Int(userAnswer), answer == correctAnswer {
-            // Success!
+            // Success! Dismiss keyboard first
+            isTextFieldFocused = false
+            
             let successFeedback = UINotificationFeedbackGenerator()
             successFeedback.notificationOccurred(.success)
             
-            // Small delay for better UX
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // Delay to allow keyboard to fully dismiss before callback
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                 onSuccess()
             }
         } else {
@@ -475,11 +477,12 @@ struct ParentalGateView: View {
     }
     
     private func handleDismiss() {
-        // Dismiss keyboard
+        // Dismiss keyboard first and wait for it to complete
         isTextFieldFocused = false
         
-        // Small delay for better UX
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        // Use longer delay to allow keyboard animation to complete
+        // This helps reduce RTI input system warnings
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             onDismiss()
         }
     }
