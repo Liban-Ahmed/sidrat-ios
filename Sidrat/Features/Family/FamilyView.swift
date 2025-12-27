@@ -189,23 +189,6 @@ struct FamilyView: View {
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
         .cardShadow()
     }
-                
-                ConversationPromptCard(
-                    prompt: "What's your favorite part of making Wudu?",
-                    icon: "heart.circle.fill"
-                )
-                
-                ConversationPromptCard(
-                    prompt: "How do you feel after making Wudu?",
-                    icon: "face.smiling.fill"
-                )
-            }
-        }
-        .padding()
-        .background(Color.backgroundPrimary)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
-        .cardShadow()
-    }
     
     // MARK: - Past Activities
     
@@ -303,7 +286,7 @@ struct ConversationPromptCard: View {
         HStack(spacing: Spacing.sm) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundStyle(.accent)
+                .foregroundStyle(.brandAccent)
             
             Text(prompt)
                 .font(.bodyMedium)
@@ -312,11 +295,12 @@ struct ConversationPromptCard: View {
             Spacer()
         }
         .padding()
-        .background(Color.accent.opacity(0.08))
+        .background(Color.brandAccent.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.small))
     }
 }
 
 #Preview {
     FamilyView()
+        .environment(AppState())
 }

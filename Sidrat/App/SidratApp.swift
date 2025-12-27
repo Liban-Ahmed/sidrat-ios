@@ -12,12 +12,102 @@ import SwiftData
 struct SidratApp: App {
     @State private var appState = AppState()
     
+    /// Shared model container for SwiftData persistence
+    /// Configured with proper error handling and schema migration support
+    let modelContainer: ModelContainer
+    
+    /// Data version for one-time migrations/cleanups
+    private static let currentDataVersion = 2
+    
     init() {
+        // Check if we need to do a one-time data cleanup
+        let savedVersion = UserDefaults.standard.integer(forKey: "dataVersion")
+        let needsCleanup = savedVersion < SidratApp.currentDataVersion
+        
+        if needsCleanup {
+            print("🧹 Data version upgrade needed: \(savedVersion) -> \(SidratApp.currentDataVersion)")
+            // Delete the old store to start fresh
+            if let storeURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+                let defaultStoreURL = storeURL.appendingPathComponent("default.store")
+                let shmURL = storeURL.appendingPathComponent("default.store-shm")
+                let walURL = storeURL.appendingPathComponent("default.store-wal")
+                
+                try? FileManager.default.removeItem(at: defaultStoreURL)
+                try? FileManager.default.removeItem(at: shmURL)
+                try? FileManager.default.removeItem(at: walURL)
+                
+                print(" Cleared old data store")
+            }
+            
+            // Reset app state for fresh start
+            UserDefaults.standard.removeObject(forKey: "isOnboardingComplete")
+            UserDefaults.standard.removeObject(forKey: "currentChildId")
+            UserDefaults.standard.removeObject(forKey: "lessonsSeeded")
+            
+            // Save new version
+            UserDefaults.standard.set(SidratApp.currentDataVersion, forKey: "dataVersion")
+            print(" Data cleanup complete - starting fresh")
+        }
+        
+        // Configure schema for all model types
+        let schema = Schema([
+            Child.self,
+            Lesson.self,
+            LessonProgress.self,
+            Achievement.self,
+            FamilyActivity.self,
+        ])
+        
+        // Configure model with migration support
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            allowsSave: true
+        )
+        
+        do {
+            modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            #if DEBUG
+            print(" ModelContainer initialized successfully")
+            #endif
+        } catch {
+            // If migration fails, try to recover by deleting corrupted store
+            print(" Failed to initialize ModelContainer: \(error)")
+            print(" Attempting recovery by recreating store...")
+            
+            // Delete the corrupted store
+            if let storeURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+                let defaultStoreURL = storeURL.appendingPathComponent("default.store")
+                let shmURL = storeURL.appendingPathComponent("default.store-shm")
+                let walURL = storeURL.appendingPathComponent("default.store-wal")
+                
+                try? FileManager.default.removeItem(at: defaultStoreURL)
+                try? FileManager.default.removeItem(at: shmURL)
+                try? FileManager.default.removeItem(at: walURL)
+                
+                print(" Deleted corrupted store files")
+            }
+            
+            // Reset app state since data is lost
+            UserDefaults.standard.removeObject(forKey: "isOnboardingComplete")
+            UserDefaults.standard.removeObject(forKey: "currentChildId")
+            UserDefaults.standard.removeObject(forKey: "lessonsSeeded")
+            
+            // Try again with fresh store
+            do {
+                modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
+                print(" ModelContainer recovered successfully")
+            } catch {
+                // This should never happen, but provide a fallback
+                fatalError(" Unrecoverable error creating ModelContainer: \(error)")
+            }
+        }
+        
         #if DEBUG
         // 🚨 TEMPORARY: Uncomment to reset onboarding for testing
         // UserDefaults.standard.removeObject(forKey: "isOnboardingComplete")
         // UserDefaults.standard.removeObject(forKey: "lessonsSeeded")
-        // print("🔄 App reset")
+        // print(" App reset")
         #endif
     }
     
@@ -25,13 +115,7 @@ struct SidratApp: App {
         WindowGroup {
             RootView()
                 .environment(appState)
-                .modelContainer(for: [
-                    Child.self,
-                    Lesson.self,
-                    LessonProgress.self,
-                    Achievement.self,
-                    FamilyActivity.self,
-                ])
+                .modelContainer(modelContainer)
                 #if DEBUG
                 .onShake {
                     // Shake device or Cmd+Ctrl+Z in simulator to reset
@@ -104,7 +188,7 @@ final class AppState {
         UserDefaults.standard.removeObject(forKey: "currentChildId")
         UserDefaults.standard.removeObject(forKey: "dailyStreak")
         UserDefaults.standard.removeObject(forKey: "lastCompletedDate")
-        print("✅ App state reset - restart app to see onboarding")
+        print(" App state reset - restart app to see onboarding")
     }
     #endif
 }

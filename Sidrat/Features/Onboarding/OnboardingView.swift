@@ -2,17 +2,21 @@
 //  OnboardingView.swift
 //  Sidrat
 //
-//  Premium onboarding experience
+//  Premium onboarding experience with COPPA-compliant child profile creation
 //
 
 import SwiftUI
+import SwiftData
 
 struct OnboardingView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
     @State private var currentPage = 0
     @State private var childName = ""
-    @State private var childAge = 6
+    @State private var selectedBirthYear: Int = {
+        Calendar.current.component(.year, from: Date()) - 6 // Default to age 6
+    }()
+    @State private var selectedAvatar: AvatarOption = .cat
     
     private let pages: [OnboardingPage] = [
         OnboardingPage(
@@ -96,7 +100,8 @@ struct OnboardingView: View {
                     
                     ChildSetupView(
                         childName: $childName,
-                        childAge: $childAge,
+                        selectedBirthYear: $selectedBirthYear,
+                        selectedAvatar: $selectedAvatar,
                         onComplete: completeOnboarding
                     )
                     .tag(pages.count)
@@ -104,20 +109,20 @@ struct OnboardingView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.spring(response: 0.5), value: currentPage)
                 
-                // Bottom section
-                VStack(spacing: Spacing.lg) {
-                    // Page indicators
-                    HStack(spacing: Spacing.xs) {
-                        ForEach(0...pages.count, id: \.self) { index in
-                            Capsule()
-                                .fill(currentPage == index ? Color.brandPrimary : Color.textTertiary.opacity(0.3))
-                                .frame(width: currentPage == index ? 28 : 8, height: 8)
-                                .animation(.spring(response: 0.4), value: currentPage)
+                // Bottom section - only show for intro pages, not child setup
+                if currentPage < pages.count {
+                    VStack(spacing: Spacing.lg) {
+                        // Page indicators
+                        HStack(spacing: Spacing.xs) {
+                            ForEach(0...pages.count, id: \.self) { index in
+                                Capsule()
+                                    .fill(currentPage == index ? Color.brandPrimary : Color.textTertiary.opacity(0.3))
+                                    .frame(width: currentPage == index ? 28 : 8, height: 8)
+                                    .animation(.spring(response: 0.4), value: currentPage)
+                            }
                         }
-                    }
-                    
-                    // Navigation buttons
-                    if currentPage < pages.count {
+                        
+                        // Navigation buttons
                         Button {
                             withAnimation(.spring(response: 0.5)) {
                                 currentPage += 1
@@ -138,25 +143,64 @@ struct OnboardingView: View {
                         }
                         .padding(.horizontal, Spacing.lg)
                     }
+                    .padding(.bottom, Spacing.xl)
                 }
-                .padding(.bottom, Spacing.xl)
             }
         }
     }
     
     private func completeOnboarding() {
-        // Create and save child profile
-        let child = Child(name: childName, age: childAge)
+        // Check profile limit (maximum 4 children per parent account)
+        let descriptor = FetchDescriptor<Child>()
+        let existingChildren = (try? modelContext.fetch(descriptor)) ?? []
+        
+        if existingChildren.count >= 4 {
+            #if DEBUG
+            print(" Maximum of 4 child profiles reached")
+            #endif
+            // TODO: Show error alert to user
+            return
+        }
+        
+        // Create and save child profile with new model structure
+        let child = Child(
+            name: childName.trimmingCharacters(in: .whitespacesAndNewlines),
+            birthYear: selectedBirthYear,
+            avatarId: selectedAvatar.rawValue
+        )
+        
+        // Validate child data
+        let validationErrors = child.validate()
+        if !validationErrors.isEmpty {
+            #if DEBUG
+            print(" Validation errors: \(validationErrors.joined(separator: ", "))")
+            #endif
+            // TODO: Show validation errors to user
+            return
+        }
+        
+        #if DEBUG
+        print(" Inserting first child during onboarding: \(child.name)")
+        #endif
+        
         modelContext.insert(child)
         
         // Save the context to persist the child
         do {
             try modelContext.save()
             #if DEBUG
-            print("✅ Child saved: \(child.name), ID: \(child.id)")
+            print(" Child saved: \(child.name), Age: \(child.currentAge), Avatar: \(child.avatar.accessibilityLabel), ID: \(child.id)")
+            
+            // Verify by fetching
+            let descriptor = FetchDescriptor<Child>()
+            let allChildren = try modelContext.fetch(descriptor)
+            print("📊 Total children in database after onboarding save: \(allChildren.count)")
+            for c in allChildren {
+                print("  - \(c.name) (ID: \(c.id.uuidString.prefix(8))...)")
+            }
             #endif
         } catch {
-            print("❌ Error saving child: \(error)")
+            print(" Error saving child: \(error)")
             return
         }
         
@@ -166,7 +210,7 @@ struct OnboardingView: View {
             appState.isOnboardingComplete = true
             
             #if DEBUG
-            print("✅ Onboarding complete! Navigating to home...")
+            print(" Onboarding complete! Navigating to home...")
             #endif
         }
     }
@@ -268,128 +312,243 @@ struct OnboardingPageView: View {
 
 struct ChildSetupView: View {
     @Binding var childName: String
-    @Binding var childAge: Int
+    @Binding var selectedBirthYear: Int
+    @Binding var selectedAvatar: AvatarOption
     let onComplete: () -> Void
     
     @FocusState private var isNameFocused: Bool
-    private let ages = [5, 6, 7]
+    @State private var showParentalGate = false
+    
+    // Birth year options for ages 4-10
+    private let birthYears: [Int] = {
+        let current = Calendar.current.component(.year, from: Date())
+        return Array((current - 10)...(current - 4)).reversed()
+    }()
+    
+    /// Whether the form is valid for submission
+    private var isFormValid: Bool {
+        !childName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
     
     var body: some View {
-        VStack(spacing: Spacing.xl) {
-            Spacer()
-            
-            // Header
-            VStack(spacing: Spacing.md) {
-                ZStack {
-                    Circle()
-                        .fill(Color.brandPrimary.opacity(0.1))
-                        .frame(width: 100, height: 100)
-                    
-                    Image(systemName: "person.crop.circle.badge.plus")
-                        .font(.system(size: 48))
-                        .foregroundStyle(Color.brandPrimary)
-                }
-                
-                Text("Create Profile")
-                    .font(.title1)
-                    .foregroundStyle(.textPrimary)
-                
-                Text("Set up your child's learning profile")
-                    .font(.bodyMedium)
-                    .foregroundStyle(.textSecondary)
-            }
-            
-            // Form card
+        ScrollView {
             VStack(spacing: Spacing.lg) {
-                // Name field
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text("Child's Name")
-                        .font(.labelSmall)
-                        .foregroundStyle(.textSecondary)
-                        .textCase(.uppercase)
-                        .tracking(1)
-                    
-                    TextField("Enter name", text: $childName)
-                        .font(.bodyLarge)
-                        .padding()
-                        .background(Color.backgroundTertiary)
-                        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: CornerRadius.medium)
-                                .stroke(isNameFocused ? Color.brandPrimary : Color.clear, lineWidth: 2)
-                        )
-                        .focused($isNameFocused)
-                }
+                // Header
+                headerSection
+                    .padding(.top, Spacing.lg)
                 
-                // Age picker
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text("Age")
-                        .font(.labelSmall)
-                        .foregroundStyle(.textSecondary)
-                        .textCase(.uppercase)
-                        .tracking(1)
-                    
-                    HStack(spacing: Spacing.sm) {
-                        ForEach(ages, id: \.self) { age in
-                            Button {
-                                withAnimation(.spring(response: 0.3)) {
-                                    childAge = age
-                                }
-                            } label: {
-                                VStack(spacing: Spacing.xxs) {
-                                    Text("\(age)")
-                                        .font(.title2)
-                                        .fontWeight(.bold)
-                                    Text("years")
-                                        .font(.caption)
-                                }
-                                .foregroundStyle(childAge == age ? .white : .textPrimary)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 72)
-                                .background(
-                                    childAge == age 
-                                        ? AnyShapeStyle(LinearGradient.primaryGradient)
-                                        : AnyShapeStyle(Color.backgroundTertiary)
-                                )
-                                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
-                                .shadow(color: childAge == age ? Color.brandPrimary.opacity(0.3) : .clear, radius: 8, y: 4)
+                // Form card
+                formCard
+                
+                // Complete button (requires parental gate)
+                createProfileButton
+                    .padding(.bottom, Spacing.xl)
+            }
+            .padding(.horizontal, Spacing.lg)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .sheet(isPresented: $showParentalGate) {
+            ParentalGateView(
+                onSuccess: {
+                    showParentalGate = false
+                    onComplete()
+                },
+                onDismiss: {
+                    showParentalGate = false
+                },
+                context: "Parent verification is required to create a child profile."
+            )
+            .interactiveDismissDisabled()
+        }
+    }
+    
+    // MARK: - Header Section
+    
+    private var headerSection: some View {
+        VStack(spacing: Spacing.md) {
+            // Selected avatar preview
+            ZStack {
+                Circle()
+                    .fill(selectedAvatar.backgroundColor.opacity(0.2))
+                    .frame(width: 100, height: 100)
+                
+                Text(selectedAvatar.emoji)
+                    .font(.system(size: 60))
+            }
+            .accessibilityLabel("\(selectedAvatar.accessibilityLabel) avatar selected")
+            
+            Text("Create Child Profile")
+                .font(.title1)
+                .fontWeight(.bold)
+                .foregroundStyle(.textPrimary)
+            
+            Text("This helps us personalize the learning experience")
+                .font(.bodyMedium)
+                .foregroundStyle(.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+    }
+    
+    // MARK: - Form Card
+    
+    private var formCard: some View {
+        VStack(spacing: Spacing.lg) {
+            // Name field
+            nameField
+            
+            // Avatar selection
+            avatarSelection
+            
+            // Birth year picker
+            birthYearPicker
+        }
+        .padding(Spacing.lg)
+        .background(Color.backgroundPrimary)
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.extraLarge))
+        .cardShadow()
+    }
+    
+    // MARK: - Name Field
+    
+    private var nameField: some View {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            Text("Display Name")
+                .font(.labelSmall)
+                .foregroundStyle(.textSecondary)
+                .textCase(.uppercase)
+                .tracking(1)
+            
+            TextField("Enter a name", text: $childName)
+                .font(.bodyLarge)
+                .padding()
+                .frame(minHeight: 56)
+                .background(Color.backgroundTertiary)
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+                .overlay {
+                    RoundedRectangle(cornerRadius: CornerRadius.medium)
+                        .stroke(isNameFocused ? Color.brandPrimary : Color.clear, lineWidth: 2)
+                }
+                .focused($isNameFocused)
+                .textContentType(.nickname)
+                .autocorrectionDisabled()
+                .accessibilityLabel("Child's display name")
+                .accessibilityHint("Enter your child's name (not required to be real name)")
+        }
+    }
+    
+    // MARK: - Avatar Selection
+    
+    private var avatarSelection: some View {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            Text("Choose an Avatar")
+                .font(.labelSmall)
+                .foregroundStyle(.textSecondary)
+                .textCase(.uppercase)
+                .tracking(1)
+            
+            LazyVGrid(columns: [
+                GridItem(.adaptive(minimum: 70), spacing: Spacing.sm)
+            ], spacing: Spacing.sm) {
+                ForEach(AvatarOption.allCases) { avatar in
+                    Button {
+                        withAnimation(.spring(response: 0.3)) {
+                            selectedAvatar = avatar
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        }
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .fill(avatar.backgroundColor.opacity(0.2))
+                                .frame(width: 70, height: 70)
+                            
+                            Text(avatar.emoji)
+                                .font(.system(size: 36))
+                            
+                            if selectedAvatar == avatar {
+                                Circle()
+                                    .stroke(Color.brandPrimary, lineWidth: 3)
+                                    .frame(width: 70, height: 70)
+                                
+                                // Checkmark badge
+                                Circle()
+                                    .fill(Color.brandPrimary)
+                                    .frame(width: 22, height: 22)
+                                    .overlay {
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 11, weight: .bold))
+                                            .foregroundStyle(.white)
+                                    }
+                                    .offset(x: 24, y: -24)
                             }
                         }
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(avatar.accessibilityLabel) avatar")
+                    .accessibilityAddTraits(selectedAvatar == avatar ? [.isSelected] : [])
                 }
             }
-            .padding(Spacing.lg)
-            .background(Color.backgroundPrimary)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.extraLarge))
-            .cardShadow()
-            .padding(.horizontal, Spacing.lg)
-            
-            Spacer()
-            
-            // Complete button
-            Button {
-                onComplete()
-            } label: {
-                HStack(spacing: Spacing.sm) {
-                    Text("Start Learning")
-                    Image(systemName: "sparkles")
-                }
-                .font(.labelLarge)
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Spacing.md + 2)
-                .background(
-                    childName.isEmpty
-                        ? AnyShapeStyle(Color.textTertiary)
-                        : AnyShapeStyle(LinearGradient.primaryGradient)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
-                .shadow(color: childName.isEmpty ? .clear : Color.brandPrimary.opacity(0.3), radius: 8, y: 4)
-            }
-            .disabled(childName.isEmpty)
-            .padding(.horizontal, Spacing.lg)
-            .padding(.bottom, Spacing.lg)
         }
+    }
+    
+    // MARK: - Birth Year Picker
+    
+    private var birthYearPicker: some View {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            Text("Birth Year")
+                .font(.labelSmall)
+                .foregroundStyle(.textSecondary)
+                .textCase(.uppercase)
+                .tracking(1)
+            
+            Picker("Birth Year", selection: $selectedBirthYear) {
+                ForEach(birthYears, id: \.self) { year in
+                    let age = Calendar.current.component(.year, from: Date()) - year
+                    Text(verbatim: "\(year) (Age \(age))")
+                        .tag(year)
+                }
+            }
+            .pickerStyle(.wheel)
+            .frame(height: 120)
+            .background(Color.backgroundTertiary)
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+            .accessibilityLabel("Select birth year")
+        }
+    }
+    
+    // MARK: - Create Profile Button
+    
+    private var createProfileButton: some View {
+        Button {
+            // Dismiss keyboard first
+            isNameFocused = false
+            // Show parental gate
+            showParentalGate = true
+        } label: {
+            HStack(spacing: Spacing.sm) {
+                Text("Create Profile")
+                Image(systemName: "checkmark.circle.fill")
+            }
+            .font(.labelLarge)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: 60)
+            .background {
+                if isFormValid {
+                    LinearGradient.primaryGradient
+                } else {
+                    Color.textTertiary
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+            .shadow(
+                color: isFormValid ? Color.brandPrimary.opacity(0.3) : .clear,
+                radius: 8,
+                y: 4
+            )
+        }
+        .disabled(!isFormValid)
+        .accessibilityLabel("Create profile")
+        .accessibilityHint(isFormValid ? "Opens parent verification" : "Enter a name first")
     }
 }
 

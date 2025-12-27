@@ -38,14 +38,25 @@ struct SettingsView: View {
                 Section {
                     HStack(spacing: Spacing.md) {
                         // Avatar
-                        ZStack {
-                            Circle()
-                                .fill(Color.brandPrimary.opacity(0.1))
-                                .frame(width: 64, height: 64)
-                            
-                            Image(systemName: "person.fill")
-                                .font(.title)
-                                .foregroundStyle(.brandPrimary)
+                        if let child = currentChild {
+                            ZStack {
+                                Circle()
+                                    .fill(child.avatar.backgroundColor.opacity(0.2))
+                                    .frame(width: 64, height: 64)
+                                
+                                Text(child.avatar.emoji)
+                                    .font(.system(size: 36))
+                            }
+                        } else {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.brandPrimary.opacity(0.1))
+                                    .frame(width: 64, height: 64)
+                                
+                                Image(systemName: "person.fill")
+                                    .font(.title)
+                                    .foregroundStyle(.brandPrimary)
+                            }
                         }
                         
                         VStack(alignment: .leading, spacing: Spacing.xxs) {
@@ -53,7 +64,7 @@ struct SettingsView: View {
                                 .font(.title3)
                                 .foregroundStyle(.textPrimary)
                             
-                            Text("Age \(currentChild?.age ?? 0) • Week \(currentWeek)")
+                            Text("Age \(currentChild?.currentAge ?? 0) • Week \(currentWeek)")
                                 .font(.bodySmall)
                                 .foregroundStyle(.textSecondary)
                         }
@@ -214,24 +225,132 @@ struct EditProfileView: View {
     @Environment(\.modelContext) private var modelContext
     
     let child: Child?
+    
     @State private var name: String = ""
-    @State private var age: Int = 6
+    @State private var selectedBirthYear: Int = Calendar.current.component(.year, from: Date()) - 6
+    @State private var selectedAvatar: AvatarOption = .cat
+    @State private var showParentalGate = false
+    @FocusState private var isNameFocused: Bool
+    
+    // Birth year options for ages 4-10
+    private let birthYears: [Int] = {
+        let current = Calendar.current.component(.year, from: Date())
+        return Array((current - 10)...(current - 4)).reversed()
+    }()
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    TextField("Name", text: $name)
+            ScrollView {
+                VStack(spacing: Spacing.xl) {
+                    // Avatar preview and selection
+                    VStack(spacing: Spacing.md) {
+                        ZStack {
+                            Circle()
+                                .fill(selectedAvatar.backgroundColor.opacity(0.2))
+                                .frame(width: 100, height: 100)
+                            
+                            Text(selectedAvatar.emoji)
+                                .font(.system(size: 60))
+                        }
+                        
+                        Text("Tap to change avatar")
+                            .font(.caption)
+                            .foregroundStyle(.textSecondary)
+                    }
+                    .padding(.top, Spacing.lg)
                     
-                    Picker("Age", selection: $age) {
-                        ForEach(3...12, id: \.self) { age in
-                            Text("\(age) years old").tag(age)
+                    // Form fields
+                    VStack(spacing: Spacing.lg) {
+                        // Name field
+                        VStack(alignment: .leading, spacing: Spacing.xs) {
+                            Text("Display Name")
+                                .font(.labelSmall)
+                                .foregroundStyle(.textSecondary)
+                                .textCase(.uppercase)
+                                .tracking(1)
+                            
+                            TextField("Enter a name", text: $name)
+                                .font(.bodyLarge)
+                                .padding()
+                                .frame(minHeight: 56)
+                                .background(Color.backgroundTertiary)
+                                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: CornerRadius.medium)
+                                        .stroke(isNameFocused ? Color.brandPrimary : Color.clear, lineWidth: 2)
+                                }
+                                .focused($isNameFocused)
+                        }
+                        
+                        // Avatar selection
+                        VStack(alignment: .leading, spacing: Spacing.xs) {
+                            Text("Choose an Avatar")
+                                .font(.labelSmall)
+                                .foregroundStyle(.textSecondary)
+                                .textCase(.uppercase)
+                                .tracking(1)
+                            
+                            LazyVGrid(columns: [
+                                GridItem(.adaptive(minimum: 65), spacing: Spacing.xs)
+                            ], spacing: Spacing.xs) {
+                                ForEach(AvatarOption.allCases) { avatar in
+                                    Button {
+                                        withAnimation(.spring(response: 0.3)) {
+                                            selectedAvatar = avatar
+                                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                        }
+                                    } label: {
+                                        ZStack {
+                                            Circle()
+                                                .fill(avatar.backgroundColor.opacity(0.2))
+                                                .frame(width: 65, height: 65)
+                                            
+                                            Text(avatar.emoji)
+                                                .font(.system(size: 32))
+                                            
+                                            if selectedAvatar == avatar {
+                                                Circle()
+                                                    .stroke(Color.brandPrimary, lineWidth: 2)
+                                                    .frame(width: 65, height: 65)
+                                            }
+                                        }
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityLabel("\(avatar.accessibilityLabel) avatar")
+                                    .accessibilityAddTraits(selectedAvatar == avatar ? [.isSelected] : [])
+                                }
+                            }
+                        }
+                        
+                        // Birth year picker
+                        VStack(alignment: .leading, spacing: Spacing.xs) {
+                            Text("Birth Year")
+                                .font(.labelSmall)
+                                .foregroundStyle(.textSecondary)
+                                .textCase(.uppercase)
+                                .tracking(1)
+                            
+                            Picker("Birth Year", selection: $selectedBirthYear) {
+                                ForEach(birthYears, id: \.self) { year in
+                                    let age = Calendar.current.component(.year, from: Date()) - year
+                                    Text(verbatim: "\(year) (Age \(age))")
+                                        .tag(year)
+                                }
+                            }
+                            .pickerStyle(.wheel)
+                            .frame(height: 120)
+                            .background(Color.backgroundTertiary)
+                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
                         }
                     }
-                } header: {
-                    Text("Child Information")
+                    .padding(Spacing.lg)
+                    .background(Color.backgroundPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: CornerRadius.extraLarge))
+                    .cardShadow()
                 }
+                .padding()
             }
+            .background(Color.backgroundSecondary)
             .navigationTitle("Edit Profile")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -243,7 +362,7 @@ struct EditProfileView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        saveChanges()
+                        showParentalGate = true
                     }
                     .disabled(name.isEmpty)
                 }
@@ -251,18 +370,44 @@ struct EditProfileView: View {
             .onAppear {
                 if let child = child {
                     name = child.name
-                    age = child.age
+                    selectedBirthYear = child.birthYear
+                    selectedAvatar = child.avatar
                 }
+            }
+            .sheet(isPresented: $showParentalGate) {
+                ParentalGateView(
+                    onSuccess: {
+                        showParentalGate = false
+                        saveChanges()
+                    },
+                    onDismiss: {
+                        showParentalGate = false
+                    },
+                    context: "Parent verification is required to edit a child profile."
+                )
+                .interactiveDismissDisabled()
             }
         }
     }
     
     private func saveChanges() {
         guard let child = child else { return }
-        child.name = name
-        child.age = age
-        try? modelContext.save()
-        dismiss()
+        
+        child.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        child.birthYear = selectedBirthYear
+        child.avatarId = selectedAvatar.rawValue
+        
+        do {
+            try modelContext.save()
+            #if DEBUG
+            print(" Profile updated: \(child.name)")
+            #endif
+            dismiss()
+        } catch {
+            #if DEBUG
+            print(" Error saving profile: \(error)")
+            #endif
+        }
     }
 }
 
@@ -371,39 +516,264 @@ struct AddChildView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(AppState.self) private var appState
+    @Query private var existingChildren: [Child]
     
     @State private var name: String = ""
-    @State private var age: Int = 6
+    @State private var selectedBirthYear: Int = {
+        Calendar.current.component(.year, from: Date()) - 6 // Default to age 6
+    }()
+    @State private var selectedAvatar: AvatarOption = .cat
+    @State private var showParentalGate = false
+    @State private var showMaxProfilesAlert = false
+    @FocusState private var isNameFocused: Bool
+    
+    // Birth year options for ages 4-10
+    private let birthYears: [Int] = {
+        let current = Calendar.current.component(.year, from: Date())
+        return Array((current - 10)...(current - 4)).reversed()
+    }()
+    
+    private var canAddMoreProfiles: Bool {
+        existingChildren.count < 4
+    }
     
     var body: some View {
-        Form {
-            Section {
-                TextField("Name", text: $name)
+        ScrollView {
+            VStack(spacing: Spacing.xl) {
+                // Header
+                VStack(spacing: Spacing.md) {
+                    // Selected avatar preview
+                    ZStack {
+                        Circle()
+                            .fill(selectedAvatar.backgroundColor.opacity(0.2))
+                            .frame(width: 100, height: 100)
+                        
+                        Text(selectedAvatar.emoji)
+                            .font(.system(size: 60))
+                    }
+                    .accessibilityLabel("\(selectedAvatar.accessibilityLabel) avatar selected")
+                    
+                    Text("Add Child Profile")
+                        .font(.title1)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.textPrimary)
+                    
+                    Text("\(existingChildren.count) of 4 profiles created")
+                        .font(.bodySmall)
+                        .foregroundStyle(.textSecondary)
+                }
+                .padding(.top, Spacing.lg)
                 
-                Picker("Age", selection: $age) {
-                    ForEach(3...12, id: \.self) { age in
-                        Text("\(age) years old").tag(age)
+                // Form card
+                VStack(spacing: Spacing.lg) {
+                    // Name field
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        Text("Display Name")
+                            .font(.labelSmall)
+                            .foregroundStyle(.textSecondary)
+                            .textCase(.uppercase)
+                            .tracking(1)
+                        
+                        TextField("Enter a name", text: $name)
+                            .font(.bodyLarge)
+                            .padding()
+                            .frame(minHeight: 56)
+                            .background(Color.backgroundTertiary)
+                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: CornerRadius.medium)
+                                    .stroke(isNameFocused ? Color.brandPrimary : Color.clear, lineWidth: 2)
+                            }
+                            .focused($isNameFocused)
+                            .accessibilityLabel("Child's display name")
+                            .accessibilityHint("Enter your child's name (not required to be real name)")
+                    }
+                    
+                    // Avatar selection
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        Text("Choose an Avatar")
+                            .font(.labelSmall)
+                            .foregroundStyle(.textSecondary)
+                            .textCase(.uppercase)
+                            .tracking(1)
+                        
+                        LazyVGrid(columns: [
+                            GridItem(.adaptive(minimum: 75), spacing: Spacing.sm)
+                        ], spacing: Spacing.sm) {
+                            ForEach(AvatarOption.allCases) { avatar in
+                                Button {
+                                    withAnimation(.spring(response: 0.3)) {
+                                        selectedAvatar = avatar
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                    }
+                                } label: {
+                                    ZStack {
+                                        Circle()
+                                            .fill(avatar.backgroundColor.opacity(0.2))
+                                            .frame(width: 75, height: 75)
+                                        
+                                        Text(avatar.emoji)
+                                            .font(.system(size: 40))
+                                        
+                                        if selectedAvatar == avatar {
+                                            Circle()
+                                                .stroke(Color.brandPrimary, lineWidth: 3)
+                                                .frame(width: 75, height: 75)
+                                            
+                                            Circle()
+                                                .fill(Color.brandPrimary)
+                                                .frame(width: 24, height: 24)
+                                                .overlay {
+                                                    Image(systemName: "checkmark")
+                                                        .font(.system(size: 12, weight: .bold))
+                                                        .foregroundStyle(.white)
+                                                }
+                                                .offset(x: 25, y: -25)
+                                        }
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("\(avatar.accessibilityLabel) avatar")
+                                .accessibilityAddTraits(selectedAvatar == avatar ? [.isSelected] : [])
+                            }
+                        }
+                    }
+                    
+                    // Birth year picker
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        Text("Birth Year")
+                            .font(.labelSmall)
+                            .foregroundStyle(.textSecondary)
+                            .textCase(.uppercase)
+                            .tracking(1)
+                        
+                        Picker("Birth Year", selection: $selectedBirthYear) {
+                            ForEach(birthYears, id: \.self) { year in
+                                let age = Calendar.current.component(.year, from: Date()) - year
+                                Text(verbatim: "\(year) (Age \(age))")
+                                    .tag(year)
+                            }
+                        }
+                        .pickerStyle(.wheel)
+                        .frame(height: 120)
+                        .background(Color.backgroundTertiary)
+                        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+                        .accessibilityLabel("Select birth year")
                     }
                 }
-            } header: {
-                Text("Child Information")
-            }
-            
-            Section {
-                Button("Add Child") {
-                    addChild()
+                .padding(Spacing.lg)
+                .background(Color.backgroundPrimary)
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.extraLarge))
+                .cardShadow()
+                
+                // Add button (requires parental gate)
+                Button {
+                    if canAddMoreProfiles {
+                        showParentalGate = true
+                    } else {
+                        showMaxProfilesAlert = true
+                    }
+                } label: {
+                    HStack(spacing: Spacing.sm) {
+                        Text("Add Child")
+                        Image(systemName: "plus.circle")
+                    }
+                    .font(.labelLarge)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 60)
+                    .background {
+                        if name.isEmpty || !canAddMoreProfiles {
+                            Color.textTertiary
+                        } else {
+                            LinearGradient.primaryGradient
+                        }
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+                    .shadow(
+                        color: name.isEmpty || !canAddMoreProfiles ? .clear : Color.brandPrimary.opacity(0.3),
+                        radius: 8,
+                        y: 4
+                    )
                 }
                 .disabled(name.isEmpty)
+                .accessibilityLabel("Add child")
+                .accessibilityHint(name.isEmpty ? "Enter a name first" : "Opens parent verification")
             }
+            .padding()
         }
+        .background(Color.backgroundSecondary)
         .navigationTitle("Add Child")
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showParentalGate) {
+            ParentalGateView(
+                onSuccess: {
+                    showParentalGate = false
+                    addChild()
+                },
+                onDismiss: {
+                    showParentalGate = false
+                },
+                context: "Parent verification is required to add a child profile."
+            )
+            .interactiveDismissDisabled()
+        }
+        .alert("Maximum Profiles Reached", isPresented: $showMaxProfilesAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("You can have a maximum of 4 child profiles. Please remove an existing profile to add a new one.")
+        }
+        .onAppear {
+            #if DEBUG
+            print("📝 AddChildView appeared - existing children: \(existingChildren.count)")
+            #endif
+        }
     }
     
     private func addChild() {
-        let child = Child(name: name, age: age)
+        // Create child with proper birth year and avatar
+        let child = Child(
+            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+            birthYear: selectedBirthYear,
+            avatarId: selectedAvatar.rawValue
+        )
+        
+        // Validate
+        let errors = child.validate()
+        if !errors.isEmpty {
+            #if DEBUG
+            print(" Validation errors: \(errors.joined(separator: ", "))")
+            #endif
+            return
+        }
+        
+        #if DEBUG
+        print(" Inserting child: \(child.name)")
+        #endif
+        
         modelContext.insert(child)
-        try? modelContext.save()
-        dismiss()
+        
+        do {
+            try modelContext.save()
+            #if DEBUG
+            print(" Child saved successfully: \(child.name), ID: \(child.id.uuidString)")
+            
+            // Verify by fetching
+            let descriptor = FetchDescriptor<Child>()
+            let allChildren = try modelContext.fetch(descriptor)
+            print("📊 Total children in database after save: \(allChildren.count)")
+            for c in allChildren {
+                print("  - \(c.name) (ID: \(c.id.uuidString.prefix(8))...)")
+            }
+            #endif
+            
+            // Dismiss after successful save
+            dismiss()
+        } catch {
+            #if DEBUG
+            print(" Error saving child: \(error)")
+            #endif
+        }
     }
 }
 

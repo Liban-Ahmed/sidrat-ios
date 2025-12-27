@@ -10,13 +10,13 @@ import SwiftData
 
 @Model
 final class LessonProgress {
-    var id: UUID
-    var lessonId: UUID
-    var isCompleted: Bool
+    var id: UUID = UUID()
+    var lessonId: UUID = UUID()
+    var isCompleted: Bool = false
     var completedAt: Date?
-    var score: Int
-    var xpEarned: Int
-    var attempts: Int
+    var score: Int = 0
+    var xpEarned: Int = 0
+    var attempts: Int = 0
     
     @Relationship
     var child: Child?

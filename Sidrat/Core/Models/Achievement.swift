@@ -10,13 +10,23 @@ import SwiftData
 
 @Model
 final class Achievement {
-    var id: UUID
-    var achievementType: AchievementType
-    var unlockedAt: Date
-    var isNew: Bool
+    var id: UUID = UUID()
+    
+    /// Raw string value for achievement type (stored in database)
+    var achievementTypeRaw: String = AchievementType.firstLesson.rawValue
+    
+    var unlockedAt: Date = Date()
+    var isNew: Bool = true
     
     @Relationship
     var child: Child?
+    
+    /// Computed property to get/set the achievement type enum
+    @Transient
+    var achievementType: AchievementType {
+        get { AchievementType(rawValue: achievementTypeRaw) ?? .firstLesson }
+        set { achievementTypeRaw = newValue.rawValue }
+    }
     
     init(
         id: UUID = UUID(),
@@ -25,7 +35,7 @@ final class Achievement {
         isNew: Bool = true
     ) {
         self.id = id
-        self.achievementType = achievementType
+        self.achievementTypeRaw = achievementType.rawValue
         self.unlockedAt = unlockedAt
         self.isNew = isNew
     }

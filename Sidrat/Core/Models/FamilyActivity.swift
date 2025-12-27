@@ -10,19 +10,29 @@ import SwiftData
 
 @Model
 final class FamilyActivity: Identifiable {
-    var id: UUID
-    var title: String
-    var activityDescription: String
-    var instructions: [String]
-    var durationMinutes: Int
-    var weekNumber: Int
-    var relatedCategory: LessonCategory
-    var isCompleted: Bool
+    var id: UUID = UUID()
+    var title: String = ""
+    var activityDescription: String = ""
+    var instructions: [String] = []
+    var durationMinutes: Int = 15
+    var weekNumber: Int = 1
+    
+    /// Raw string value for related category (stored in database)
+    var relatedCategoryRaw: String = LessonCategory.aqeedah.rawValue
+    
+    var isCompleted: Bool = false
     var completedAt: Date?
     
     // Tips for parents
-    var parentTips: [String]
-    var conversationPrompts: [String]
+    var parentTips: [String] = []
+    var conversationPrompts: [String] = []
+    
+    /// Computed property to get/set the related category enum
+    @Transient
+    var relatedCategory: LessonCategory {
+        get { LessonCategory(rawValue: relatedCategoryRaw) ?? .aqeedah }
+        set { relatedCategoryRaw = newValue.rawValue }
+    }
     
     init(
         id: UUID = UUID(),
@@ -43,7 +53,7 @@ final class FamilyActivity: Identifiable {
         self.instructions = instructions
         self.durationMinutes = durationMinutes
         self.weekNumber = weekNumber
-        self.relatedCategory = relatedCategory
+        self.relatedCategoryRaw = relatedCategory.rawValue
         self.parentTips = parentTips
         self.conversationPrompts = conversationPrompts
         self.isCompleted = isCompleted

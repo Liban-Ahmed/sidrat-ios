@@ -10,18 +10,37 @@ import SwiftData
 
 @Model
 final class Lesson: Identifiable {
-    var id: UUID
-    var title: String
-    var lessonDescription: String
-    var category: LessonCategory
-    var difficulty: Difficulty
-    var durationMinutes: Int
-    var xpReward: Int
-    var order: Int
-    var weekNumber: Int
+    var id: UUID = UUID()
+    var title: String = ""
+    var lessonDescription: String = ""
+    
+    /// Raw string value for category (stored in database)
+    var categoryRaw: String = LessonCategory.aqeedah.rawValue
+    
+    /// Raw string value for difficulty (stored in database)
+    var difficultyRaw: String = Difficulty.beginner.rawValue
+    
+    var durationMinutes: Int = 5
+    var xpReward: Int = 20
+    var order: Int = 0
+    var weekNumber: Int = 1
     
     // Content
-    var content: [LessonContent]
+    var content: [LessonContent] = []
+    
+    /// Computed property to get/set the category enum
+    @Transient
+    var category: LessonCategory {
+        get { LessonCategory(rawValue: categoryRaw) ?? .aqeedah }
+        set { categoryRaw = newValue.rawValue }
+    }
+    
+    /// Computed property to get/set the difficulty enum
+    @Transient
+    var difficulty: Difficulty {
+        get { Difficulty(rawValue: difficultyRaw) ?? .beginner }
+        set { difficultyRaw = newValue.rawValue }
+    }
     
     init(
         id: UUID = UUID(),
@@ -38,8 +57,8 @@ final class Lesson: Identifiable {
         self.id = id
         self.title = title
         self.lessonDescription = lessonDescription
-        self.category = category
-        self.difficulty = difficulty
+        self.categoryRaw = category.rawValue
+        self.difficultyRaw = difficulty.rawValue
         self.durationMinutes = durationMinutes
         self.xpReward = xpReward
         self.order = order

@@ -40,9 +40,9 @@ struct RootView: View {
         do {
             try modelContext.save()
             UserDefaults.standard.set(true, forKey: "lessonsSeeded")
-            print("✅ Seeded \(testLessons.count) test lessons")
+            print(" Seeded \(testLessons.count) test lessons")
         } catch {
-            print("❌ Error seeding lessons: \(error)")
+            print(" Error seeding lessons: \(error)")
         }
     }
 }

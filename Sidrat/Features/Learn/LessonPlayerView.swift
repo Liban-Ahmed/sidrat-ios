@@ -495,7 +495,7 @@ struct LessonPlayerView: View {
         do {
             try modelContext.save()
         } catch {
-            print("❌ Error saving progress: \(error)")
+            print(" Error saving progress: \(error)")
         }
     }
     

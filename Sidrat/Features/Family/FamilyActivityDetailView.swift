@@ -270,7 +270,7 @@ struct FamilyActivityDetailView: View {
         do {
             try modelContext.save()
         } catch {
-            print("❌ Error saving activity completion: \(error)")
+            print(" Error saving activity completion: \(error)")
         }
     }
 }

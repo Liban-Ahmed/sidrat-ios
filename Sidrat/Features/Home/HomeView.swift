@@ -9,16 +9,31 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
+    // MARK: - Environment
+    
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
-    @Query private var children: [Child]
+    
+    // MARK: - Queries
+    
+    @Query(sort: \Child.lastAccessedAt, order: .reverse) private var children: [Child]
     @Query(sort: \Lesson.order) private var lessons: [Lesson]
+    
+    // MARK: - State
+    
     @State private var selectedLesson: Lesson?
+    @State private var showingProfileSwitcher = false
+    
+    // MARK: - Computed Properties
     
     private var currentChild: Child? {
         guard let childId = appState.currentChildId,
               let uuid = UUID(uuidString: childId) else { return nil }
         return children.first { $0.id == uuid }
+    }
+    
+    private var hasMultipleChildren: Bool {
+        children.count > 1
     }
     
     // Get the next uncompleted lesson or the first lesson
@@ -83,8 +98,16 @@ struct HomeView: View {
             .background(Color.backgroundSecondary)
             .navigationTitle("Assalamu Alaikum!")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    ProfileSwitcherButton(showingSwitcher: $showingProfileSwitcher)
+                }
+            }
             .sheet(item: $selectedLesson) { lesson in
                 LessonDetailView(lesson: lesson)
+            }
+            .sheet(isPresented: $showingProfileSwitcher) {
+                ProfileSwitcherView()
             }
         }
     }
