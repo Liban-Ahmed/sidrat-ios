@@ -32,6 +32,7 @@
 		MOD0005 /* FamilyActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0014 /* FamilyActivity.swift */; };
 		UI0001 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0030 /* Theme.swift */; };
 		UI0002 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0031 /* Components.swift */; };
+		UI0003 /* ParentalGateComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0033 /* ParentalGateComponents.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,6 +62,7 @@
 		SRC0030 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		SRC0031 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		SRC0032 /* ProfileSwitcherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSwitcherView.swift; sourceTree = "<group>"; };
+		SRC0033 /* ParentalGateComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentalGateComponents.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -213,6 +215,7 @@
 			isa = PBXGroup;
 			children = (
 				SRC0031 /* Components.swift */,
+				SRC0033 /* ParentalGateComponents.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -335,6 +338,7 @@
 				FEA0011 /* ProfileSwitcherView.swift in Sources */,
 				UI0001 /* Theme.swift in Sources */,
 				UI0002 /* Components.swift in Sources */,
+				UI0003 /* ParentalGateComponents.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

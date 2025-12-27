@@ -3,6 +3,7 @@
 //  Sidrat
 //
 //  App settings and profile management
+//  Implements parental gate protection for sensitive sections (US-104)
 //
 
 import SwiftUI
@@ -12,11 +13,18 @@ struct SettingsView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
     @Query private var children: [Child]
+    
+    // MARK: - State
+    
     @State private var notificationsEnabled = true
     @State private var soundEnabled = true
     @State private var reminderTime = Date()
     @State private var showingResetConfirmation = false
     @State private var showingEditProfile = false
+    @State private var showingResetGate = false
+    @State private var showingEditGate = false
+    
+    // MARK: - Computed Properties
     
     private var currentChild: Child? {
         guard let childId = appState.currentChildId,
@@ -31,158 +39,41 @@ struct SettingsView: View {
         return max(1, (lessonsCompleted / 5) + 1)
     }
     
+    // MARK: - Body
+    
     var body: some View {
         NavigationStack {
             List {
                 // Profile section
-                Section {
-                    HStack(spacing: Spacing.md) {
-                        // Avatar
-                        if let child = currentChild {
-                            ZStack {
-                                Circle()
-                                    .fill(child.avatar.backgroundColor.opacity(0.2))
-                                    .frame(width: 64, height: 64)
-                                
-                                Text(child.avatar.emoji)
-                                    .font(.system(size: 36))
-                            }
-                        } else {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.brandPrimary.opacity(0.1))
-                                    .frame(width: 64, height: 64)
-                                
-                                Image(systemName: "person.fill")
-                                    .font(.title)
-                                    .foregroundStyle(.brandPrimary)
-                            }
-                        }
-                        
-                        VStack(alignment: .leading, spacing: Spacing.xxs) {
-                            Text(currentChild?.name ?? "Child")
-                                .font(.title3)
-                                .foregroundStyle(.textPrimary)
-                            
-                            Text("Age \(currentChild?.currentAge ?? 0) • Week \(currentWeek)")
-                                .font(.bodySmall)
-                                .foregroundStyle(.textSecondary)
-                        }
-                        
-                        Spacer()
-                        
-                        Button {
-                            showingEditProfile = true
-                        } label: {
-                            Text("Edit")
-                                .font(.labelSmall)
-                                .foregroundStyle(.brandPrimary)
-                        }
-                    }
-                    .padding(.vertical, Spacing.xs)
-                } header: {
-                    Text("Child Profile")
-                }
+                profileSection
                 
-                // Notifications
-                Section {
-                    Toggle(isOn: $notificationsEnabled) {
-                        Label("Daily Reminders", systemImage: "bell.fill")
-                    }
-                    .tint(Color.brandPrimary)
-                    
-                    if notificationsEnabled {
-                        DatePicker(
-                            "Reminder Time",
-                            selection: $reminderTime,
-                            displayedComponents: .hourAndMinute
-                        )
-                    }
-                    
-                    Toggle(isOn: $soundEnabled) {
-                        Label("Sound Effects", systemImage: "speaker.wave.2.fill")
-                    }
-                    .tint(Color.brandPrimary)
-                } header: {
-                    Text("Notifications")
-                }
+                // Notifications (gated)
+                notificationsSection
                 
-                // Learning
-                Section {
-                    NavigationLink {
-                        CurriculumOverviewView()
-                    } label: {
-                        Label("Curriculum", systemImage: "book.fill")
-                    }
-                    
-                    Button {
-                        showingResetConfirmation = true
-                    } label: {
-                        Label("Reset Progress", systemImage: "arrow.counterclockwise")
-                            .foregroundStyle(.error)
-                    }
-                } header: {
-                    Text("Learning")
-                }
+                // Learning (gated)
+                learningSection
                 
-                // Parent Mode
-                Section {
-                    NavigationLink {
-                        ParentDashboardView()
-                    } label: {
-                        Label("Parent Dashboard", systemImage: "chart.bar.fill")
-                    }
-                    
-                    NavigationLink {
-                        AddChildView()
-                    } label: {
-                        Label("Add Another Child", systemImage: "person.badge.plus")
-                    }
-                } header: {
-                    Text("Family")
-                }
+                // Family (gated)
+                familySection
                 
-                // Support
-                Section {
-                    NavigationLink {
-                        HelpCenterView()
-                    } label: {
-                        Label("Help Center", systemImage: "questionmark.circle.fill")
-                    }
-                    
-                    Link(destination: URL(string: "mailto:support@sidrat.app")!) {
-                        Label("Contact Support", systemImage: "envelope.fill")
-                    }
-                    
-                    NavigationLink {
-                        AboutView()
-                    } label: {
-                        Label("About", systemImage: "info.circle.fill")
-                    }
-                } header: {
-                    Text("Support")
-                }
+                // Support (gated for external links)
+                supportSection
                 
                 // App info
-                Section {
-                    HStack {
-                        Text("Version")
-                        Spacer()
-                        Text("1.0.0")
-                            .foregroundStyle(.textSecondary)
-                    }
-                } footer: {
-                    VStack(spacing: Spacing.sm) {
-                        Text("Made with ❤️ for Muslim families")
-                        Text("© 2025 Sidrat")
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, Spacing.lg)
-                }
+                appInfoSection
             }
             .navigationTitle("Settings")
-            .sheet(isPresented: $showingEditProfile) {
+            .gatedSheet(
+                isPresented: $showingEditProfile,
+                context: ParentalGateContext.editProfile
+            ) {
                 EditProfileView(child: currentChild)
+            }
+            .parentalGate(
+                isPresented: $showingResetGate,
+                context: ParentalGateContext.resetProgress
+            ) {
+                showingResetConfirmation = true
             }
             .alert("Reset Progress", isPresented: $showingResetConfirmation) {
                 Button("Cancel", role: .cancel) { }
@@ -194,6 +85,199 @@ struct SettingsView: View {
             }
         }
     }
+    
+    // MARK: - Profile Section
+    
+    private var profileSection: some View {
+        Section {
+            HStack(spacing: Spacing.md) {
+                // Avatar
+                if let child = currentChild {
+                    ZStack {
+                        Circle()
+                            .fill(child.avatar.backgroundColor.opacity(0.2))
+                            .frame(width: 64, height: 64)
+                        
+                        Text(child.avatar.emoji)
+                            .font(.system(size: 36))
+                    }
+                } else {
+                    ZStack {
+                        Circle()
+                            .fill(Color.brandPrimary.opacity(0.1))
+                            .frame(width: 64, height: 64)
+                        
+                        Image(systemName: "person.fill")
+                            .font(.title)
+                            .foregroundStyle(.brandPrimary)
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    Text(currentChild?.name ?? "Child")
+                        .font(.title3)
+                        .foregroundStyle(.textPrimary)
+                    
+                    Text("Age \(currentChild?.currentAge ?? 0) • Week \(currentWeek)")
+                        .font(.bodySmall)
+                        .foregroundStyle(.textSecondary)
+                }
+                
+                Spacer()
+                
+                // Edit button requires parental gate
+                Button {
+                    showingEditProfile = true
+                } label: {
+                    HStack(spacing: Spacing.xxs) {
+                        Text("Edit")
+                            .font(.labelSmall)
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 8))
+                    }
+                    .foregroundStyle(.brandPrimary)
+                }
+            }
+            .padding(.vertical, Spacing.xs)
+        } header: {
+            Text("Child Profile")
+        }
+    }
+    
+    // MARK: - Notifications Section
+    
+    private var notificationsSection: some View {
+        Section {
+            Toggle(isOn: $notificationsEnabled) {
+                Label("Daily Reminders", systemImage: "bell.fill")
+            }
+            .tint(Color.brandPrimary)
+            
+            if notificationsEnabled {
+                DatePicker(
+                    "Reminder Time",
+                    selection: $reminderTime,
+                    displayedComponents: .hourAndMinute
+                )
+            }
+            
+            Toggle(isOn: $soundEnabled) {
+                Label("Sound Effects", systemImage: "speaker.wave.2.fill")
+            }
+            .tint(Color.brandPrimary)
+        } header: {
+            Text("Notifications")
+        }
+    }
+    
+    // MARK: - Learning Section
+    
+    private var learningSection: some View {
+        Section {
+            // Curriculum - requires parental gate
+            ParentalGateNavigationLink(
+                context: ParentalGateContext.curriculum
+            ) {
+                CurriculumOverviewView()
+            } label: {
+                Label("Curriculum", systemImage: "book.fill")
+            }
+            
+            // Reset Progress - requires parental gate
+            Button {
+                showingResetGate = true
+            } label: {
+                HStack {
+                    Label("Reset Progress", systemImage: "arrow.counterclockwise")
+                    Spacer()
+                    Image(systemName: "lock.fill")
+                        .font(.caption)
+                        .foregroundStyle(.textTertiary)
+                }
+            }
+            .foregroundStyle(.error)
+        } header: {
+            Text("Learning")
+        }
+    }
+    
+    // MARK: - Family Section
+    
+    private var familySection: some View {
+        Section {
+            // Parent Dashboard - requires parental gate
+            ParentalGateNavigationLink(
+                context: ParentalGateContext.parentDashboard
+            ) {
+                ParentDashboardView()
+            } label: {
+                Label("Parent Dashboard", systemImage: "chart.bar.fill")
+            }
+            
+            // Add Another Child - requires parental gate
+            ParentalGateNavigationLink(
+                context: ParentalGateContext.addChild
+            ) {
+                AddChildView()
+            } label: {
+                Label("Add Another Child", systemImage: "person.badge.plus")
+            }
+        } header: {
+            Text("Family")
+        }
+    }
+    
+    // MARK: - Support Section
+    
+    private var supportSection: some View {
+        Section {
+            // Help Center - no gate needed (internal content)
+            NavigationLink {
+                HelpCenterView()
+            } label: {
+                Label("Help Center", systemImage: "questionmark.circle.fill")
+            }
+            
+            // Contact Support - requires parental gate (external link)
+            SafeExternalLink(
+                url: URL(string: "mailto:support@sidrat.app")!,
+                context: ParentalGateContext.contactSupport
+            ) {
+                Label("Contact Support", systemImage: "envelope.fill")
+            }
+            
+            // About - no gate needed (internal content)
+            NavigationLink {
+                AboutView()
+            } label: {
+                Label("About", systemImage: "info.circle.fill")
+            }
+        } header: {
+            Text("Support")
+        }
+    }
+    
+    // MARK: - App Info Section
+    
+    private var appInfoSection: some View {
+        Section {
+            HStack {
+                Text("Version")
+                Spacer()
+                Text("1.0.0")
+                    .foregroundStyle(.textSecondary)
+            }
+        } footer: {
+            VStack(spacing: Spacing.sm) {
+                Text("Made with ❤️ for Muslim families")
+                Text("© 2025 Sidrat")
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, Spacing.lg)
+        }
+    }
+    
+    // MARK: - Actions
     
     private func resetProgress() {
         guard let child = currentChild else { return }
@@ -214,7 +298,19 @@ struct SettingsView: View {
         appState.dailyStreak = 0
         appState.lastCompletedDate = nil
         
-        try? modelContext.save()
+        // Haptic feedback
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        
+        do {
+            try modelContext.save()
+            #if DEBUG
+            print("✅ Progress reset for \(child.name)")
+            #endif
+        } catch {
+            #if DEBUG
+            print("❌ Error resetting progress: \(error)")
+            #endif
+        }
     }
 }
 
