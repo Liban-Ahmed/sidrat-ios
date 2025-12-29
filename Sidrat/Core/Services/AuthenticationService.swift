@@ -327,8 +327,6 @@ extension AuthenticationService: ASAuthorizationControllerDelegate {
                     authError = .notInteractive
                 case .unknown:
                     authError = .unknown
-                case .matchedExcludedCredential:
-                    authError = .failed("Credential excluded")
                 @unknown default:
                     authError = .unknown
                 }

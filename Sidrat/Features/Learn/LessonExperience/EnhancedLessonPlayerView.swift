@@ -169,6 +169,7 @@ struct EnhancedLessonPlayerView: View {
                 HookPhaseView(
                     content: content.hook,
                     category: lesson.category,
+                    audioService: audioService,
                     onComplete: {
                         transitionToPhase(.teach)
                     }
@@ -203,6 +204,7 @@ struct EnhancedLessonPlayerView: View {
                     correctCount: correctCount,
                     totalCount: totalCount,
                     xpEarned: calculateXPEarned(),
+                    audioService: audioService,
                     onShare: {
                         showShareSheet = true
                     },

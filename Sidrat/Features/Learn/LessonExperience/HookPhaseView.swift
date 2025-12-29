@@ -14,6 +14,7 @@ import SwiftUI
 struct HookPhaseView: View {
     let content: HookContent
     let category: LessonCategory
+    let audioService: AudioNarrationService?
     let onComplete: () -> Void
     
     @Environment(\.isReduceMotionEnabled) private var reduceMotion
@@ -264,6 +265,9 @@ struct HookPhaseView: View {
                 showQuestion = true
                 questionScale = 1.0
             }
+            
+            // Play audio narration
+            audioService?.speak(content.question)
         }
         
         // Start auto-play progress
@@ -358,6 +362,7 @@ private struct SparkleParticles: View {
     HookPhaseView(
         content: HookContent.forCategory(.wudu),
         category: .wudu,
+        audioService: nil,
         onComplete: {}
     )
 }
@@ -366,6 +371,7 @@ private struct SparkleParticles: View {
     HookPhaseView(
         content: HookContent.forCategory(.salah),
         category: .salah,
+        audioService: nil,
         onComplete: {}
     )
 }

@@ -17,6 +17,7 @@ struct RewardPhaseView: View {
     let correctCount: Int
     let totalCount: Int
     let xpEarned: Int
+    let audioService: AudioNarrationService?
     let onShare: () -> Void
     let onContinue: () -> Void
     
@@ -122,10 +123,16 @@ struct RewardPhaseView: View {
                     .fill(Color.brandAccent.opacity(0.2))
                     .frame(width: 100, height: 100)
                 
-                Image(systemName: "trophy.fill")
-                    .font(.system(size: 50))
-                    .foregroundStyle(Color.brandAccent)
-                    .symbolEffect(.bounce, options: .speed(0.5))
+                if #available(iOS 18.0, *) {
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 50))
+                        .foregroundStyle(Color.brandAccent)
+                        .symbolEffect(.bounce, options: .speed(0.5))
+                } else {
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 50))
+                        .foregroundStyle(Color.brandAccent)
+                }
             }
             .scaleEffect(showContent ? 1.0 : 0.5)
             .opacity(showContent ? 1.0 : 0)
@@ -350,6 +357,9 @@ struct RewardPhaseView: View {
             showContent = true
         }
         
+        // Play celebration audio
+        audioService?.speak("\(celebrationMessage) \(encouragementMessage)")
+        
         // Stars appear one by one
         for i in 0..<3 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8 + Double(i) * 0.2) {
@@ -518,6 +528,7 @@ private struct RewardConfettiPiece: View {
         correctCount: 3,
         totalCount: 3,
         xpEarned: 50,
+        audioService: nil,
         onShare: {},
         onContinue: {}
     )
@@ -540,6 +551,7 @@ private struct RewardConfettiPiece: View {
         correctCount: 2,
         totalCount: 3,
         xpEarned: 35,
+        audioService: nil,
         onShare: {},
         onContinue: {}
     )

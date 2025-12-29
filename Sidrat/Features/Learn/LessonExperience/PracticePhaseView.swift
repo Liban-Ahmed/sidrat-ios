@@ -164,22 +164,52 @@ struct PracticePhaseView: View {
         }
     }
     
+    // MARK: - Question Header
+    
+    private func questionHeader(icon: String, text: String) -> some View {
+        VStack(spacing: Spacing.md) {
+            Image(systemName: icon)
+                .font(.system(size: 44))
+                .foregroundStyle(category.color)
+            
+            HStack(alignment: .center, spacing: Spacing.sm) {
+                Text(text)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+                
+                Button {
+                    if audioService.playbackState == .playing {
+                        audioService.pause()
+                    } else if audioService.playbackState == .paused {
+                        audioService.resume()
+                    } else {
+                        audioService.speak(text)
+                    }
+                } label: {
+                    if audioService.playbackState == .loading {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                    } else {
+                        Image(systemName: audioService.playbackState == .playing ? "pause.circle.fill" : "speaker.wave.2.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(category.color)
+                    }
+                }
+                .buttonStyle(.plain)
+                .disabled(audioService.playbackState == .loading)
+                .accessibilityLabel("Play question audio")
+            }
+        }
+    }
+    
     // MARK: - Quiz View
     
     private func quizView(_ quiz: QuizPractice) -> some View {
         VStack(spacing: Spacing.xl) {
             // Question
-            VStack(spacing: Spacing.md) {
-                Image(systemName: "questionmark.circle.fill")
-                    .font(.system(size: 44))
-                    .foregroundStyle(category.color)
-                
-                Text(quiz.question)
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(4)
-            }
+            questionHeader(icon: "questionmark.circle.fill", text: quiz.question)
             
             // Options
             VStack(spacing: Spacing.md) {
@@ -205,16 +235,7 @@ struct PracticePhaseView: View {
     private func matchingView(_ matching: MatchingPractice) -> some View {
         VStack(spacing: Spacing.xl) {
             // Instruction
-            VStack(spacing: Spacing.md) {
-                Image(systemName: "arrow.left.arrow.right")
-                    .font(.system(size: 44))
-                    .foregroundStyle(category.color)
-                
-                Text(matching.instruction)
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.textPrimary)
-                    .multilineTextAlignment(.center)
-            }
+            questionHeader(icon: "arrow.left.arrow.right", text: matching.instruction)
             
             // Matching pairs display (simplified for now - can be expanded)
             VStack(spacing: Spacing.md) {
@@ -261,16 +282,7 @@ struct PracticePhaseView: View {
     private func sequencingView(_ sequencing: SequencingPractice) -> some View {
         VStack(spacing: Spacing.xl) {
             // Instruction
-            VStack(spacing: Spacing.md) {
-                Image(systemName: "list.number")
-                    .font(.system(size: 44))
-                    .foregroundStyle(category.color)
-                
-                Text(sequencing.instruction)
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(.textPrimary)
-                    .multilineTextAlignment(.center)
-            }
+            questionHeader(icon: "list.number", text: sequencing.instruction)
             
             // Sequence items (displayed in correct order for now - can add drag reordering)
             VStack(spacing: Spacing.sm) {
