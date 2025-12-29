@@ -68,7 +68,12 @@ struct LessonDetailView: View {
                 startButton
             }
             .fullScreenCover(isPresented: $showingLessonPlayer) {
-                LessonPlayerView(lesson: lesson)
+                if let child = currentChild {
+                    EnhancedLessonPlayerView(lesson: lesson, child: child)
+                } else {
+                    // Fallback for edge case where no child is selected
+                    Text("Please select a profile first")
+                }
             }
         }
     }
@@ -217,14 +222,15 @@ struct LessonDetailView: View {
     
     private var contentPreviewSection: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
-            Text("Lesson Contents")
+            Text("Lesson Phases")
                 .font(.title3)
                 .foregroundStyle(.textPrimary)
             
             VStack(spacing: Spacing.sm) {
-                ContentPreviewRow(icon: "book.fill", title: "Story", subtitle: "Fun animated story")
-                ContentPreviewRow(icon: "questionmark.circle.fill", title: "Quiz", subtitle: "Test your knowledge")
-                ContentPreviewRow(icon: "hands.sparkles.fill", title: "Activity", subtitle: "Interactive learning")
+                ContentPreviewRow(icon: "sparkles", title: "Hook", subtitle: "Get ready to learn something amazing!")
+                ContentPreviewRow(icon: "book.fill", title: "Teach", subtitle: "Listen and discover new knowledge")
+                ContentPreviewRow(icon: "pencil.and.list.clipboard", title: "Practice", subtitle: "Test what you've learned")
+                ContentPreviewRow(icon: "star.fill", title: "Reward", subtitle: "Celebrate your achievement!")
             }
         }
         .padding()

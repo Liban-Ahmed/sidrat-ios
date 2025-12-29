@@ -39,6 +39,11 @@ extension Color {
     static let backgroundSecondary = Color(hex: "F5F5F5")
     static let backgroundTertiary = Color(hex: "EDEDED")
     
+    // Surface colors (aliases for backgrounds - used in lesson experience)
+    static let surfacePrimary = backgroundPrimary
+    static let surfaceSecondary = backgroundSecondary
+    static let surfaceTertiary = backgroundTertiary
+    
     // Text colors
     static let textPrimary = Color(hex: "2C3E3F")
     static let textSecondary = Color(hex: "6B7280")
@@ -80,6 +85,9 @@ extension ShapeStyle where Self == Color {
     static var backgroundPrimary: Color { Color.backgroundPrimary }
     static var backgroundSecondary: Color { Color.backgroundSecondary }
     static var backgroundTertiary: Color { Color.backgroundTertiary }
+    static var surfacePrimary: Color { Color.surfacePrimary }
+    static var surfaceSecondary: Color { Color.surfaceSecondary }
+    static var surfaceTertiary: Color { Color.surfaceTertiary }
     static var textPrimary: Color { Color.textPrimary }
     static var textSecondary: Color { Color.textSecondary }
     static var textTertiary: Color { Color.textTertiary }

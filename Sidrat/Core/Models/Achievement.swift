@@ -106,4 +106,19 @@ enum AchievementType: String, Codable, CaseIterable {
         default: return nil
         }
     }
+    
+    var xpReward: Int {
+        switch self {
+        case .firstLesson: return 20
+        case .streak3: return 30
+        case .streak7: return 100
+        case .streak30: return 500
+        case .wuduMaster: return 200
+        case .salahStarter: return 50
+        case .quranExplorer: return 75
+        case .familyTime: return 25
+        case .superLearner: return 150
+        case .weeklyChampion: return 100
+        }
+    }
 }

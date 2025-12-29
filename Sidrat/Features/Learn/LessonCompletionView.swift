@@ -16,6 +16,7 @@ struct LessonCompletionView: View {
     @State private var showConfetti = false
     @State private var animateStars = false
     @State private var showContent = false
+    @State private var showShareSheet = false
     
     var body: some View {
         ZStack {
@@ -109,6 +110,25 @@ struct LessonCompletionView: View {
                 
                 Spacer()
                 
+                // Share with family button
+                Button {
+                    showShareSheet = true
+                } label: {
+                    HStack(spacing: Spacing.sm) {
+                        Image(systemName: "person.2.fill")
+                        Text("Share with Family")
+                    }
+                    .font(.labelMedium)
+                    .foregroundStyle(Color.brandPrimary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Spacing.md)
+                    .background(Color.brandPrimary.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+                }
+                .padding(.horizontal, Spacing.lg)
+                .opacity(showContent ? 1 : 0)
+                .offset(y: showContent ? 0 : 35)
+                
                 // Continue button
                 Button {
                     onDismiss()
@@ -131,6 +151,9 @@ struct LessonCompletionView: View {
             }
             .padding()
         }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheetView(items: ["I just learned about \(lesson.title) on Sidrat! 🌟🎉"])
+        }
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1)) {
                 showContent = true
@@ -142,6 +165,18 @@ struct LessonCompletionView: View {
             }
         }
     }
+}
+
+// MARK: - Share Sheet View
+
+struct ShareSheetView: UIViewControllerRepresentable {
+    let items: [Any]
+    
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+    
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 // MARK: - Reward Item

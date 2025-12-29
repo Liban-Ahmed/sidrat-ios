@@ -246,7 +246,7 @@ struct LessonPlayerView: View {
             // Options
             VStack(spacing: Spacing.sm) {
                 ForEach(Array(currentStep.options.enumerated()), id: \.offset) { index, option in
-                    QuizOptionButton(
+                    LessonQuizOptionButton(
                         text: option,
                         isSelected: selectedAnswer == index,
                         isCorrect: index == currentStep.correctAnswer,
@@ -568,9 +568,9 @@ struct LessonPlayerView: View {
     }
 }
 
-// MARK: - Quiz Option Button
+// MARK: - Lesson Quiz Option Button
 
-struct QuizOptionButton: View {
+struct LessonQuizOptionButton: View {
     let text: String
     let isSelected: Bool
     let isCorrect: Bool

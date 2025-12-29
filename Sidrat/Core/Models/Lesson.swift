@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 @Model
 final class Lesson: Identifiable {
@@ -65,6 +66,33 @@ final class Lesson: Identifiable {
         self.weekNumber = weekNumber
         self.content = content
     }
+    
+    /// Convenience initializer with string ID for compatibility
+    convenience init(
+        id: String,
+        title: String,
+        description: String,
+        category: LessonCategory,
+        difficulty: Difficulty = .beginner,
+        durationMinutes: Int = 5,
+        xpReward: Int = 20,
+        order: Int,
+        weekNumber: Int,
+        content: [LessonContent] = []
+    ) {
+        self.init(
+            id: UUID(uuidString: id) ?? UUID(),
+            title: title,
+            lessonDescription: description,
+            category: category,
+            difficulty: difficulty,
+            durationMinutes: durationMinutes,
+            xpReward: xpReward,
+            order: order,
+            weekNumber: weekNumber,
+            content: content
+        )
+    }
 }
 
 // MARK: - Lesson Category
@@ -92,7 +120,11 @@ enum LessonCategory: String, Codable, CaseIterable {
         }
     }
     
-    var color: String {
+    /// Alias for icon - used in enhanced lesson views
+    var iconName: String { icon }
+    
+    /// String name of the color (legacy)
+    var colorName: String {
         switch self {
         case .aqeedah: return "primaryGreen"
         case .salah: return "secondaryGold"
@@ -102,6 +134,20 @@ enum LessonCategory: String, Codable, CaseIterable {
         case .adab: return "error"
         case .duaa: return "accentBlue"
         case .stories: return "primaryGreen"
+        }
+    }
+    
+    /// SwiftUI Color for the category
+    var color: Color {
+        switch self {
+        case .aqeedah: return .brandPrimary
+        case .salah: return .brandAccent
+        case .wudu: return .brandPrimary
+        case .quran: return .brandPrimary
+        case .seerah: return .brandAccent
+        case .adab: return .error
+        case .duaa: return .brandPrimary
+        case .stories: return .brandSecondary
         }
     }
 }

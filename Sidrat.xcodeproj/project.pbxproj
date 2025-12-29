@@ -27,6 +27,15 @@
 		FEA0009 /* LessonCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0028 /* LessonCompletionView.swift */; };
 		FEA0010 /* FamilyActivityDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0029 /* FamilyActivityDetailView.swift */; };
 		FEA0011 /* ProfileSwitcherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0032 /* ProfileSwitcherView.swift */; };
+		LEX0001 /* LessonPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0050 /* LessonPhase.swift */; };
+		LEX0002 /* AudioNarrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0051 /* AudioNarrationService.swift */; };
+		LEX0003 /* LessonPhaseIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0052 /* LessonPhaseIndicator.swift */; };
+		LEX0004 /* HookPhaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0053 /* HookPhaseView.swift */; };
+		LEX0005 /* TeachPhaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0054 /* TeachPhaseView.swift */; };
+		LEX0006 /* PracticePhaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0055 /* PracticePhaseView.swift */; };
+		LEX0007 /* RewardPhaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0056 /* RewardPhaseView.swift */; };
+		LEX0008 /* EnhancedLessonPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0057 /* EnhancedLessonPlayerView.swift */; };
+		SRV0001 /* ElevenLabsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0060 /* ElevenLabsService.swift */; };
 		MOD0001 /* Child.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0010 /* Child.swift */; };
 		MOD0002 /* Lesson.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0011 /* Lesson.swift */; };
 		MOD0003 /* LessonProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0012 /* LessonProgress.swift */; };
@@ -67,6 +76,15 @@
 		SRC0033 /* ParentalGateComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentalGateComponents.swift; sourceTree = "<group>"; };
 		SRC0040 /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
 		SRC0041 /* SignInWithAppleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInWithAppleButton.swift; sourceTree = "<group>"; };
+		SRC0050 /* LessonPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonPhase.swift; sourceTree = "<group>"; };
+		SRC0051 /* AudioNarrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioNarrationService.swift; sourceTree = "<group>"; };
+		SRC0052 /* LessonPhaseIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonPhaseIndicator.swift; sourceTree = "<group>"; };
+		SRC0053 /* HookPhaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HookPhaseView.swift; sourceTree = "<group>"; };
+		SRC0054 /* TeachPhaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeachPhaseView.swift; sourceTree = "<group>"; };
+		SRC0055 /* PracticePhaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticePhaseView.swift; sourceTree = "<group>"; };
+		SRC0056 /* RewardPhaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardPhaseView.swift; sourceTree = "<group>"; };
+		SRC0057 /* EnhancedLessonPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancedLessonPlayerView.swift; sourceTree = "<group>"; };
+		SRC0060 /* ElevenLabsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElevenLabsService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +155,7 @@
 			isa = PBXGroup;
 			children = (
 				SRC0040 /* AuthenticationService.swift */,
+				SRC0060 /* ElevenLabsService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -178,8 +197,24 @@
 				SRC0026 /* LessonDetailView.swift */,
 				SRC0027 /* LessonPlayerView.swift */,
 				SRC0028 /* LessonCompletionView.swift */,
+				GRP0037 /* LessonExperience */,
 			);
 			path = Learn;
+			sourceTree = "<group>";
+		};
+		GRP0037 /* LessonExperience */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0050 /* LessonPhase.swift */,
+				SRC0051 /* AudioNarrationService.swift */,
+				SRC0052 /* LessonPhaseIndicator.swift */,
+				SRC0053 /* HookPhaseView.swift */,
+				SRC0054 /* TeachPhaseView.swift */,
+				SRC0055 /* PracticePhaseView.swift */,
+				SRC0056 /* RewardPhaseView.swift */,
+				SRC0057 /* EnhancedLessonPlayerView.swift */,
+			);
+			path = LessonExperience;
 			sourceTree = "<group>";
 		};
 		GRP0034 /* Family */ = {
@@ -355,6 +390,15 @@
 				UI0003 /* ParentalGateComponents.swift in Sources */,
 				AUTH0001 /* AuthenticationService.swift in Sources */,
 				AUTH0002 /* SignInWithAppleButton.swift in Sources */,
+				SRV0001 /* ElevenLabsService.swift in Sources */,
+				LEX0001 /* LessonPhase.swift in Sources */,
+				LEX0002 /* AudioNarrationService.swift in Sources */,
+				LEX0003 /* LessonPhaseIndicator.swift in Sources */,
+				LEX0004 /* HookPhaseView.swift in Sources */,
+				LEX0005 /* TeachPhaseView.swift in Sources */,
+				LEX0006 /* PracticePhaseView.swift in Sources */,
+				LEX0007 /* RewardPhaseView.swift in Sources */,
+				LEX0008 /* EnhancedLessonPlayerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
