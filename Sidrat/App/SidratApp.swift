@@ -17,7 +17,7 @@ struct SidratApp: App {
     let modelContainer: ModelContainer
     
     /// Data version for one-time migrations/cleanups
-    private static let currentDataVersion = 3
+    private static let currentDataVersion = 4
     
     init() {
         // Check if we need to do a one-time data cleanup
@@ -243,11 +243,11 @@ final class AppState {
 #if DEBUG
 extension View {
     func onShake(perform action: @escaping () -> Void) -> some View {
-        self.modifier(ShakeModifier(action: action))
+        self.modifier(DeviceShakeModifier(action: action))
     }
 }
 
-struct ShakeModifier: ViewModifier {
+struct DeviceShakeModifier: ViewModifier {
     let action: () -> Void
     
     func body(content: Content) -> some View {

@@ -48,6 +48,7 @@ enum AchievementType: String, Codable, CaseIterable {
     case streak3 = "streak_3"
     case streak7 = "streak_7"
     case streak30 = "streak_30"
+    case perfectScore = "perfect_score"
     case wuduMaster = "wudu_master"
     case salahStarter = "salah_starter"
     case quranExplorer = "quran_explorer"
@@ -61,6 +62,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return "3 Day Streak"
         case .streak7: return "Week Warrior"
         case .streak30: return "Monthly Master"
+        case .perfectScore: return "Perfect Score"
         case .wuduMaster: return "Wudu Master"
         case .salahStarter: return "Salah Starter"
         case .quranExplorer: return "Quran Explorer"
@@ -76,6 +78,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return "Learned for 3 days in a row"
         case .streak7: return "Learned for 7 days in a row"
         case .streak30: return "Learned for 30 days in a row"
+        case .perfectScore: return "Got 100% on a lesson!"
         case .wuduMaster: return "Completed all Wudu lessons"
         case .salahStarter: return "Started learning about Salah"
         case .quranExplorer: return "Explored Quran stories"
@@ -91,6 +94,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return "flame.fill"
         case .streak7: return "flame.fill"
         case .streak30: return "flame.fill"
+        case .perfectScore: return "100.circle.fill"
         case .wuduMaster: return "drop.fill"
         case .salahStarter: return "person.fill"
         case .quranExplorer: return "book.fill"
@@ -113,6 +117,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return 30
         case .streak7: return 100
         case .streak30: return 500
+        case .perfectScore: return 50
         case .wuduMaster: return 200
         case .salahStarter: return 50
         case .quranExplorer: return 75

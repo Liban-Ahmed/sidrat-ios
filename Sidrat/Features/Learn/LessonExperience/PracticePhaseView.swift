@@ -214,7 +214,7 @@ struct PracticePhaseView: View {
             // Options
             VStack(spacing: Spacing.md) {
                 ForEach(Array(quiz.options.enumerated()), id: \.offset) { index, option in
-                    QuizOptionButton(
+                    SimplifiedQuizOptionButton(
                         text: option,
                         isSelected: selectedAnswer == index,
                         isCorrect: hasAnswered ? index == quiz.correctIndex : nil,
@@ -487,9 +487,9 @@ struct PracticePhaseView: View {
     }
 }
 
-// MARK: - Quiz Option Button
+// MARK: - Simple Quiz Option Button (Simplified version for Practice Phase)
 
-struct QuizOptionButton: View {
+private struct SimplifiedQuizOptionButton: View {
     let text: String
     let isSelected: Bool
     let isCorrect: Bool?
@@ -614,14 +614,6 @@ struct PracticeButtonStyle: ButtonStyle {
                     )
             )
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-    }
-}
-
-// MARK: - Safe Array Access
-
-private extension Array {
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
     }
 }
 

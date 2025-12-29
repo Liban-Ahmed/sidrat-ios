@@ -1,9 +1,9 @@
 //
-//  ParentalGateComponents.swift
+//  ParentalGateModifier.swift
 //  Sidrat
 //
-//  Reusable parental gate components for COPPA compliance
-//  Implements US-104: Parental Gate Integration
+//  View modifier for easy parental gate integration
+//  Implements US-104: Parental Gate Implementation
 //
 
 import SwiftUI
@@ -11,7 +11,13 @@ import SwiftUI
 // MARK: - Parental Gate Modifier
 
 /// A view modifier that presents a parental gate before allowing content access
-/// Usage: .parentalGate(isPresented: $showGate, context: "Access settings") { /* on success */ }
+///
+/// Usage:
+/// ```swift
+/// .parentalGate(isPresented: $showGate, context: "Access settings") {
+///     // Action to perform after successful verification
+/// }
+/// ```
 struct ParentalGateModifier: ViewModifier {
     @Binding var isPresented: Bool
     let context: String?
@@ -55,13 +61,84 @@ extension View {
     }
 }
 
-// MARK: - Parental Gate Navigation Link
+// MARK: - Gated Sheet Modifier
+
+/// A modifier that wraps sheet content with parental gate verification
+///
+/// Usage:
+/// ```swift
+/// .gatedSheet(isPresented: $showSettings, context: "Access settings") {
+///     SettingsView()
+/// }
+/// ```
+struct GatedSheetModifier<SheetContent: View>: ViewModifier {
+    @Binding var isPresented: Bool
+    let context: String?
+    let sheetContent: () -> SheetContent
+    
+    @State private var showingGate = false
+    @State private var showingSheet = false
+    
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: isPresented) { _, newValue in
+                if newValue {
+                    showingGate = true
+                } else {
+                    showingSheet = false
+                }
+            }
+            .fullScreenCover(isPresented: $showingGate) {
+                ParentalGateView(
+                    onSuccess: {
+                        showingGate = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            showingSheet = true
+                        }
+                    },
+                    onDismiss: {
+                        showingGate = false
+                        isPresented = false
+                    },
+                    context: context
+                )
+                .background(Color.clear)
+                .presentationBackground(.clear)
+            }
+            .sheet(isPresented: $showingSheet, onDismiss: {
+                isPresented = false
+            }) {
+                sheetContent()
+            }
+    }
+}
+
+extension View {
+    /// Presents a sheet that requires parental gate verification before showing
+    /// - Parameters:
+    ///   - isPresented: Binding to control presentation
+    ///   - context: Optional explanation for the parental gate
+    ///   - content: The sheet content to present after verification
+    func gatedSheet<Content: View>(
+        isPresented: Binding<Bool>,
+        context: String? = nil,
+        @ViewBuilder content: @escaping () -> Content
+    ) -> some View {
+        modifier(GatedSheetModifier(
+            isPresented: isPresented,
+            context: context,
+            sheetContent: content
+        ))
+    }
+}
+
+// MARK: - Gated Navigation Row
 
 /// A row component that requires parental verification before triggering navigation
 /// Use with navigation state managed at the parent view level to avoid lazy container issues
 ///
 /// Usage:
-/// ```
+/// ```swift
 /// // In parent view state:
 /// @State private var navigateToCurriculum = false
 ///
@@ -133,80 +210,19 @@ struct GatedNavigationRow<Label: View>: View {
     }
 }
 
-/// Navigation destinations for gated settings navigation
-enum GatedSettingsDestination: Hashable {
-    case curriculum
-    case parentDashboard
-    case addChild
-}
-
-/// A navigation link that requires parental verification before navigation
-/// NOTE: This component should NOT be used inside lazy containers like List or LazyVStack
-/// For use inside List, use GatedNavigationRow with navigationDestination at the NavigationStack level
-@available(*, deprecated, message: "Use GatedNavigationRow inside List/LazyVStack containers to avoid navigation issues")
-struct ParentalGateNavigationLink<Label: View, Destination: View>: View {
-    let destination: () -> Destination
-    let label: () -> Label
-    let context: String?
-    
-    @State private var showingGate = false
-    @State private var isNavigating = false
-    
-    init(
-        context: String? = nil,
-        @ViewBuilder destination: @escaping () -> Destination,
-        @ViewBuilder label: @escaping () -> Label
-    ) {
-        self.context = context
-        self.destination = destination
-        self.label = label
-    }
-    
-    var body: some View {
-        Button {
-            showingGate = true
-        } label: {
-            HStack {
-                label()
-                Spacer()
-                Image(systemName: "lock.fill")
-                    .font(.caption)
-                    .foregroundStyle(.textTertiary)
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.textTertiary)
-            }
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(.textPrimary)
-        .fullScreenCover(isPresented: $showingGate) {
-            ParentalGateView(
-                onSuccess: {
-                    showingGate = false
-                    // Small delay to ensure sheet dismisses before navigation
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        isNavigating = true
-                    }
-                },
-                onDismiss: {
-                    showingGate = false
-                },
-                context: context
-            )
-            .background(Color.clear)
-            .presentationBackground(.clear)
-        }
-        .navigationDestination(isPresented: $isNavigating) {
-            destination()
-        }
-    }
-}
-
 // MARK: - Parental Gate Button
 
 /// A button that requires parental verification before executing its action
 /// Use for sensitive actions like deleting data, purchasing, or changing settings
+///
+/// Usage:
+/// ```swift
+/// ParentalGateButton(context: "Reset progress", role: .destructive) {
+///     resetProgress()
+/// } label: {
+///     Label("Reset Progress", systemImage: "arrow.counterclockwise")
+/// }
+/// ```
 struct ParentalGateButton<Label: View>: View {
     let action: () -> Void
     let label: () -> Label
@@ -262,6 +278,13 @@ struct ParentalGateButton<Label: View>: View {
 
 /// A link component that requires parental verification before opening external URLs
 /// Required for COPPA compliance in Kids Category apps
+///
+/// Usage:
+/// ```swift
+/// SafeExternalLink(url: URL(string: "mailto:support@sidrat.app")!) {
+///     Label("Contact Support", systemImage: "envelope.fill")
+/// }
+/// ```
 struct SafeExternalLink<Label: View>: View {
     let url: URL
     let label: () -> Label
@@ -337,7 +360,7 @@ struct SafeExternalLink<Label: View>: View {
     }
 }
 
-// MARK: - Gated Tab View
+// MARK: - Gated Tab Content
 
 /// A wrapper that requires parental verification to access a specific tab
 struct GatedTabContent<Content: View>: View {
@@ -402,70 +425,6 @@ struct GatedTabContent<Content: View>: View {
     }
 }
 
-// MARK: - Gated Sheet Modifier
-
-/// A modifier that wraps sheet content with parental gate verification
-struct GatedSheetModifier<SheetContent: View>: ViewModifier {
-    @Binding var isPresented: Bool
-    let context: String?
-    let sheetContent: () -> SheetContent
-    
-    @State private var showingGate = false
-    @State private var showingSheet = false
-    
-    func body(content: Content) -> some View {
-        content
-            .onChange(of: isPresented) { _, newValue in
-                if newValue {
-                    showingGate = true
-                } else {
-                    showingSheet = false
-                }
-            }
-            .fullScreenCover(isPresented: $showingGate) {
-                ParentalGateView(
-                    onSuccess: {
-                        showingGate = false
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            showingSheet = true
-                        }
-                    },
-                    onDismiss: {
-                        showingGate = false
-                        isPresented = false
-                    },
-                    context: context
-                )
-                .background(Color.clear)
-                .presentationBackground(.clear)
-            }
-            .sheet(isPresented: $showingSheet, onDismiss: {
-                isPresented = false
-            }) {
-                sheetContent()
-            }
-    }
-}
-
-extension View {
-    /// Presents a sheet that requires parental gate verification before showing
-    /// - Parameters:
-    ///   - isPresented: Binding to control presentation
-    ///   - context: Optional explanation for the parental gate
-    ///   - content: The sheet content to present after verification
-    func gatedSheet<Content: View>(
-        isPresented: Binding<Bool>,
-        context: String? = nil,
-        @ViewBuilder content: @escaping () -> Content
-    ) -> some View {
-        modifier(GatedSheetModifier(
-            isPresented: isPresented,
-            context: context,
-            sheetContent: content
-        ))
-    }
-}
-
 // MARK: - Parental Gate Context Presets
 
 /// Common context messages for parental gates
@@ -481,6 +440,7 @@ enum ParentalGateContext {
     static let familySettings = "Parent verification is required to manage family settings."
     static let curriculum = "Parent verification is required to view curriculum settings."
     static let notifications = "Parent verification is required to change notification settings."
+    static let inAppPurchase = "Parent verification is required to make in-app purchases."
 }
 
 // MARK: - Previews

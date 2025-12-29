@@ -304,22 +304,8 @@ struct ProfileCardView: View {
     // MARK: - Subviews
     
     private var avatarView: some View {
-        ZStack {
-            Circle()
-                .fill(child.avatar.backgroundColor.opacity(0.2))
-                .frame(width: 64, height: 64)
-            
-            Text(child.avatar.emoji)
-                .font(.system(size: 36))
-            
-            // Active ring
-            if isActive {
-                Circle()
-                    .stroke(Color.brandPrimary, lineWidth: 3)
-                    .frame(width: 68, height: 68)
-            }
-        }
-        .accessibilityHidden(true)
+        AvatarView.large(avatar: child.avatar, isSelected: isActive)
+            .accessibilityHidden(true)
     }
     
     private var infoSection: some View {
@@ -441,26 +427,11 @@ struct ProfileSwitcherButton: View {
             showingSwitcher = true
         } label: {
             HStack(spacing: Spacing.xs) {
-                // Avatar
+                // Avatar - using AvatarView component
                 if let child = currentChild {
-                    ZStack {
-                        Circle()
-                            .fill(child.avatar.backgroundColor.opacity(0.2))
-                            .frame(width: 36, height: 36)
-                        
-                        Text(child.avatar.emoji)
-                            .font(.system(size: 20))
-                    }
+                    AvatarView.small(avatar: child.avatar)
                 } else {
-                    ZStack {
-                        Circle()
-                            .fill(Color.brandPrimary.opacity(0.1))
-                            .frame(width: 36, height: 36)
-                        
-                        Image(systemName: "person.fill")
-                            .font(.body)
-                            .foregroundStyle(.brandPrimary)
-                    }
+                    PlaceholderAvatarView(size: 36)
                 }
                 
                 // Dropdown indicator (only if multiple children)

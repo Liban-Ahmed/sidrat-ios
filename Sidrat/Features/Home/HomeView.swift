@@ -100,12 +100,19 @@ struct HomeView: View {
                     // Header with streak
                     headerSection
                     
-                    // Today's lesson card - the main focus
-                    TodayLessonCard(
+                    // Today's lesson card - using new DailyLessonCard component
+                    DailyLessonCard(
                         lesson: todaysLesson,
                         isCompleted: isTodaysLessonCompleted,
-                        onStartLesson: { lesson in
-                            selectedLesson = lesson
+                        onStart: {
+                            if let lesson = todaysLesson {
+                                selectedLesson = lesson
+                            }
+                        },
+                        onReplay: {
+                            if let lesson = todaysLesson {
+                                selectedLesson = lesson
+                            }
                         }
                     )
                     

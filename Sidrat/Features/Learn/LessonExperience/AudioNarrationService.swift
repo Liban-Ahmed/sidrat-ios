@@ -38,7 +38,10 @@ final class AudioNarrationService: NSObject {
     var isAudioEnabled: Bool = true
     
     /// Whether currently using ElevenLabs (true) or fallback TTS (false)
-    private(set) var isUsingElevenLabs: Bool = true
+    private(set) var isUsingElevenLabs: Bool = false
+    
+    /// Feature flag to enable/disable ElevenLabs (cost control)
+    private let enableElevenLabs = false
     
     /// Current text being spoken (for replay)
     private var currentText: String?
@@ -147,8 +150,8 @@ final class AudioNarrationService: NSObject {
         // Try ElevenLabs first, fallback to system TTS
         currentTask = Task { @MainActor in
             do {
-                // Check if ElevenLabs is configured
-                guard ElevenLabsService.shared.isConfigured else {
+                // Check if ElevenLabs is enabled and configured
+                guard enableElevenLabs, ElevenLabsService.shared.isConfigured else {
                     throw ElevenLabsError.missingAPIKey
                 }
                 

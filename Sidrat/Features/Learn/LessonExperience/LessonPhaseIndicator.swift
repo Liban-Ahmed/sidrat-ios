@@ -169,10 +169,10 @@ private struct PhaseNode: View {
     }
 }
 
-// MARK: - Compact Phase Indicator
+// MARK: - Simple Compact Phase Indicator
 
-/// Compact version of phase indicator for smaller spaces
-struct CompactPhaseIndicator: View {
+/// A more compact version of the phase indicator for smaller spaces (uses LessonPhase)
+struct SimpleCompactPhaseIndicator: View {
     let currentPhase: LessonPhase
     let overallProgress: Double
     
@@ -302,10 +302,10 @@ struct PhaseTitle: View {
 
 #Preview("Compact Indicator") {
     VStack(spacing: 20) {
-        CompactPhaseIndicator(currentPhase: .hook, overallProgress: 0.1)
-        CompactPhaseIndicator(currentPhase: .teach, overallProgress: 0.35)
-        CompactPhaseIndicator(currentPhase: .practice, overallProgress: 0.65)
-        CompactPhaseIndicator(currentPhase: .reward, overallProgress: 0.95)
+        SimpleCompactPhaseIndicator(currentPhase: .hook, overallProgress: 0.1)
+        SimpleCompactPhaseIndicator(currentPhase: .teach, overallProgress: 0.35)
+        SimpleCompactPhaseIndicator(currentPhase: .practice, overallProgress: 0.65)
+        SimpleCompactPhaseIndicator(currentPhase: .reward, overallProgress: 0.95)
     }
     .padding()
 }

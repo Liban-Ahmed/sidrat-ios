@@ -373,14 +373,6 @@ struct TeachPhaseView: View {
     }
 }
 
-// MARK: - Safe Array Access
-
-private extension Array {
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
-}
-
 // MARK: - Preview
 
 #Preview("Teach Phase") {

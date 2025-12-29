@@ -3,12 +3,29 @@
 //  Sidrat
 //
 //  Parental gate for COPPA compliance and Kids Category requirements
+//  Implements US-104: Parental Gate Implementation
 //
 
 import SwiftUI
 
 /// A modal view that requires solving a simple math problem to proceed.
 /// Implements COPPA requirements for parental verification in Kids Category apps.
+///
+/// Features:
+/// - Math problem with sum between 15-30
+/// - 30-second timeout that auto-dismisses
+/// - Regenerates problem after incorrect answer
+/// - Full VoiceOver accessibility support
+/// - Haptic feedback on success/error
+///
+/// Usage:
+/// ```swift
+/// ParentalGateView(
+///     onSuccess: { /* granted access */ },
+///     onDismiss: { /* cancelled/timed out */ },
+///     context: "Access settings"
+/// )
+/// ```
 struct ParentalGateView: View {
     // MARK: - Properties
     

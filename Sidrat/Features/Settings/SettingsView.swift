@@ -106,26 +106,11 @@ struct SettingsView: View {
     private var profileSection: some View {
         Section {
             HStack(spacing: Spacing.md) {
-                // Avatar
+                // Avatar - using AvatarView component
                 if let child = currentChild {
-                    ZStack {
-                        Circle()
-                            .fill(child.avatar.backgroundColor.opacity(0.2))
-                            .frame(width: 64, height: 64)
-                        
-                        Text(child.avatar.emoji)
-                            .font(.system(size: 36))
-                    }
+                    AvatarView.large(avatar: child.avatar)
                 } else {
-                    ZStack {
-                        Circle()
-                            .fill(Color.brandPrimary.opacity(0.1))
-                            .frame(width: 64, height: 64)
-                        
-                        Image(systemName: "person.fill")
-                            .font(.title)
-                            .foregroundStyle(.brandPrimary)
-                    }
+                    PlaceholderAvatarView(size: 64)
                 }
                 
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
