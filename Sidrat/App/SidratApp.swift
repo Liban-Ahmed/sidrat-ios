@@ -135,6 +135,8 @@ final class AppState {
     private var _currentChildId: String? = UserDefaults.standard.string(forKey: "currentChildId")
     private var _dailyStreak: Int = UserDefaults.standard.integer(forKey: "dailyStreak")
     private var _lastCompletedDate: Date? = UserDefaults.standard.object(forKey: "lastCompletedDate") as? Date
+    private var _parentUserIdentifier: String? = UserDefaults.standard.string(forKey: "parentUserIdentifier")
+    private var _isLocalOnlyAccount: Bool = UserDefaults.standard.bool(forKey: "isLocalOnlyAccount")
     
     var isOnboardingComplete: Bool {
         get { _isOnboardingComplete }
@@ -168,27 +170,70 @@ final class AppState {
         }
     }
     
+    /// Parent's anonymous Apple ID or local UUID
+    var parentUserIdentifier: String? {
+        get { _parentUserIdentifier }
+        set {
+            _parentUserIdentifier = newValue
+            UserDefaults.standard.set(newValue, forKey: "parentUserIdentifier")
+        }
+    }
+    
+    /// Whether the account is local-only (offline mode)
+    var isLocalOnlyAccount: Bool {
+        get { _isLocalOnlyAccount }
+        set {
+            _isLocalOnlyAccount = newValue
+            UserDefaults.standard.set(newValue, forKey: "isLocalOnlyAccount")
+        }
+    }
+    
+    /// Whether a parent account exists (either Apple ID or local)
+    var hasParentAccount: Bool {
+        parentUserIdentifier != nil
+    }
+    
     init() {
         // Load initial values from UserDefaults
         _isOnboardingComplete = UserDefaults.standard.bool(forKey: "isOnboardingComplete")
         _currentChildId = UserDefaults.standard.string(forKey: "currentChildId")
         _dailyStreak = UserDefaults.standard.integer(forKey: "dailyStreak")
         _lastCompletedDate = UserDefaults.standard.object(forKey: "lastCompletedDate") as? Date
+        _parentUserIdentifier = UserDefaults.standard.string(forKey: "parentUserIdentifier")
+        _isLocalOnlyAccount = UserDefaults.standard.bool(forKey: "isLocalOnlyAccount")
+    }
+    
+    /// Sets up the parent account from authentication result
+    func setParentAccount(from result: AuthenticationResult) {
+        parentUserIdentifier = result.userIdentifier
+        isLocalOnlyAccount = result.isLocalOnly
+        
+        #if DEBUG
+        print("👤 Parent account set: \(result.userIdentifier.prefix(8))... (local: \(result.isLocalOnly))")
+        #endif
     }
     
     #if DEBUG
     /// Reset app state for testing - useful during development
-    func resetForTesting() {
+    @MainActor func resetForTesting() {
         _isOnboardingComplete = false
         _currentChildId = nil
         _dailyStreak = 0
         _lastCompletedDate = nil
+        _parentUserIdentifier = nil
+        _isLocalOnlyAccount = false
         
         UserDefaults.standard.removeObject(forKey: "isOnboardingComplete")
         UserDefaults.standard.removeObject(forKey: "currentChildId")
         UserDefaults.standard.removeObject(forKey: "dailyStreak")
         UserDefaults.standard.removeObject(forKey: "lastCompletedDate")
-        print(" App state reset - restart app to see onboarding")
+        UserDefaults.standard.removeObject(forKey: "parentUserIdentifier")
+        UserDefaults.standard.removeObject(forKey: "isLocalOnlyAccount")
+        
+        // Also sign out from authentication service
+        AuthenticationService.shared.signOut()
+        
+        print("🔄 App state reset - restart app to see onboarding")
     }
     #endif
 }

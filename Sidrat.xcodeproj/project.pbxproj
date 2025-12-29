@@ -12,6 +12,8 @@
 		APP0003 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0003 /* MainTabView.swift */; };
 		AST0001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = RES0001 /* Assets.xcassets */; };
 		AST0002 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = RES0002 /* Preview Assets.xcassets */; };
+		AUTH0001 /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0040 /* AuthenticationService.swift */; };
+		AUTH0002 /* SignInWithAppleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0041 /* SignInWithAppleButton.swift */; };
 		DE0FD7502EFFA0F700673B6F /* SidratViewsParentalGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0FD74F2EFFA0F700673B6F /* SidratViewsParentalGateView.swift */; };
 		DE0FD7522EFFA10700673B6F /* SidratModelsAvatarOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0FD7512EFFA10700673B6F /* SidratModelsAvatarOption.swift */; };
 		FEA0001 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0020 /* OnboardingView.swift */; };
@@ -63,6 +65,8 @@
 		SRC0031 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		SRC0032 /* ProfileSwitcherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSwitcherView.swift; sourceTree = "<group>"; };
 		SRC0033 /* ParentalGateComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentalGateComponents.swift; sourceTree = "<group>"; };
+		SRC0040 /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
+		SRC0041 /* SignInWithAppleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInWithAppleButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +114,7 @@
 			isa = PBXGroup;
 			children = (
 				GRP0021 /* Models */,
+				GRP0022 /* Services */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -126,6 +131,14 @@
 				DE0FD7512EFFA10700673B6F /* SidratModelsAvatarOption.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		GRP0022 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0040 /* AuthenticationService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		GRP0030 /* Features */ = {
@@ -216,6 +229,7 @@
 			children = (
 				SRC0031 /* Components.swift */,
 				SRC0033 /* ParentalGateComponents.swift */,
+				SRC0041 /* SignInWithAppleButton.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -339,6 +353,8 @@
 				UI0001 /* Theme.swift in Sources */,
 				UI0002 /* Components.swift in Sources */,
 				UI0003 /* ParentalGateComponents.swift in Sources */,
+				AUTH0001 /* AuthenticationService.swift in Sources */,
+				AUTH0002 /* SignInWithAppleButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

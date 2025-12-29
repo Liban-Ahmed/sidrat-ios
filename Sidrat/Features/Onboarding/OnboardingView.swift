@@ -3,6 +3,7 @@
 //  Sidrat
 //
 //  Premium onboarding experience with COPPA-compliant child profile creation
+//  and Sign in with Apple for parent account creation
 //
 
 import SwiftUI
@@ -17,6 +18,15 @@ struct OnboardingView: View {
         Calendar.current.component(.year, from: Date()) - 6 // Default to age 6
     }()
     @State private var selectedAvatar: AvatarOption = .cat
+    
+    /// Total number of intro pages (before account creation)
+    private var introPageCount: Int { pages.count }
+    
+    /// Index of the account creation page
+    private var accountPageIndex: Int { pages.count }
+    
+    /// Index of the child setup page
+    private var childSetupPageIndex: Int { pages.count + 1 }
     
     private let pages: [OnboardingPage] = [
         OnboardingPage(
@@ -77,13 +87,13 @@ struct OnboardingView: View {
             }
             
             VStack(spacing: 0) {
-                // Skip button
+                // Skip button - only show on intro pages
                 HStack {
                     Spacer()
-                    if currentPage < pages.count {
+                    if currentPage < introPageCount {
                         Button("Skip") {
                             withAnimation(.spring(response: 0.5)) {
-                                currentPage = pages.count
+                                currentPage = accountPageIndex
                             }
                         }
                         .font(.labelMedium)
@@ -98,23 +108,33 @@ struct OnboardingView: View {
                             .tag(index)
                     }
                     
+                    // Account creation page (Sign in with Apple)
+                    AccountCreationView(onComplete: { result in
+                        appState.setParentAccount(from: result)
+                        withAnimation(.spring(response: 0.5)) {
+                            currentPage = childSetupPageIndex
+                        }
+                    })
+                    .tag(accountPageIndex)
+                    
+                    // Child profile setup page
                     ChildSetupView(
                         childName: $childName,
                         selectedBirthYear: $selectedBirthYear,
                         selectedAvatar: $selectedAvatar,
                         onComplete: completeOnboarding
                     )
-                    .tag(pages.count)
+                    .tag(childSetupPageIndex)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.spring(response: 0.5), value: currentPage)
                 
-                // Bottom section - only show for intro pages, not child setup
-                if currentPage < pages.count {
+                // Bottom section - only show for intro pages
+                if currentPage < introPageCount {
                     VStack(spacing: Spacing.lg) {
-                        // Page indicators
+                        // Page indicators (include account page in dots)
                         HStack(spacing: Spacing.xs) {
-                            ForEach(0...pages.count, id: \.self) { index in
+                            ForEach(0...introPageCount, id: \.self) { index in
                                 Capsule()
                                     .fill(currentPage == index ? Color.brandPrimary : Color.textTertiary.opacity(0.3))
                                     .frame(width: currentPage == index ? 28 : 8, height: 8)
@@ -129,7 +149,7 @@ struct OnboardingView: View {
                             }
                         } label: {
                             HStack(spacing: Spacing.sm) {
-                                Text(currentPage == pages.count - 1 ? "Get Started" : "Continue")
+                                Text(currentPage == introPageCount - 1 ? "Get Started" : "Continue")
                                 Image(systemName: "arrow.right")
                                     .font(.system(size: 14, weight: .semibold))
                             }
@@ -595,6 +615,180 @@ struct ChildSetupView: View {
         .accessibilityHint(isFormValid ? "Opens parent verification" : "Enter a name first")
     }
 }
+
+// MARK: - Account Creation View (Sign in with Apple)
+
+/// View for parent account creation with Sign in with Apple
+/// Privacy-first: No email scope requested (COPPA compliance)
+struct AccountCreationView: View {
+    let onComplete: (AuthenticationResult) -> Void
+    
+    @State private var errorMessage: String?
+    @State private var showError = false
+    
+    private let authService = AuthenticationService.shared
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: Spacing.xl) {
+                Spacer()
+                    .frame(height: Spacing.xxl)
+                
+                // Icon
+                iconSection
+                
+                // Text content
+                textSection
+                
+                // Sign in options
+                signInSection
+                
+                // Privacy note
+                privacyNote
+                
+                Spacer()
+            }
+            .padding(.horizontal, Spacing.lg)
+        }
+        .alert("Sign In Error", isPresented: $showError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(errorMessage ?? "An unknown error occurred. Please try again.")
+        }
+    }
+    
+    // MARK: - Icon Section
+    
+    private var iconSection: some View {
+        ZStack {
+            // Outer glow
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [Color.brandPrimary.opacity(0.2), Color.brandPrimary.opacity(0)],
+                        center: .center,
+                        startRadius: 60,
+                        endRadius: 120
+                    )
+                )
+                .frame(width: 240, height: 240)
+            
+            // Inner circle
+            Circle()
+                .fill(Color.brandPrimary.opacity(0.1))
+                .frame(width: 160, height: 160)
+            
+            // Icon background
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [Color.brandPrimary, Color.brandPrimary.opacity(0.8)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 100, height: 100)
+                .shadow(color: Color.brandPrimary.opacity(0.4), radius: 20, y: 10)
+            
+            Image(systemName: "person.crop.circle.badge.checkmark")
+                .font(.system(size: 44, weight: .medium))
+                .foregroundStyle(.white)
+        }
+    }
+    
+    // MARK: - Text Section
+    
+    private var textSection: some View {
+        VStack(spacing: Spacing.md) {
+            // Subtitle badge
+            Text("PARENT ACCOUNT")
+                .font(.captionBold)
+                .foregroundStyle(Color.brandPrimary)
+                .tracking(2)
+                .padding(.horizontal, Spacing.md)
+                .padding(.vertical, Spacing.xs)
+                .background(Color.brandPrimary.opacity(0.1))
+                .clipShape(Capsule())
+            
+            // Title
+            Text("Quick & Secure Setup")
+                .font(.displayMedium)
+                .foregroundStyle(.textPrimary)
+                .multilineTextAlignment(.center)
+            
+            // Description
+            Text("Sign in to sync progress across devices and keep your child's learning safe. We never share your information.")
+                .font(.bodyLarge)
+                .foregroundStyle(.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+                .padding(.horizontal, Spacing.md)
+        }
+    }
+    
+    // MARK: - Sign In Section
+    
+    private var signInSection: some View {
+        VStack(spacing: Spacing.md) {
+            // Sign in with Apple button
+            StyledSignInWithAppleButton(
+                onSuccess: { result in
+                    onComplete(result)
+                },
+                onError: { error in
+                    // Don't show error for user cancellation
+                    guard !error.isUserCanceled else { return }
+                    errorMessage = error.localizedDescription
+                    showError = true
+                }
+            )
+            .frame(height: 56)
+            
+            // Divider with "or"
+            HStack(spacing: Spacing.md) {
+                Rectangle()
+                    .fill(Color.textTertiary.opacity(0.3))
+                    .frame(height: 1)
+                
+                Text("or")
+                    .font(.labelSmall)
+                    .foregroundStyle(.textTertiary)
+                
+                Rectangle()
+                    .fill(Color.textTertiary.opacity(0.3))
+                    .frame(height: 1)
+            }
+            .padding(.vertical, Spacing.xs)
+            
+            // Continue without account button
+            ContinueWithoutAccountButton { result in
+                onComplete(result)
+            }
+            .frame(height: 56)
+        }
+        .padding(.top, Spacing.lg)
+    }
+    
+    // MARK: - Privacy Note
+    
+    private var privacyNote: some View {
+        HStack(spacing: Spacing.xs) {
+            Image(systemName: "lock.shield.fill")
+                .font(.system(size: 14))
+                .foregroundStyle(Color.brandSecondary)
+            
+            Text("Privacy-first: We only use an anonymous identifier. No email or personal data stored.")
+                .font(.caption)
+                .foregroundStyle(.textTertiary)
+                .multilineTextAlignment(.leading)
+        }
+        .padding()
+        .background(Color.backgroundTertiary)
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+        .padding(.top, Spacing.md)
+    }
+    
+    }
 
 #Preview {
     OnboardingView()
