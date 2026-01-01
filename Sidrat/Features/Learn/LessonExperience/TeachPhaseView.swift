@@ -15,6 +15,7 @@ struct TeachPhaseView: View {
     let contents: [TeachContent]
     let category: LessonCategory
     let audioService: AudioNarrationService
+    var audioPlayer: AudioPlayerService? = nil  // Optional bundled audio player
     let onComplete: () -> Void
     
     @Environment(\.isReduceMotionEnabled) private var reduceMotion
@@ -22,6 +23,7 @@ struct TeachPhaseView: View {
     @State private var showContent = false
     @State private var canContinue = false
     @State private var hasStartedNarration = false
+    @State private var showEnhancedControls = true
     
     private var currentContent: TeachContent {
         contents[safe: currentStepIndex] ?? contents[0]
@@ -201,6 +203,173 @@ struct TeachPhaseView: View {
     
     private var audioControlsSection: some View {
         VStack(spacing: Spacing.md) {
+            // Enhanced audio controls with visual indicator
+            if showEnhancedControls {
+                enhancedAudioControls
+                    .padding(.horizontal, Spacing.lg)
+            } else {
+                // Fallback to legacy controls
+                legacyAudioControls
+            }
+        }
+    }
+    
+    // MARK: - Enhanced Audio Controls (New)
+    
+    private var enhancedAudioControls: some View {
+        VStack(spacing: Spacing.md) {
+            // Audio status with animated indicator
+            HStack(spacing: Spacing.sm) {
+                if audioService.playbackState == .playing {
+                    AudioPlayingIndicator(
+                        color: category.color,
+                        barWidth: 4,
+                        barHeight: 20,
+                        minBarHeight: 10
+                    )
+                    .frame(width: 24, height: 24)
+                    
+                    Text("Playing...")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(category.color)
+                } else if audioService.playbackState == .paused {
+                    Image(systemName: "pause.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(category.color)
+                    
+                    Text("Paused")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.textSecondary)
+                }
+                
+                Spacer()
+                
+                // Time display
+                if audioService.duration > 0 {
+                    Text(formatTime(audioService.currentTime))
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.textTertiary)
+                    Text("/")
+                        .font(.caption)
+                        .foregroundStyle(.textTertiary)
+                    Text(formatTime(audioService.duration))
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.textTertiary)
+                }
+            }
+            .padding(.horizontal, Spacing.sm)
+            .opacity(audioService.playbackState == .playing || audioService.playbackState == .paused ? 1 : 0)
+            .animation(.easeInOut(duration: 0.2), value: audioService.playbackState)
+            
+            // Progress bar with scrubbing
+            if audioService.duration > 0 {
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        // Background track
+                        Capsule()
+                            .fill(Color.surfaceTertiary)
+                            .frame(height: 6)
+                        
+                        // Progress fill
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [category.color, category.color.opacity(0.7)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: geometry.size.width * audioService.progress, height: 6)
+                            .animation(.linear(duration: 0.1), value: audioService.progress)
+                        
+                        // Scrubber handle
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 16, height: 16)
+                            .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
+                            .offset(x: (geometry.size.width * audioService.progress) - 8)
+                            .animation(.linear(duration: 0.1), value: audioService.progress)
+                    }
+                }
+                .frame(height: 16)
+            }
+            
+            // Control buttons
+            HStack(spacing: Spacing.lg) {
+                // Replay button (44pt)
+                Button {
+                    replayCurrentStep()
+                    triggerHaptic(.light)
+                } label: {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(.textSecondary)
+                        .frame(width: 44, height: 44)
+                        .background(
+                            Circle()
+                                .fill(Color.surfaceSecondary)
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Replay from beginning")
+                
+                // Main Play/Pause button (60pt)
+                Button {
+                    if audioService.playbackState == .finished {
+                        replayCurrentStep()
+                    } else {
+                        audioService.togglePlayPause()
+                    }
+                    triggerHaptic(.medium)
+                } label: {
+                    ZStack {
+                        Circle()
+                            .fill(category.color)
+                            .frame(width: 60, height: 60)
+                            .shadow(color: category.color.opacity(0.3), radius: 8, y: 4)
+                        
+                        if audioService.playbackState == .loading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        } else {
+                            Image(systemName: audioService.playbackState.icon)
+                                .font(.system(size: 24, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .contentTransition(.symbolEffect(.replace))
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+                .disabled(audioService.playbackState == .loading)
+                .accessibilityLabel(audioService.playbackState.accessibilityLabel)
+                
+                // Visual indicator space (44pt) for balance
+                Group {
+                    if audioService.playbackState == .playing {
+                        CircularAudioIndicator(
+                            color: category.color,
+                            size: 32
+                        )
+                        .frame(width: 44, height: 44)
+                    } else {
+                        Color.clear
+                            .frame(width: 44, height: 44)
+                    }
+                }
+            }
+        }
+        .padding(Spacing.lg)
+        .background(
+            RoundedRectangle(cornerRadius: CornerRadius.large)
+                .fill(Color.surfacePrimary)
+                .shadow(color: .black.opacity(0.08), radius: 12, y: 4)
+        )
+    }
+    
+    // MARK: - Legacy Audio Controls
+    
+    private var legacyAudioControls: some View {
+        VStack(spacing: Spacing.md) {
             // Audio progress bar
             if audioService.playbackState == .playing || audioService.playbackState == .paused {
                 audioProgressBar
@@ -218,6 +387,11 @@ struct TeachPhaseView: View {
                 }
             )
         }
+    }
+    
+    private func triggerHaptic(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {
+        let generator = UIImpactFeedbackGenerator(style: style)
+        generator.impactOccurred()
     }
     
     private var audioProgressBar: some View {
