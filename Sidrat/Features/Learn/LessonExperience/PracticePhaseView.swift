@@ -179,6 +179,7 @@ struct PracticePhaseView: View {
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
                 
+                // Audio play button with indicator
                 Button {
                     if audioService.playbackState == .playing {
                         audioService.pause()
@@ -188,14 +189,25 @@ struct PracticePhaseView: View {
                         audioService.speak(text)
                     }
                 } label: {
-                    if audioService.playbackState == .loading {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                    } else {
-                        Image(systemName: audioService.playbackState == .playing ? "pause.circle.fill" : "speaker.wave.2.circle.fill")
-                            .font(.title2)
-                            .foregroundStyle(category.color)
+                    Group {
+                        if audioService.playbackState == .loading {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        } else if audioService.playbackState == .playing {
+                            // Show animated indicator while playing
+                            AudioPlayingIndicator(
+                                color: category.color,
+                                barWidth: 3,
+                                barHeight: 16,
+                                minBarHeight: 8
+                            )
+                        } else {
+                            Image(systemName: "speaker.wave.2.circle.fill")
+                                .font(.title2)
+                                .foregroundStyle(category.color)
+                        }
                     }
+                    .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.plain)
                 .disabled(audioService.playbackState == .loading)

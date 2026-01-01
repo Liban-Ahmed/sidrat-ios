@@ -144,7 +144,25 @@ struct HookPhaseView: View {
     // MARK: - Progress View
     
     private var progressView: some View {
-        VStack(spacing: Spacing.xs) {
+        VStack(spacing: Spacing.sm) {
+            // Audio playing indicator when narration is active
+            if audioService?.playbackState == .playing {
+                HStack(spacing: Spacing.sm) {
+                    WaveformIndicator(
+                        color: category.color,
+                        barCount: 5,
+                        barWidth: 3,
+                        maxBarHeight: 16,
+                        spacing: 2
+                    )
+                    
+                    Text("Listening...")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(category.color)
+                }
+                .transition(.scale.combined(with: .opacity))
+            }
+            
             // Progress bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
@@ -171,6 +189,7 @@ struct HookPhaseView: View {
                 .font(.caption)
                 .foregroundStyle(.textTertiary)
         }
+        .animation(.easeInOut(duration: 0.3), value: audioService?.playbackState)
     }
     
     private var timeRemainingText: String {

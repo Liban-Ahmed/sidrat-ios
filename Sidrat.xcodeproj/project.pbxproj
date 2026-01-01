@@ -19,7 +19,7 @@
 		FEA0002 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0021 /* HomeView.swift */; };
 		FEA0003 /* LearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0022 /* LearnView.swift */; };
 		FEA0004 /* FamilyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0023 /* FamilyView.swift */; };
-		FEA0005 /* ProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0024 /* ProgressView.swift */; };
+		FEA0005 /* ProgressDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0024 /* ProgressDashboardView.swift */; };
 		FEA0006 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0025 /* SettingsView.swift */; };
 		FEA0007 /* LessonDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0026 /* LessonDetailView.swift */; };
 		FEA0008 /* LessonPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0027 /* LessonPlayerView.swift */; };
@@ -53,6 +53,12 @@
 		LEX0071 /* PhaseIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0071 /* PhaseIndicator.swift */; };
 		LEX0072 /* QuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0072 /* QuizView.swift */; };
 		LEX0073 /* MatchingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0073 /* MatchingView.swift */; };
+		AUD0001 /* AudioPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0080 /* AudioPlayerService.swift */; };
+		AUD0002 /* AudioControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0081 /* AudioControlsView.swift */; };
+		AUD0003 /* AudioPlayingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0082 /* AudioPlayingIndicator.swift */; };
+		AUD0004 /* AudioComponentsShowcase.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0083 /* AudioComponentsShowcase.swift */; };
+		AUD0005 /* SoundEffectsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0084 /* SoundEffectsService.swift */; };
+		AUD0006 /* AudioQueueService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0085 /* AudioQueueService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -72,7 +78,7 @@
 		SRC0021 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		SRC0022 /* LearnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnView.swift; sourceTree = "<group>"; };
 		SRC0023 /* FamilyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyView.swift; sourceTree = "<group>"; };
-		SRC0024 /* ProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressView.swift; sourceTree = "<group>"; };
+		SRC0024 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
 		SRC0025 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		SRC0026 /* LessonDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonDetailView.swift; sourceTree = "<group>"; };
 		SRC0027 /* LessonPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonPlayerView.swift; sourceTree = "<group>"; };
@@ -103,6 +109,12 @@
 		SRC0071 /* PhaseIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhaseIndicator.swift; sourceTree = "<group>"; };
 		SRC0072 /* QuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizView.swift; sourceTree = "<group>"; };
 		SRC0073 /* MatchingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchingView.swift; sourceTree = "<group>"; };
+		SRC0080 /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
+		SRC0081 /* AudioControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioControlsView.swift; sourceTree = "<group>"; };
+		SRC0082 /* AudioPlayingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayingIndicator.swift; sourceTree = "<group>"; };
+		SRC0083 /* AudioComponentsShowcase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioComponentsShowcase.swift; sourceTree = "<group>"; };
+		SRC0084 /* SoundEffectsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundEffectsService.swift; sourceTree = "<group>"; };
+		SRC0085 /* AudioQueueService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioQueueService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,6 +184,9 @@
 			isa = PBXGroup;
 			children = (
 				SRC0040 /* AuthenticationService.swift */,
+				SRC0080 /* AudioPlayerService.swift */,
+				SRC0084 /* SoundEffectsService.swift */,
+				SRC0085 /* AudioQueueService.swift */,
 				SRC0060 /* ElevenLabsService.swift */,
 			);
 			path = Services;
@@ -218,6 +233,9 @@
 				SRC0027 /* LessonPlayerView.swift */,
 				SRC0070 /* LessonPlayerViewModel.swift */,
 				SRC0071 /* PhaseIndicator.swift */,
+				SRC0081 /* AudioControlsView.swift */,
+				SRC0082 /* AudioPlayingIndicator.swift */,
+				SRC0083 /* AudioComponentsShowcase.swift */,
 				SRC0028 /* LessonCompletionView.swift */,
 				GRP0037 /* LessonExperience */,
 				GRP0038 /* PracticeViews */,
@@ -246,7 +264,7 @@
 		GRP0035 /* Progress */ = {
 			isa = PBXGroup;
 			children = (
-				SRC0024 /* ProgressView.swift */,
+				SRC0024 /* ProgressDashboardView.swift */,
 			);
 			path = Progress;
 			sourceTree = "<group>";
@@ -412,7 +430,7 @@
 				FEA0002 /* HomeView.swift in Sources */,
 				FEA0003 /* LearnView.swift in Sources */,
 				FEA0004 /* FamilyView.swift in Sources */,
-				FEA0005 /* ProgressView.swift in Sources */,
+				FEA0005 /* ProgressDashboardView.swift in Sources */,
 				FEA0006 /* SettingsView.swift in Sources */,
 				FEA0007 /* LessonDetailView.swift in Sources */,
 				FEA0008 /* LessonPlayerView.swift in Sources */,
@@ -443,6 +461,12 @@
 				LEX0071 /* PhaseIndicator.swift in Sources */,
 				LEX0072 /* QuizView.swift in Sources */,
 				LEX0073 /* MatchingView.swift in Sources */,
+				AUD0001 /* AudioPlayerService.swift in Sources */,
+				AUD0002 /* AudioControlsView.swift in Sources */,
+				AUD0003 /* AudioPlayingIndicator.swift in Sources */,
+				AUD0004 /* AudioComponentsShowcase.swift in Sources */,
+				AUD0005 /* SoundEffectsService.swift in Sources */,
+				AUD0006 /* AudioQueueService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

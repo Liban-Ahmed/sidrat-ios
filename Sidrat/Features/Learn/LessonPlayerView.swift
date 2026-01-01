@@ -25,6 +25,8 @@ struct LessonPlayerView: View {
     @State private var phaseTransitionOpacity: Double = 1.0
     @State private var headerVisible = true
     @State private var audioService = AudioNarrationService()
+    @State private var audioPlayer = AudioPlayerService()
+    @State private var showAudioControls = false
     
     private var currentChild: Child? {
         guard let childId = appState.currentChildId,
@@ -49,6 +51,29 @@ struct LessonPlayerView: View {
                     // Phase content
                     phaseContent(vm)
                         .opacity(phaseTransitionOpacity)
+                    
+                    Spacer(minLength: 0)
+                }
+                
+                // Floating audio controls overlay (when audio is loaded)
+                if showAudioControls && audioPlayer.playbackState != .idle {
+                    VStack {
+                        Spacer()
+                        
+                        FloatingAudioControls(
+                            audioPlayer: audioPlayer,
+                            category: lesson.category,
+                            onDismiss: {
+                                withAnimation {
+                                    showAudioControls = false
+                                }
+                            }
+                        )
+                        .padding(.trailing, Spacing.lg)
+                        .padding(.bottom, Spacing.xl)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                    }
                 }
             } else {
                 // Loading state
@@ -66,6 +91,7 @@ struct LessonPlayerView: View {
         }
         .onDisappear {
             audioService.stop()
+            audioPlayer.stop()
         }
         .confirmationDialog(
             "Exit Lesson?",
@@ -221,6 +247,7 @@ struct LessonPlayerView: View {
             contents: vm.teachContent,
             category: lesson.category,
             audioService: audioService,
+            audioPlayer: audioPlayer,
             onComplete: {
                 transitionToPhase(.practice, vm: vm)
             }
@@ -272,10 +299,12 @@ struct LessonPlayerView: View {
     private func transitionToPhase(_ newPhase: LessonPlayerViewModel.Phase, vm: LessonPlayerViewModel) {
         // Stop current audio
         audioService.stop()
+        audioPlayer.stop()
         
         // Apply transition animation
         if reduceMotion {
             vm.transitionToPhase(newPhase)
+            loadAudioForPhase(newPhase)
         } else {
             withAnimation(.easeOut(duration: 0.2)) {
                 phaseTransitionOpacity = 0
@@ -283,12 +312,50 @@ struct LessonPlayerView: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                 vm.transitionToPhase(newPhase)
+                self.loadAudioForPhase(newPhase)
                 
                 withAnimation(.easeIn(duration: 0.3)) {
                     phaseTransitionOpacity = 1
                 }
             }
         }
+    }
+    
+    // MARK: - Audio Management
+    
+    /// Load appropriate audio for the current phase
+    private func loadAudioForPhase(_ phase: LessonPlayerViewModel.Phase) {
+        // Show/hide audio controls based on phase
+        withAnimation(.spring(response: 0.4)) {
+            showAudioControls = (phase == .hook || phase == .teach)
+        }
+        
+        // Try to load bundled audio for this phase
+        let audioFileName: String?
+        
+        switch phase {
+        case .hook:
+            audioFileName = "lesson_intro.mp3"
+        case .teach:
+            // Try lesson-specific audio first, fall back to generic
+            audioFileName = "\(lesson.category.rawValue)_story.mp3"
+        case .practice:
+            audioFileName = nil // Practice uses sound effects only
+        case .reward:
+            audioFileName = nil // Reward uses celebratory sounds
+        }
+        
+        if let fileName = audioFileName {
+            if audioPlayer.loadAudio(named: fileName) {
+                // Auto-play for hook phase
+                if phase == .hook {
+                    audioPlayer.play()
+                }
+            }
+        }
+        
+        // Sync audio enabled state
+        audioPlayer.isAudioEnabled = viewModel?.isAudioEnabled ?? true
     }
 }
 
