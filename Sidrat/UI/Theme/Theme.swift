@@ -3,13 +3,37 @@
 //  Sidrat
 //
 //  Design system matching the landing page
+//  Supports Light and Dark mode with adaptive colors
 //
 
 import SwiftUI
 
-// MARK: - Colors (Matching Landing Page)
+// MARK: - Adaptive Color Initializer
 
 extension Color {
+    /// Creates an adaptive color that changes based on light/dark mode
+    init(light: Color, dark: Color) {
+        self.init(UIColor { traitCollection in
+            traitCollection.userInterfaceStyle == .dark
+                ? UIColor(dark)
+                : UIColor(light)
+        })
+    }
+    
+    /// Creates an adaptive color from hex strings for light and dark modes
+    init(lightHex: String, darkHex: String) {
+        self.init(
+            light: Color(hex: lightHex),
+            dark: Color(hex: darkHex)
+        )
+    }
+}
+
+// MARK: - Colors (Matching Landing Page + Dark Mode Support)
+
+extension Color {
+    // MARK: Brand Colors (Same in both modes - vibrant and accessible)
+    
     // Primary - Teal (#0C7489)
     static let brandPrimary = Color(hex: "0C7489")
     static let brandPrimaryLight = Color(hex: "0E8FA6")
@@ -34,30 +58,72 @@ extension Color {
     static let accentBlue = brandPrimary
     static let accentBlueDark = brandPrimaryDark
     
-    // Backgrounds
-    static let backgroundPrimary = Color(hex: "FFFFFF")
-    static let backgroundSecondary = Color(hex: "F5F5F5")
-    static let backgroundTertiary = Color(hex: "EDEDED")
+    // MARK: Adaptive Background Colors
     
-    // Surface colors (aliases for backgrounds - used in lesson experience)
-    static let surfacePrimary = backgroundPrimary
-    static let surfaceSecondary = backgroundSecondary
-    static let surfaceTertiary = backgroundTertiary
+    /// Primary background - Main app background
+    /// Light: Pure white | Dark: Rich dark gray
+    static let backgroundPrimary = Color(lightHex: "FFFFFF", darkHex: "121214")
     
-    // Text colors
-    static let textPrimary = Color(hex: "2C3E3F")
-    static let textSecondary = Color(hex: "6B7280")
-    static let textTertiary = Color(hex: "9CA3AF")
+    /// Secondary background - Cards, sections
+    /// Light: Light gray | Dark: Elevated dark surface
+    static let backgroundSecondary = Color(lightHex: "F5F5F5", darkHex: "1C1C1E")
     
-    // Semantic colors
-    static let success = Color(hex: "488B49")
-    static let warning = Color(hex: "DAA520")
-    static let error = Color(hex: "DC2626")
+    /// Tertiary background - Nested elements, inputs
+    /// Light: Lighter gray | Dark: Slightly elevated surface
+    static let backgroundTertiary = Color(lightHex: "EDEDED", darkHex: "2C2C2E")
     
-    // Gradient colors
+    // MARK: Adaptive Surface Colors (for lesson experience)
+    
+    /// Primary surface - Main content area
+    static let surfacePrimary = Color(lightHex: "FFFFFF", darkHex: "121214")
+    
+    /// Secondary surface - Cards, elevated content
+    static let surfaceSecondary = Color(lightHex: "F5F5F5", darkHex: "1C1C1E")
+    
+    /// Tertiary surface - Nested cards, pill backgrounds
+    static let surfaceTertiary = Color(lightHex: "EDEDED", darkHex: "2C2C2E")
+    
+    // MARK: Adaptive Text Colors
+    
+    /// Primary text - Headings, main content
+    /// Light: Dark teal-gray | Dark: Off-white for eye comfort
+    static let textPrimary = Color(lightHex: "2C3E3F", darkHex: "F5F5F7")
+    
+    /// Secondary text - Subtitles, descriptions
+    /// Light: Medium gray | Dark: Light gray
+    static let textSecondary = Color(lightHex: "6B7280", darkHex: "A1A1A6")
+    
+    /// Tertiary text - Hints, placeholders, timestamps
+    /// Light: Light gray | Dark: Muted gray
+    static let textTertiary = Color(lightHex: "9CA3AF", darkHex: "6B6B70")
+    
+    // MARK: Semantic Colors (Slightly adjusted for dark mode visibility)
+    
+    /// Success color - Completions, correct answers
+    static let success = Color(lightHex: "488B49", darkHex: "5AA85B")
+    
+    /// Warning color - Cautions, pending items
+    static let warning = Color(lightHex: "DAA520", darkHex: "E8B84A")
+    
+    /// Error color - Errors, wrong answers
+    static let error = Color(lightHex: "DC2626", darkHex: "EF4444")
+    
+    // MARK: Gradient Colors
+    
     static let gradientStart = brandPrimary
     static let gradientMid = brandSecondary
     static let gradientEnd = brandAccent
+    
+    // MARK: Dark Mode Specific Colors
+    
+    /// Elevated surface for modals/sheets in dark mode
+    static let surfaceElevated = Color(lightHex: "FFFFFF", darkHex: "2C2C2E")
+    
+    /// Separator/divider color
+    static let separator = Color(lightHex: "E5E5EA", darkHex: "38383A")
+    
+    /// Overlay color for modals
+    static let overlay = Color(lightHex: "000000", darkHex: "000000")
 }
 
 // MARK: - ShapeStyle Extensions (for foregroundStyle)
@@ -88,6 +154,8 @@ extension ShapeStyle where Self == Color {
     static var surfacePrimary: Color { Color.surfacePrimary }
     static var surfaceSecondary: Color { Color.surfaceSecondary }
     static var surfaceTertiary: Color { Color.surfaceTertiary }
+    static var surfaceElevated: Color { Color.surfaceElevated }
+    static var separator: Color { Color.separator }
     static var textPrimary: Color { Color.textPrimary }
     static var textSecondary: Color { Color.textSecondary }
     static var textTertiary: Color { Color.textTertiary }
@@ -210,30 +278,114 @@ enum CornerRadius {
     static let full: CGFloat = 9999
 }
 
-// MARK: - Shadows
+// MARK: - Shadows (Adaptive for Light/Dark Mode)
 
 extension View {
+    /// Subtle shadow - for small elevations
     func subtleShadow() -> some View {
-        self
-            .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+        self.modifier(AdaptiveShadowModifier(style: .subtle))
     }
     
+    /// Card shadow - for cards and containers
     func cardShadow() -> some View {
-        self
-            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
-            .shadow(color: .black.opacity(0.05), radius: 16, x: 0, y: 8)
+        self.modifier(AdaptiveShadowModifier(style: .card))
     }
     
+    /// Elevated shadow - for modals and floating elements
     func elevatedShadow() -> some View {
-        self
-            .shadow(color: .black.opacity(0.06), radius: 12, x: 0, y: 6)
-            .shadow(color: .black.opacity(0.08), radius: 24, x: 0, y: 12)
+        self.modifier(AdaptiveShadowModifier(style: .elevated))
     }
     
+    /// Glow shadow - for accent elements (works in both modes)
     func glowShadow(color: Color = .brandPrimary) -> some View {
         self
             .shadow(color: color.opacity(0.3), radius: 10, x: 0, y: 4)
             .shadow(color: color.opacity(0.2), radius: 20, x: 0, y: 8)
+    }
+}
+
+/// Adaptive shadow modifier that adjusts for light/dark mode
+struct AdaptiveShadowModifier: ViewModifier {
+    @Environment(\.colorScheme) var colorScheme
+    
+    enum Style {
+        case subtle, card, elevated
+    }
+    
+    let style: Style
+    
+    func body(content: Content) -> some View {
+        content
+            .shadow(
+                color: shadowColor.opacity(primaryOpacity),
+                radius: primaryRadius,
+                x: 0,
+                y: primaryY
+            )
+            .shadow(
+                color: shadowColor.opacity(secondaryOpacity),
+                radius: secondaryRadius,
+                x: 0,
+                y: secondaryY
+            )
+    }
+    
+    private var shadowColor: Color {
+        colorScheme == .dark ? .white : .black
+    }
+    
+    private var primaryOpacity: Double {
+        switch style {
+        case .subtle:
+            return colorScheme == .dark ? 0.03 : 0.04
+        case .card:
+            return colorScheme == .dark ? 0.05 : 0.05
+        case .elevated:
+            return colorScheme == .dark ? 0.06 : 0.06
+        }
+    }
+    
+    private var secondaryOpacity: Double {
+        switch style {
+        case .subtle:
+            return 0 // No secondary for subtle
+        case .card:
+            return colorScheme == .dark ? 0.04 : 0.05
+        case .elevated:
+            return colorScheme == .dark ? 0.06 : 0.08
+        }
+    }
+    
+    private var primaryRadius: CGFloat {
+        switch style {
+        case .subtle: return 4
+        case .card: return 8
+        case .elevated: return 12
+        }
+    }
+    
+    private var secondaryRadius: CGFloat {
+        switch style {
+        case .subtle: return 0
+        case .card: return 16
+        case .elevated: return 24
+        }
+    }
+    
+    private var primaryY: CGFloat {
+        switch style {
+        case .subtle: return 2
+        case .card: return 4
+        case .elevated: return 6
+        }
+    }
+    
+    private var secondaryY: CGFloat {
+        switch style {
+        case .subtle: return 0
+        case .card: return 8
+        case .elevated: return 12
+        }
     }
 }
 

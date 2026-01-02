@@ -670,9 +670,16 @@ struct StatCard: View {
 
 // MARK: - Previews
 
-#Preview("Home View") {
+#Preview("Home View - Light") {
     HomeView()
         .environment(AppState())
+        .preferredColorScheme(.light)
+}
+
+#Preview("Home View - Dark") {
+    HomeView()
+        .environment(AppState())
+        .preferredColorScheme(.dark)
 }
 
 #Preview("Today's Lesson Card - Active") {
