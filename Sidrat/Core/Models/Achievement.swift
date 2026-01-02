@@ -94,7 +94,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return "flame.fill"
         case .streak7: return "flame.fill"
         case .streak30: return "flame.fill"
-        case .perfectScore: return "100.circle.fill"
+        case .perfectScore: return "checkmark.seal.fill"  // "100.circle.fill" doesn't exist in SF Symbols
         case .wuduMaster: return "drop.fill"
         case .salahStarter: return "person.fill"
         case .quranExplorer: return "book.fill"

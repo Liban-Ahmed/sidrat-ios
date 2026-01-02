@@ -53,6 +53,20 @@ struct EnhancedLessonPlayerView: View {
     // Animation states
     @State private var phaseTransitionOpacity: Double = 1.0
     @State private var headerVisible = true
+
+    private var allowSkipOnFirstViewingForTesting: Bool {
+        #if DEBUG
+        return true
+        #else
+        return false
+        #endif
+    }
+
+    private var canShowSkip: Bool {
+        // For now: allow skipping phases except quizzes (Practice).
+        // Preserve existing product rule in Release; allow override in Debug for testing.
+        content != nil && (progress.canSkipPhase || allowSkipOnFirstViewingForTesting) && currentPhase != .practice
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -131,6 +145,31 @@ struct EnhancedLessonPlayerView: View {
                 .accessibilityHint("Double tap to exit this lesson")
                 
                 Spacer()
+
+                // Skip phase (Hook/Teach/Reward only; not available during Practice quizzes)
+                if canShowSkip {
+                    Button {
+                        skipCurrentPhase()
+                    } label: {
+                        HStack(spacing: Spacing.xs) {
+                            Text("Skip")
+                                .font(.subheadline.weight(.semibold))
+
+                            Image(systemName: "arrow.right")
+                                .font(.subheadline.weight(.semibold))
+                        }
+                        .foregroundStyle(.brandPrimary)
+                        .frame(height: 44)
+                        .padding(.horizontal, Spacing.md)
+                        .background(
+                            Capsule()
+                                .fill(Color.surfaceSecondary)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Skip this section")
+                    .accessibilityHint("Double tap to skip to the next section")
+                }
                 
                 // Audio toggle
                 Button {
@@ -287,12 +326,7 @@ struct EnhancedLessonPlayerView: View {
             break
         }
         
-        // Hide header during reward phase
-        if newPhase == .reward {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                headerVisible = false
-            }
-        }
+        // Keep header visible across phases so skip/audio/exit controls remain consistent.
         
         // Transition animation
         if isReduceMotionEnabled {
@@ -311,6 +345,26 @@ struct EnhancedLessonPlayerView: View {
                     phaseTransitionOpacity = 1
                 }
             }
+        }
+    }
+
+    // MARK: - Skip
+
+    private func skipCurrentPhase() {
+        guard canShowSkip else { return }
+
+        switch currentPhase {
+        case .hook, .teach:
+            if let next = currentPhase.next {
+                transitionToPhase(next)
+            }
+        case .practice:
+            // Quizzes: skip is intentionally disabled.
+            break
+        case .reward:
+            // Skip the celebration and finish the lesson.
+            audioService.stop()
+            completeLesson()
         }
     }
     

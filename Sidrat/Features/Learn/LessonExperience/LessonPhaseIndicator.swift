@@ -76,7 +76,7 @@ private struct PhaseNode: View {
     let isLast: Bool
     
     @Environment(\.isReduceMotionEnabled) private var reduceMotion
-    @State private var isAnimating = false
+    
     
     var body: some View {
         HStack(spacing: 0) {
@@ -97,11 +97,8 @@ private struct PhaseNode: View {
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(iconColor)
             }
-            .scaleEffect(reduceMotion ? 1.0 : (state == .current ? (isAnimating ? 1.1 : 1.0) : 1.0))
-            .animation(
-                reduceMotion ? nil : .easeInOut(duration: 1.0).repeatForever(autoreverses: true),
-                value: isAnimating
-            )
+            // Keep current phase visually emphasized, but stable (no bouncing)
+            .scaleEffect(reduceMotion ? 1.0 : state.scale)
             .accessibilityLabel("\(phase.title), \(accessibilityState)")
             
             // Connector line (except for last phase)
@@ -111,14 +108,6 @@ private struct PhaseNode: View {
                     .frame(width: 24, height: 3)
                     .clipShape(Capsule())
             }
-        }
-        .onAppear {
-            if state == .current && !reduceMotion {
-                isAnimating = true
-            }
-        }
-        .onChange(of: state) { _, newState in
-            isAnimating = newState == .current && !reduceMotion
         }
     }
     

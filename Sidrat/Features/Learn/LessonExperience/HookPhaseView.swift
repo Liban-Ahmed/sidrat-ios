@@ -27,6 +27,7 @@ struct HookPhaseView: View {
     @State private var backgroundPulse: Bool = false
     @State private var autoPlayProgress: Double = 0
     @State private var autoPlayTimer: Timer?
+    @State private var hasStartedAudio: Bool = false
     
     private enum AnimationPhase: Int, Comparable {
         case idle = 0
@@ -61,8 +62,8 @@ struct HookPhaseView: View {
                 
                 // Auto-play progress indicator
                 progressView
-                    .padding(.horizontal, Spacing.xl)
-                    .padding(.bottom, Spacing.lg)
+                .padding(.horizontal, Spacing.xl)
+                .padding(.bottom, Spacing.lg)
                 
                 // Continue button (appears when auto-play completes)
                 if animationPhase >= .complete {
@@ -247,6 +248,9 @@ struct HookPhaseView: View {
     // MARK: - Animation
     
     private func startAnimation() {
+        // Prevent re-triggering if animation already started
+        guard animationPhase == .idle else { return }
+        
         if reduceMotion {
             // Skip animations for reduced motion
             iconScale = 1.0
@@ -278,14 +282,16 @@ struct HookPhaseView: View {
         }
         
         // Phase 3: Question reveals (0.5s)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [self] in
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                 animationPhase = .questionReveal
                 showQuestion = true
                 questionScale = 1.0
             }
             
-            // Play audio narration
+            // Play audio narration (only once)
+            guard !hasStartedAudio else { return }
+            hasStartedAudio = true
             audioService?.speak(content.question)
         }
         
