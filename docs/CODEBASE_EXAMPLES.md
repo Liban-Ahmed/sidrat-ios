@@ -310,3 +310,139 @@ func performAction() {
     }
 }
 ```
+
+## LessonProgressService Pattern (US-204)
+```swift
+// File: Core/Services/LessonProgressService.swift
+import SwiftUI
+import SwiftData
+
+@Observable
+final class LessonProgressService {
+    private let modelContext: ModelContext
+    var errorMessage: String?
+    
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
+    }
+    
+    // Save phase progress
+    func savePhaseProgress(lessonId: UUID, childId: UUID, phase: String) async throws {
+        print("[LessonProgressService] Saving phase: \(phase)")
+        
+        let descriptor = FetchDescriptor<LessonProgress>(
+            predicate: #Predicate<LessonProgress> { progress in
+                progress.lessonId == lessonId && progress.child?.id == childId
+            }
+        )
+        
+        let existingProgress = try? modelContext.fetch(descriptor).first
+        
+        if let progress = existingProgress {
+            progress.markPhaseComplete(phase)
+        } else {
+            let newProgress = LessonProgress(
+                lessonId: lessonId,
+                lastCompletedPhase: phase,
+                phaseProgress: [phase: Date()],
+                lastAccessedAt: Date()
+            )
+            modelContext.insert(newProgress)
+        }
+        
+        try modelContext.save()
+    }
+    
+    // Load partial progress for resume
+    func loadPartialProgress(lessonId: UUID, childId: UUID) -> String? {
+        let descriptor = FetchDescriptor<LessonProgress>(
+            predicate: #Predicate<LessonProgress> { progress in
+                progress.lessonId == lessonId && progress.child?.id == childId
+            }
+        )
+        
+        guard let progress = try? modelContext.fetch(descriptor).first,
+              progress.isPartialProgress,
+              let lastPhase = progress.lastCompletedPhase else {
+            return nil
+        }
+        
+        return lastPhase
+    }
+}
+
+// Usage in ViewModel
+@Observable
+final class LessonPlayerViewModel {
+    private let progressService: LessonProgressService
+    var hasPartialProgress = false
+    var resumeFromPhase: Phase?
+    
+    init(lesson: Lesson, child: Child, modelContext: ModelContext, progressService: LessonProgressService) {
+        self.progressService = progressService
+        // ...
+    }
+    
+    // Check for partial progress on view appear
+    func checkForPartialProgress() async {
+        guard let lastPhaseString = progressService.loadPartialProgress(
+            lessonId: lesson.id,
+            childId: child.id
+        ) else { return }
+        
+        // Map string to phase enum and resume
+        hasPartialProgress = true
+        resumeFromPhase = mapPhase(lastPhaseString)
+        currentPhase = resumeFromPhase!
+    }
+    
+    // Save after each phase transition
+    private func savePhaseProgress(_ phase: Phase) {
+        Task {
+            try? await progressService.savePhaseProgress(
+                lessonId: lesson.id,
+                childId: child.id,
+                phase: phase.rawValue
+            )
+        }
+    }
+}
+
+// Usage in View
+struct LessonPlayerView: View {
+    @State private var viewModel: LessonPlayerViewModel?
+    @State private var showResumeBanner = false
+    
+    var body: some View {
+        VStack {
+            if showResumeBanner, let resumePhase = viewModel?.resumeFromPhase {
+                ResumeBanner(phaseName: resumePhase.title)
+            }
+            // ... rest of view
+        }
+        .task {
+            if let vm = viewModel {
+                await vm.checkForPartialProgress()
+                if vm.hasPartialProgress {
+                    withAnimation { showResumeBanner = true }
+                    Task {
+                        try? await Task.sleep(for: .seconds(3))
+                        withAnimation { showResumeBanner = false }
+                    }
+                }
+            }
+        }
+    }
+    
+    private func setupViewModel() {
+        guard let child = currentChild else { return }
+        let progressService = LessonProgressService(modelContext: modelContext)
+        viewModel = LessonPlayerViewModel(
+            lesson: lesson,
+            child: child,
+            modelContext: modelContext,
+            progressService: progressService
+        )
+    }
+}
+```

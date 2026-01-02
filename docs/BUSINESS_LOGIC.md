@@ -98,19 +98,35 @@ enum LessonPhase {
     case reward     // Auto-advances after 15-30 seconds
 }
 
-// Progress saved after each phase
+// Progress saved after each phase (US-204 Implementation)
 struct PhaseProgress {
     let phase: LessonPhase
     let completedAt: Date
     let attemptsInPractice: Int?  // Only for practice phase
 }
+
+// Stored in LessonProgress model:
+// - phaseProgress: [String: Date] dictionary
+// - lastCompletedPhase: String (hook/teach/practice)
+// - lastAccessedAt: Date (for resume and spaced repetition)
 ```
 
+### Auto-Save Timing (US-204)
+- **After Hook Phase**: Progress saved immediately when transitioning to Teach
+- **After Teach Phase**: Progress saved immediately when transitioning to Practice
+- **After Practice Phase**: Progress saved immediately when transitioning to Reward
+- **After Reward Phase**: Lesson marked complete, partial progress cleared
+- **Save Operation**: Non-blocking async save, UI never freezes
+- **Offline**: All saves work offline using SwiftData local storage
+- **Errors**: Logged but don't interrupt learning experience
+
 ### Partial Progress Resume
-- User can close app mid-lesson
-- Resume from last completed phase
-- Practice phase answers not saved (restart practice)
-- Audio playback position not saved (restart segment)
+- User can close app mid-lesson ✅
+- Resume from last completed phase ✅
+- Resume banner shows for 3 seconds: "Resuming from [Phase]" ✅
+- Practice phase answers NOT saved (restart practice) ✅
+- Audio playback position NOT saved (restart segment) ✅
+- Completed lessons don't show resume (restart from beginning) ✅
 
 ## Lesson Scheduling & Prerequisites
 

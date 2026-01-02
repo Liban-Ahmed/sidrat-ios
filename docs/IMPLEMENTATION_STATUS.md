@@ -85,11 +85,19 @@ This document tracks what's implemented, in progress, and not started.
 - [x] LessonPhase.swift - phase model and logic
 - [x] AudioNarrationService - audio playback for lessons
 - [x] Practice interaction views (multiple types)
+- [x] **US-204: Lesson completion tracking** (Phase-level progress)
+  - [x] Extended LessonProgress model with phase tracking
+  - [x] LessonProgressService - progress management service
+  - [x] Phase-level auto-save after each phase completion
+  - [x] Resume from last completed phase
+  - [x] Resume banner UI in lesson player
+  - [x] CloudKitSyncService stub (deferred to Phase 2)
 
 ### ❌ Not Started
 
 #### Learn Tab (Remaining)
 - [ ] QuranMemorizationView.swift
+- [ ] CloudKit sync implementation (deferred to Phase 2)
 
 #### Family Tab (US-401-403)
 - [x] FamilyView.swift - weekly activities display
@@ -143,8 +151,10 @@ This document tracks what's implemented, in progress, and not started.
 - [x] Sign in with Apple integration
 - [x] Local-only account support (offline mode)
 - [x] Offline persistence - SwiftData with local storage
-- [ ] CloudKit schema - not yet implemented
-- [ ] CloudKit sync engine - planned for future
+- [x] LessonProgressService - phase-level progress tracking (US-204)
+- [x] CloudKitSyncService stub - documented for Phase 2
+- [ ] CloudKit schema - deferred to Phase 2
+- [ ] CloudKit sync engine - deferred to Phase 2
 - [ ] ElevenLabsService for AI voice generation
 
 ## Current File Structure
@@ -167,7 +177,9 @@ Sidrat/
 │       ├── AudioPlayerService.swift ✅
 │       ├── AudioQueueService.swift ✅
 │       ├── ElevenLabsService.swift ✅
-│       └── SoundEffectsService.swift ✅
+│       ├── SoundEffectsService.swift ✅
+│       ├── LessonProgressService.swift ✅ (US-204)
+│       └── CloudKitSyncService.swift ✅ (stub for Phase 2)
 ├── Features/
 │   ├── Onboarding/ ✅
 │   │   ├── OnboardingView.swift
@@ -218,10 +230,11 @@ Sidrat/
 
 ## Next Priorities
 
-1. **CloudKit Integration**
-   - Design CloudKit schema
+1. **CloudKit Integration** (Phase 2)
+   - Design CloudKit schema (documented in CloudKitSyncService.swift)
    - Implement sync engine
    - Test conflict resolution
+   - Enable 5-second sync target
 
 2. **Quran Memorization Feature** (US-205)
    - QuranMemorizationView

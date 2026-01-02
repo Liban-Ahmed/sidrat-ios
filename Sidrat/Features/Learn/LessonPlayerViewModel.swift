@@ -173,7 +173,15 @@ final class LessonPlayerViewModel {
     private let lesson: Lesson
     private let child: Child
     private let modelContext: ModelContext
+    private let progressService: LessonProgressService
     private var lessonStartTime: Date = Date()
+    
+    // MARK: - Progress Tracking (US-204)
+    
+    var lessonProgressId: UUID?
+    var lastSavedPhase: Phase?
+    var hasPartialProgress: Bool = false
+    var resumeFromPhase: Phase?
     
     // MARK: - Generated Content
     
@@ -233,10 +241,11 @@ final class LessonPlayerViewModel {
     
     // MARK: - Initialization
     
-    init(lesson: Lesson, child: Child, modelContext: ModelContext) {
+    init(lesson: Lesson, child: Child, modelContext: ModelContext, progressService: LessonProgressService) {
         self.lesson = lesson
         self.child = child
         self.modelContext = modelContext
+        self.progressService = progressService
         
         setupLesson()
     }
@@ -336,6 +345,9 @@ final class LessonPlayerViewModel {
         
         // Mark current phase as complete
         completedPhases.insert(currentPhase)
+        
+        // Save phase progress (US-204)
+        savePhaseProgress(currentPhase)
         
         // Reset step index for new phase
         currentStepIndex = 0
@@ -523,6 +535,16 @@ final class LessonPlayerViewModel {
         do {
             try modelContext.save()
             isLessonComplete = true
+            
+            // Mark lesson as complete in progress service (US-204)
+            Task {
+                try? await progressService.markLessonComplete(
+                    lessonId: lesson.id,
+                    childId: child.id,
+                    score: score,
+                    xpEarned: xpEarned
+                )
+            }
         } catch {
             errorMessage = "Error saving progress: \(error.localizedDescription)"
         }
@@ -638,6 +660,99 @@ final class LessonPlayerViewModel {
     
     func cancelExit() {
         showExitConfirmation = false
+    }
+    
+    // MARK: - Progress Management (US-204)
+    
+    /// Check for partial progress and resume from last completed phase
+    func checkForPartialProgress() async {
+        print("[LessonPlayerViewModel] Checking for partial progress...")
+        
+        guard let lastPhaseString = progressService.loadPartialProgress(
+            lessonId: lesson.id,
+            childId: child.id
+        ) else {
+            print("[LessonPlayerViewModel] No partial progress found")
+            return
+        }
+        
+        // Map phase string to enum
+        let phaseMap: [String: Phase] = [
+            "hook": .hook,
+            "teach": .teach,
+            "practice": .practice,
+            "reward": .reward
+        ]
+        
+        guard let lastPhase = phaseMap[lastPhaseString],
+              let nextPhase = lastPhase.next else {
+            print("[LessonPlayerViewModel] Invalid phase or already at reward")
+            return
+        }
+        
+        // Set resume state
+        hasPartialProgress = true
+        resumeFromPhase = nextPhase
+        
+        // Mark phases up to and including last completed as complete
+        for phase in Phase.allCases where phase.rawValue <= lastPhase.rawValue {
+            completedPhases.insert(phase)
+        }
+        
+        // Start from next phase
+        currentPhase = nextPhase
+        currentStepIndex = 0
+        canProceed = false
+        
+        print("[LessonPlayerViewModel] Resuming from \(nextPhase.title) phase")
+    }
+    
+    /// Save progress after completing a phase
+    private func savePhaseProgress(_ phase: Phase) {
+        // Don't save reward phase progress (it means lesson is complete)
+        guard phase != .reward else { return }
+        
+        // Map phase enum to string
+        let phaseString: String
+        switch phase {
+        case .hook: phaseString = "hook"
+        case .teach: phaseString = "teach"
+        case .practice: phaseString = "practice"
+        case .reward: phaseString = "reward"
+        }
+        
+        // Save asynchronously without blocking UI
+        Task {
+            do {
+                try await progressService.savePhaseProgress(
+                    lessonId: lesson.id,
+                    childId: child.id,
+                    phase: phaseString
+                )
+                await MainActor.run {
+                    lastSavedPhase = phase
+                }
+            } catch {
+                print("[LessonPlayerViewModel] Failed to save phase progress: \(error)")
+                await MainActor.run {
+                    errorMessage = "Progress save failed, but you can continue learning."
+                }
+            }
+        }
+    }
+    
+    /// Clear partial progress (used for restart)
+    func clearPartialProgress() async {
+        do {
+            try await progressService.clearPartialProgress(
+                lessonId: lesson.id,
+                childId: child.id
+            )
+            hasPartialProgress = false
+            resumeFromPhase = nil
+        } catch {
+            print("[LessonPlayerViewModel] Failed to clear partial progress: \(error)")
+        }
     }
 }
 

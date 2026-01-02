@@ -16,6 +16,7 @@ struct LessonDetailView: View {
     let lesson: Lesson
     @Query private var children: [Child]
     @State private var showingLessonPlayer = false
+    @State private var hasPartialProgress = false
     
     private var currentChild: Child? {
         guard let childId = appState.currentChildId,
@@ -29,6 +30,26 @@ struct LessonDetailView: View {
     
     private var isCompleted: Bool {
         lessonProgress?.isCompleted ?? false
+    }
+    
+    private var buttonText: String {
+        if isCompleted {
+            return "Practice Again"
+        } else if hasPartialProgress {
+            return "Resume Lesson"
+        } else {
+            return "Start Lesson"
+        }
+    }
+    
+    private var buttonIcon: String {
+        if isCompleted {
+            return "arrow.counterclockwise"
+        } else if hasPartialProgress {
+            return "arrow.clockwise.circle.fill"
+        } else {
+            return "play.fill"
+        }
     }
     
     var body: some View {
@@ -66,6 +87,9 @@ struct LessonDetailView: View {
             }
             .overlay(alignment: .bottom) {
                 startButton
+            }
+            .onAppear {
+                checkForPartialProgress()
             }
             .fullScreenCover(isPresented: $showingLessonPlayer) {
                 if let child = currentChild {
@@ -250,8 +274,8 @@ struct LessonDetailView: View {
                 showingLessonPlayer = true
             } label: {
                 HStack(spacing: Spacing.sm) {
-                    Image(systemName: isCompleted ? "arrow.counterclockwise" : "play.fill")
-                    Text(isCompleted ? "Practice Again" : "Start Lesson")
+                    Image(systemName: buttonIcon)
+                    Text(buttonText)
                 }
                 .font(.labelLarge)
                 .foregroundStyle(.white)
@@ -264,6 +288,15 @@ struct LessonDetailView: View {
             .padding()
             .background(Color.backgroundPrimary)
         }
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func checkForPartialProgress() {
+        guard let child = currentChild else { return }
+        let progressService = LessonProgressService(modelContext: modelContext)
+        
+        hasPartialProgress = progressService.loadPartialProgress(lessonId: lesson.id, childId: child.id) != nil
     }
 }
 

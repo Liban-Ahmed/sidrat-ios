@@ -27,6 +27,7 @@ struct LessonPlayerView: View {
     @State private var audioService = AudioNarrationService()
     @State private var audioPlayer = AudioPlayerService()
     @State private var showAudioControls = false
+    @State private var showResumeBanner = false
     
     private var currentChild: Child? {
         guard let childId = appState.currentChildId,
@@ -42,6 +43,13 @@ struct LessonPlayerView: View {
             
             if let vm = viewModel {
                 VStack(spacing: 0) {
+                    // Resume banner (US-204)
+                    if showResumeBanner, let resumePhase = vm.resumeFromPhase {
+                        ResumeBanner(phaseName: resumePhase.title)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                            .zIndex(1)
+                    }
+                    
                     // Header with phase indicator (hidden during reward)
                     if headerVisible {
                         phaseHeader(vm)
@@ -83,6 +91,24 @@ struct LessonPlayerView: View {
             }
         }
         .navigationBarHidden(true)
+        .task {
+            // Check for partial progress on view appear (US-204)
+            if let vm = viewModel {
+                await vm.checkForPartialProgress()
+                if vm.hasPartialProgress {
+                    withAnimation {
+                        showResumeBanner = true
+                    }
+                    // Auto-dismiss banner after 3 seconds
+                    Task {
+                        try? await Task.sleep(for: .seconds(3))
+                        withAnimation {
+                            showResumeBanner = false
+                        }
+                    }
+                }
+            }
+        }
         .onAppear {
             setupViewModel()
             withAnimation(.spring(response: 0.6).delay(0.2)) {
@@ -109,7 +135,7 @@ struct LessonPlayerView: View {
                 viewModel?.cancelExit()
             }
         } message: {
-            Text("Your progress won't be saved if you exit now.")
+            Text("Your progress is saved! You can resume anytime.")
         }
         .fullScreenCover(isPresented: $showingCompletion) {
             if let vm = viewModel {
@@ -134,10 +160,12 @@ struct LessonPlayerView: View {
     
     private func setupViewModel() {
         guard let child = currentChild else { return }
+        let progressService = LessonProgressService(modelContext: modelContext)
         viewModel = LessonPlayerViewModel(
             lesson: lesson,
             child: child,
-            modelContext: modelContext
+            modelContext: modelContext,
+            progressService: progressService
         )
     }
     
@@ -411,6 +439,39 @@ func generateStepsForLesson(_ lesson: Lesson) -> [LessonStep] {
             icon: lesson.category.iconName
         )
     ]
+}
+
+// MARK: - Resume Banner
+
+/// Banner displayed when resuming from partial progress (US-204)
+struct ResumeBanner: View {
+    let phaseName: String
+    
+    var body: some View {
+        HStack(spacing: Spacing.sm) {
+            Image(systemName: "play.circle.fill")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(.brandPrimary)
+            
+            Text("Resuming from \(phaseName)")
+                .font(.bodyMedium)
+                .foregroundStyle(.textPrimary)
+            
+            Spacer()
+        }
+        .padding(.horizontal, Spacing.lg)
+        .padding(.vertical, Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: CornerRadius.medium)
+                .fill(Color.brandPrimary.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.medium)
+                        .strokeBorder(Color.brandPrimary.opacity(0.3), lineWidth: 1)
+                )
+        )
+        .padding(.horizontal, Spacing.lg)
+        .padding(.top, Spacing.md)
+    }
 }
 
 // MARK: - Preview

@@ -62,6 +62,15 @@ struct HomeView: View {
         }
     }
     
+    /// Check if today's lesson has partial progress (US-204)
+    private var todaysLessonHasPartialProgress: Bool {
+        guard let child = currentChild,
+              let lesson = todaysLesson else { return false }
+        
+        let progressService = LessonProgressService(modelContext: modelContext)
+        return progressService.loadPartialProgress(lessonId: lesson.id, childId: child.id) != nil
+    }
+    
     /// Get lessons completed today
     private var lessonsCompletedToday: Int {
         guard let child = currentChild else { return 0 }
@@ -104,6 +113,7 @@ struct HomeView: View {
                     DailyLessonCard(
                         lesson: todaysLesson,
                         isCompleted: isTodaysLessonCompleted,
+                        hasPartialProgress: todaysLessonHasPartialProgress,
                         onStart: {
                             if let lesson = todaysLesson {
                                 selectedLesson = lesson

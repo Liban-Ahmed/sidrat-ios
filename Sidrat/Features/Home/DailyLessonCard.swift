@@ -39,6 +39,9 @@ struct DailyLessonCard: View {
     /// Whether the lesson has been completed today
     let isCompleted: Bool
     
+    /// Whether the lesson has partial progress (US-204)
+    var hasPartialProgress: Bool = false
+    
     /// Callback when the Start Lesson button is tapped
     let onStart: () -> Void
     
@@ -218,10 +221,10 @@ struct DailyLessonCard: View {
     private func startLessonButton(lesson: Lesson) -> some View {
         Button(action: onStart) {
             HStack(spacing: Spacing.sm) {
-                Image(systemName: "play.fill")
+                Image(systemName: hasPartialProgress ? "arrow.clockwise.circle.fill" : "play.fill")
                     .font(.system(size: 18, weight: .semibold))
                 
-                Text("Start Lesson")
+                Text(hasPartialProgress ? "Resume Lesson" : "Start Lesson")
                     .font(.labelLarge)
                     .fontWeight(.semibold)
             }
@@ -245,8 +248,8 @@ struct DailyLessonCard: View {
             .shadow(color: Color.brandPrimary.opacity(0.4), radius: 12, y: 6)
         }
         .buttonStyle(SpringButtonStyle())
-        .accessibilityLabel("Start lesson: \(lesson.title)")
-        .accessibilityHint("Opens the lesson to begin learning")
+        .accessibilityLabel(hasPartialProgress ? "Resume lesson: \(lesson.title)" : "Start lesson: \(lesson.title)")
+        .accessibilityHint(hasPartialProgress ? "Opens the lesson to continue from where you left off" : "Opens the lesson to begin learning")
         .accessibilityAddTraits(.startsMediaSession)
     }
 }
@@ -570,6 +573,27 @@ struct SpringButtonStyle: ButtonStyle {
         isCompleted: true,
         onStart: { },
         onReplay: { print("Review tapped") }
+    )
+    .padding()
+    .background(Color.backgroundSecondary)
+}
+
+#Preview("Daily Lesson Card - Resume") {
+    let lesson = Lesson(
+        title: "How to Make Wudu",
+        lessonDescription: "Learn the steps of making wudu correctly",
+        category: .wudu,
+        durationMinutes: 5,
+        xpReward: 20,
+        order: 2,
+        weekNumber: 1
+    )
+    
+    return DailyLessonCard(
+        lesson: lesson,
+        isCompleted: false,
+        hasPartialProgress: true,
+        onStart: { print("Resume tapped") }
     )
     .padding()
     .background(Color.backgroundSecondary)
