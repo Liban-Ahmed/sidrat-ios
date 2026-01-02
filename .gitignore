@@ -68,3 +68,9 @@ fastlane/test_output
 *.xcscheme
 *.xcsettings
 Sidrat.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+
+# VSCode settings (personal IDE configuration)
+.vscode/settings.json
+
+# GitHub Copilot workspace files (personal AI assistant configuration)
+.github/
