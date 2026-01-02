@@ -180,7 +180,10 @@ final class AppState {
     private var _lastCompletedDate: Date? = UserDefaults.standard.object(forKey: "lastCompletedDate") as? Date
     private var _parentUserIdentifier: String? = UserDefaults.standard.string(forKey: "parentUserIdentifier")
     private var _isLocalOnlyAccount: Bool = UserDefaults.standard.bool(forKey: "isLocalOnlyAccount")
-    private var _appearanceMode: AppearanceMode
+    private var _appearanceMode: AppearanceMode = {
+        let rawValue = UserDefaults.standard.string(forKey: "appearanceMode") ?? AppearanceMode.system.rawValue
+        return AppearanceMode(rawValue: rawValue) ?? .system
+    }()
     
     var isOnboardingComplete: Bool {
         get { _isOnboardingComplete }
@@ -254,10 +257,6 @@ final class AppState {
         _lastCompletedDate = UserDefaults.standard.object(forKey: "lastCompletedDate") as? Date
         _parentUserIdentifier = UserDefaults.standard.string(forKey: "parentUserIdentifier")
         _isLocalOnlyAccount = UserDefaults.standard.bool(forKey: "isLocalOnlyAccount")
-        
-        // Load appearance mode with fallback to system
-        let appearanceRaw = UserDefaults.standard.string(forKey: "appearanceMode") ?? AppearanceMode.system.rawValue
-        _appearanceMode = AppearanceMode(rawValue: appearanceRaw) ?? .system
     }
     
     /// Sets up the parent account from authentication result
