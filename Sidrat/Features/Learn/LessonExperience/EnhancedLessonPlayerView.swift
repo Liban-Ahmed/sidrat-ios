@@ -52,7 +52,6 @@ struct EnhancedLessonPlayerView: View {
     
     // Animation states
     @State private var phaseTransitionOpacity: Double = 1.0
-    @State private var headerVisible = true
 
     private var allowSkipOnFirstViewingForTesting: Bool {
         #if DEBUG
@@ -326,7 +325,7 @@ struct EnhancedLessonPlayerView: View {
             break
         }
         
-        // Keep header visible across phases so skip/audio/exit controls remain consistent.
+        // Header remains visible across phases so skip/audio/exit controls stay consistent.
         
         // Transition animation
         if isReduceMotionEnabled {

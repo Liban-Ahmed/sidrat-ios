@@ -134,7 +134,11 @@ final class AudioNarrationService: NSObject {
                 wasPausedByMute = true
             }
         } else {
-            // Unmuting: resume if we paused due to mute
+            // Unmuting: cancel any pending silent completion to prevent premature phase transitions
+            pendingSilentCompletion?.cancel()
+            pendingSilentCompletion = nil
+            
+            // Resume if we paused due to mute
             if wasPausedByMute && playbackState == .paused {
                 resume()
                 wasPausedByMute = false
@@ -160,7 +164,8 @@ final class AudioNarrationService: NSObject {
 
         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedText.isEmpty else {
-            // Nothing to speak; treat as immediate completion.
+            // Nothing to speak; clear any previous completion handler and treat as immediate completion.
+            completionHandler = nil
             completion?()
             return
         }
@@ -332,6 +337,7 @@ final class AudioNarrationService: NSObject {
         currentUtterance = nil
         progress = 0
         currentTime = 0
+        wasPausedByMute = false
     }
     
     /// Replay current text from the beginning
@@ -385,6 +391,7 @@ final class AudioNarrationService: NSObject {
         playbackState = .finished
         progress = 1.0
         currentTime = duration
+        wasPausedByMute = false
         // Only fire completion once for the current playback
         let completion = completionHandler
         completionHandler = nil

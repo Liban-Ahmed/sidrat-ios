@@ -180,10 +180,7 @@ final class AppState {
     private var _lastCompletedDate: Date? = UserDefaults.standard.object(forKey: "lastCompletedDate") as? Date
     private var _parentUserIdentifier: String? = UserDefaults.standard.string(forKey: "parentUserIdentifier")
     private var _isLocalOnlyAccount: Bool = UserDefaults.standard.bool(forKey: "isLocalOnlyAccount")
-    private var _appearanceMode: AppearanceMode = {
-        let rawValue = UserDefaults.standard.string(forKey: "appearanceMode") ?? AppearanceMode.system.rawValue
-        return AppearanceMode(rawValue: rawValue) ?? .system
-    }()
+    private var _appearanceMode: AppearanceMode
     
     var isOnboardingComplete: Bool {
         get { _isOnboardingComplete }
