@@ -101,7 +101,7 @@ enum LessonPhase: Int, CaseIterable, Identifiable {
         }
     }
     }
-}
+
 
 // MARK: - Phase Progress
 
