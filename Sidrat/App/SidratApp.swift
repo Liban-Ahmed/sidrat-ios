@@ -128,6 +128,49 @@ struct SidratApp: App {
 
 // MARK: - App State
 
+/// User's preferred appearance mode
+enum AppearanceMode: String, CaseIterable, Codable {
+    case system = "system"
+    case light = "light"
+    case dark = "dark"
+    
+    /// Display name for UI
+    var displayName: String {
+        switch self {
+        case .system: return "System"
+        case .light: return "Light"
+        case .dark: return "Dark"
+        }
+    }
+    
+    /// SF Symbol icon for each mode
+    var icon: String {
+        switch self {
+        case .system: return "circle.lefthalf.filled"
+        case .light: return "sun.max.fill"
+        case .dark: return "moon.fill"
+        }
+    }
+    
+    /// Color for the icon
+    var iconColor: Color {
+        switch self {
+        case .system: return .textSecondary
+        case .light: return .brandAccent
+        case .dark: return .brandPrimary
+        }
+    }
+    
+    /// The color scheme to apply, or nil for system
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
+}
+
 @Observable
 final class AppState {
     // Use private backing storage to trigger observations
@@ -137,6 +180,10 @@ final class AppState {
     private var _lastCompletedDate: Date? = UserDefaults.standard.object(forKey: "lastCompletedDate") as? Date
     private var _parentUserIdentifier: String? = UserDefaults.standard.string(forKey: "parentUserIdentifier")
     private var _isLocalOnlyAccount: Bool = UserDefaults.standard.bool(forKey: "isLocalOnlyAccount")
+    private var _appearanceMode: AppearanceMode = {
+        let rawValue = UserDefaults.standard.string(forKey: "appearanceMode") ?? AppearanceMode.system.rawValue
+        return AppearanceMode(rawValue: rawValue) ?? .system
+    }()
     
     var isOnboardingComplete: Bool {
         get { _isOnboardingComplete }
@@ -193,6 +240,15 @@ final class AppState {
         parentUserIdentifier != nil
     }
     
+    /// User's preferred appearance mode (system/light/dark)
+    var appearanceMode: AppearanceMode {
+        get { _appearanceMode }
+        set {
+            _appearanceMode = newValue
+            UserDefaults.standard.set(newValue.rawValue, forKey: "appearanceMode")
+        }
+    }
+    
     init() {
         // Load initial values from UserDefaults
         _isOnboardingComplete = UserDefaults.standard.bool(forKey: "isOnboardingComplete")
@@ -201,6 +257,10 @@ final class AppState {
         _lastCompletedDate = UserDefaults.standard.object(forKey: "lastCompletedDate") as? Date
         _parentUserIdentifier = UserDefaults.standard.string(forKey: "parentUserIdentifier")
         _isLocalOnlyAccount = UserDefaults.standard.bool(forKey: "isLocalOnlyAccount")
+        
+        // Load appearance mode with fallback to system
+        let appearanceRaw = UserDefaults.standard.string(forKey: "appearanceMode") ?? AppearanceMode.system.rawValue
+        _appearanceMode = AppearanceMode(rawValue: appearanceRaw) ?? .system
     }
     
     /// Sets up the parent account from authentication result
@@ -222,6 +282,7 @@ final class AppState {
         _lastCompletedDate = nil
         _parentUserIdentifier = nil
         _isLocalOnlyAccount = false
+        _appearanceMode = .system
         
         UserDefaults.standard.removeObject(forKey: "isOnboardingComplete")
         UserDefaults.standard.removeObject(forKey: "currentChildId")
@@ -229,6 +290,7 @@ final class AppState {
         UserDefaults.standard.removeObject(forKey: "lastCompletedDate")
         UserDefaults.standard.removeObject(forKey: "parentUserIdentifier")
         UserDefaults.standard.removeObject(forKey: "isLocalOnlyAccount")
+        UserDefaults.standard.removeObject(forKey: "appearanceMode")
         
         // Also sign out from authentication service
         AuthenticationService.shared.signOut()

@@ -21,6 +21,7 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.4), value: appState.isOnboardingComplete)
+        .preferredColorScheme(appState.appearanceMode.colorScheme)
         .onAppear {
             seedTestDataIfNeeded()
         }
@@ -47,7 +48,14 @@ struct RootView: View {
     }
 }
 
-#Preview {
+#Preview("Light Mode") {
     RootView()
         .environment(AppState())
+        .preferredColorScheme(.light)
+}
+
+#Preview("Dark Mode") {
+    RootView()
+        .environment(AppState())
+        .preferredColorScheme(.dark)
 }

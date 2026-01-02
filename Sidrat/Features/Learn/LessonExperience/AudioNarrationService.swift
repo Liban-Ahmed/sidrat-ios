@@ -34,8 +34,15 @@ final class AudioNarrationService: NSObject {
     /// Total duration of current audio in seconds
     private(set) var duration: TimeInterval = 0
     
-    /// Whether audio is enabled
-    var isAudioEnabled: Bool = true
+    /// Whether audio is enabled (mute/unmute)
+    var isAudioEnabled: Bool = true {
+        didSet {
+            handleAudioEnabledChange(oldValue: oldValue)
+        }
+    }
+    
+    /// Tracks if playback was paused due to muting (to resume when unmuted)
+    private var wasPausedByMute: Bool = false
     
     /// Whether currently using ElevenLabs (true) or fallback TTS (false)
     private(set) var isUsingElevenLabs: Bool = false
@@ -48,6 +55,9 @@ final class AudioNarrationService: NSObject {
     
     /// Completion handler for current narration
     private var completionHandler: (() -> Void)?
+
+    /// Work item used when audio is disabled (so we can cancel pending completions on new speak/stop)
+    private var pendingSilentCompletion: DispatchWorkItem?
     
     // MARK: - Audio Players
     
@@ -111,6 +121,27 @@ final class AudioNarrationService: NSObject {
         speechSynthesizer?.delegate = self
     }
     
+    // MARK: - Mute/Unmute Handling
+    
+    /// Handles audio enabled state changes (mute/unmute)
+    private func handleAudioEnabledChange(oldValue: Bool) {
+        guard oldValue != isAudioEnabled else { return }
+        
+        if !isAudioEnabled {
+            // Muting: pause if currently playing
+            if playbackState == .playing {
+                pause()
+                wasPausedByMute = true
+            }
+        } else {
+            // Unmuting: resume if we paused due to mute
+            if wasPausedByMute && playbackState == .paused {
+                resume()
+                wasPausedByMute = false
+            }
+        }
+    }
+    
     // MARK: - Playback Controls
     
     /// Speak the given text with optional completion handler
@@ -123,14 +154,29 @@ final class AudioNarrationService: NSObject {
         rate: Float = 0.45,
         completion: (() -> Void)? = nil
     ) {
+        // Cancel any pending completion from a previous silent (muted) playback
+        pendingSilentCompletion?.cancel()
+        pendingSilentCompletion = nil
+
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedText.isEmpty else {
+            // Nothing to speak; treat as immediate completion.
+            completion?()
+            return
+        }
+
         guard isAudioEnabled else {
             // Skip audio but still call completion after estimated time
-            let wordCount = text.split(separator: " ").count
+            let wordCount = trimmedText.split(separator: " ").count
             let estimatedTime = Double(wordCount) / 2.5
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + estimatedTime) {
+
+            let workItem = DispatchWorkItem { [weak self] in
+                // If another speak/stop happened, this work item will be cancelled.
+                self?.pendingSilentCompletion = nil
                 completion?()
             }
+            pendingSilentCompletion = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + estimatedTime, execute: workItem)
             return
         }
         
@@ -138,7 +184,7 @@ final class AudioNarrationService: NSObject {
         stop()
         
         // Store current text for replay
-        currentText = text
+        currentText = trimmedText
         completionHandler = completion
         
         // Set initial state
@@ -156,7 +202,7 @@ final class AudioNarrationService: NSObject {
                 }
                 
                 // Synthesize with ElevenLabs
-                let audioData = try await ElevenLabsService.shared.synthesize(text: text)
+                let audioData = try await ElevenLabsService.shared.synthesize(text: trimmedText)
                 
                 // Check if task was cancelled
                 if Task.isCancelled { return }
@@ -173,7 +219,7 @@ final class AudioNarrationService: NSObject {
                 
                 // Fallback to system TTS
                 await MainActor.run {
-                    speakWithFallback(text, rate: rate)
+                    speakWithFallback(trimmedText, rate: rate)
                     isUsingElevenLabs = false
                 }
             }
@@ -222,8 +268,14 @@ final class AudioNarrationService: NSObject {
     }
     
     /// Pause current playback
-    func pause() {
+    /// - Parameter userInitiated: Whether the pause was triggered by user action (vs mute)
+    func pause(userInitiated: Bool = false) {
         guard playbackState == .playing else { return }
+        
+        // If user manually pauses, clear the mute-pause flag
+        if userInitiated {
+            wasPausedByMute = false
+        }
         
         if isUsingElevenLabs {
             audioPlayer?.pause()
@@ -249,12 +301,13 @@ final class AudioNarrationService: NSObject {
         startProgressTimer()
     }
     
-    /// Toggle play/pause
+    /// Toggle play/pause (user-initiated)
     func togglePlayPause() {
         switch playbackState {
         case .playing:
-            pause()
+            pause(userInitiated: true)
         case .paused:
+            wasPausedByMute = false  // Clear mute flag since user is manually resuming
             resume()
         case .idle, .finished, .loading:
             break
@@ -263,6 +316,9 @@ final class AudioNarrationService: NSObject {
     
     /// Stop current playback
     func stop() {
+        pendingSilentCompletion?.cancel()
+        pendingSilentCompletion = nil
+
         currentTask?.cancel()
         currentTask = nil
         
@@ -329,7 +385,10 @@ final class AudioNarrationService: NSObject {
         playbackState = .finished
         progress = 1.0
         currentTime = duration
-        completionHandler?()
+        // Only fire completion once for the current playback
+        let completion = completionHandler
+        completionHandler = nil
+        completion?()
     }
 }
 
@@ -339,14 +398,20 @@ extension AudioNarrationService: AVAudioPlayerDelegate {
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         DispatchQueue.main.async { [weak self] in
-            self?.handlePlaybackComplete()
+            guard let self else { return }
+            // Ignore callbacks from stale players (prevents old playback completing new narration)
+            guard player === self.audioPlayer else { return }
+            self.handlePlaybackComplete()
         }
     }
     
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: (any Error)?) {
         DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            // Ignore callbacks from stale players
+            guard player === self.audioPlayer else { return }
             print("AudioNarrationService: Decode error: \(error?.localizedDescription ?? "unknown")")
-            self?.playbackState = .idle
+            self.playbackState = .idle
         }
     }
 }
@@ -357,32 +422,45 @@ extension AudioNarrationService: AVSpeechSynthesizerDelegate {
     
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
         DispatchQueue.main.async { [weak self] in
-            self?.playbackState = .playing
+            guard let self else { return }
+            // Ignore stale callbacks (previous utterance finishing/starting late)
+            guard utterance == self.currentUtterance else { return }
+            self.playbackState = .playing
         }
     }
     
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didPause utterance: AVSpeechUtterance) {
         DispatchQueue.main.async { [weak self] in
-            self?.playbackState = .paused
+            guard let self else { return }
+            guard utterance == self.currentUtterance else { return }
+            self.playbackState = .paused
         }
     }
     
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didContinue utterance: AVSpeechUtterance) {
         DispatchQueue.main.async { [weak self] in
-            self?.playbackState = .playing
+            guard let self else { return }
+            guard utterance == self.currentUtterance else { return }
+            self.playbackState = .playing
         }
     }
     
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         DispatchQueue.main.async { [weak self] in
-            self?.handlePlaybackComplete()
+            guard let self else { return }
+            // Critical: ignore finishes from previous utterances.
+            guard utterance == self.currentUtterance else { return }
+            self.handlePlaybackComplete()
         }
     }
     
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         DispatchQueue.main.async { [weak self] in
-            self?.progressTimer?.invalidate()
-            self?.playbackState = .idle
+            guard let self else { return }
+            // Ignore cancels from stale utterances
+            guard utterance == self.currentUtterance else { return }
+            self.progressTimer?.invalidate()
+            self.playbackState = .idle
         }
     }
 }

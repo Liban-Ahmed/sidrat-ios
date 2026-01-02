@@ -50,6 +50,7 @@
 		MOD0005 /* FamilyActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0014 /* FamilyActivity.swift */; };
 		UI0001 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0030 /* Theme.swift */; };
 		UI0002 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0031 /* Components.swift */; };
+		UI0003 /* ColorShowcase.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0033 /* ColorShowcase.swift */; };
 		UI0004 /* AvatarSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0034 /* AvatarSelector.swift */; };
 		UI0005 /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0036 /* AvatarView.swift */; };
 		UI0006 /* ParentalGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0038 /* ParentalGateView.swift */; };
@@ -82,6 +83,7 @@
 		SRC0030 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		SRC0031 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		SRC0032 /* ProfileSwitcherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSwitcherView.swift; sourceTree = "<group>"; };
+		SRC0033 /* ColorShowcase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorShowcase.swift; sourceTree = "<group>"; };
 		SRC0034 /* AvatarSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarSelector.swift; sourceTree = "<group>"; };
 		SRC0035 /* ChildProfileCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProfileCreationView.swift; sourceTree = "<group>"; };
 		SRC0036 /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarView.swift; sourceTree = "<group>"; };
@@ -286,6 +288,7 @@
 		GRP0041 /* Theme */ = {
 			isa = PBXGroup;
 			children = (
+				SRC0033 /* ColorShowcase.swift */,
 				SRC0030 /* Theme.swift */,
 			);
 			path = Theme;
@@ -424,6 +427,7 @@
 				FEA0011 /* ProfileSwitcherView.swift in Sources */,
 				UI0001 /* Theme.swift in Sources */,
 				UI0002 /* Components.swift in Sources */,
+				UI0003 /* ColorShowcase.swift in Sources */,
 				AUTH0002 /* SignInWithAppleButton.swift in Sources */,
 				LEX0001 /* LessonPhase.swift in Sources */,
 				LEX0002 /* AudioNarrationService.swift in Sources */,

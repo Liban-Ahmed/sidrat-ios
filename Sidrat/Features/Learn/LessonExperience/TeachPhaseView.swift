@@ -25,6 +25,9 @@ struct TeachPhaseView: View {
     @State private var hasStartedNarration = false
     @State private var showEnhancedControls = true
     
+    /// Unique ID for current narration - used to invalidate stale completion callbacks
+    @State private var currentNarrationId: UUID = UUID()
+    
     private var currentContent: TeachContent {
         contents[safe: currentStepIndex] ?? contents[0]
     }
@@ -479,6 +482,10 @@ struct TeachPhaseView: View {
         showContent = false
         canContinue = false
         
+        // Generate new narration ID to invalidate any pending callbacks
+        let narrationId = UUID()
+        currentNarrationId = narrationId
+        
         // Animate content appearance
         if reduceMotion {
             showContent = true
@@ -492,10 +499,14 @@ struct TeachPhaseView: View {
         let textToSpeak = "\(currentContent.title). \(currentContent.text)"
         if let funFact = currentContent.funFact {
             audioService.speak("\(textToSpeak) Did you know? \(funFact)") { [self] in
+                // Only enable continue if this narration is still current
+                guard currentNarrationId == narrationId else { return }
                 enableContinue()
             }
         } else {
             audioService.speak(textToSpeak) { [self] in
+                // Only enable continue if this narration is still current
+                guard currentNarrationId == narrationId else { return }
                 enableContinue()
             }
         }
@@ -503,9 +514,9 @@ struct TeachPhaseView: View {
         // Auto-enable continue if no tap required
         if !currentContent.requiresTapToContinue {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [self] in
-                if !canContinue {
-                    enableContinue()
-                }
+                // Only auto-enable if this narration is still current and not already enabled
+                guard currentNarrationId == narrationId, !canContinue else { return }
+                enableContinue()
             }
         }
     }
@@ -538,10 +549,21 @@ struct TeachPhaseView: View {
     
     private func replayCurrentStep() {
         canContinue = false
-        audioService.replay()
         
-        // Re-enable continue when narration completes
-        DispatchQueue.main.asyncAfter(deadline: .now() + currentContent.estimatedDuration) { [self] in
+        // Generate new narration ID to invalidate any pending callbacks from previous narration
+        let narrationId = UUID()
+        currentNarrationId = narrationId
+        
+        // Build the same text that was originally spoken
+        var textToSpeak = "\(currentContent.title). \(currentContent.text)"
+        if let funFact = currentContent.funFact {
+            textToSpeak += " Did you know? \(funFact)"
+        }
+        
+        // Speak with completion handler to re-enable continue
+        audioService.speak(textToSpeak) { [self] in
+            // Only enable continue if this narration is still current
+            guard currentNarrationId == narrationId else { return }
             enableContinue()
         }
     }

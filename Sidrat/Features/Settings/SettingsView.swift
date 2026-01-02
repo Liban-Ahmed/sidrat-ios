@@ -52,6 +52,9 @@ struct SettingsView: View {
                 // Profile section
                 profileSection
                 
+                // Appearance settings (light/dark mode)
+                appearanceSection
+                
                 // Notifications (gated)
                 notificationsSection
                 
@@ -141,6 +144,46 @@ struct SettingsView: View {
             .padding(.vertical, Spacing.xs)
         } header: {
             Text("Child Profile")
+        }
+    }
+    
+    // MARK: - Appearance Section
+    
+    private var appearanceSection: some View {
+        Section {
+            ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        appState.appearanceMode = mode
+                    }
+                } label: {
+                    HStack(spacing: Spacing.sm) {
+                        Image(systemName: mode.icon)
+                            .font(.system(size: 18))
+                            .foregroundStyle(mode.iconColor)
+                            .frame(width: 28, height: 28)
+                        
+                        Text(mode.displayName)
+                            .font(.bodyMedium)
+                            .foregroundStyle(.textPrimary)
+                        
+                        Spacer()
+                        
+                        if appState.appearanceMode == mode {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 20))
+                                .foregroundStyle(.brandPrimary)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        } header: {
+            Text("Appearance")
+        } footer: {
+            Text("Choose System to match your device's appearance settings.")
+                .foregroundStyle(.textTertiary)
         }
     }
     
@@ -974,7 +1017,14 @@ struct AboutView: View {
     }
 }
 
-#Preview {
+#Preview("Light Mode") {
     SettingsView()
         .environment(AppState())
+        .preferredColorScheme(.light)
+}
+
+#Preview("Dark Mode") {
+    SettingsView()
+        .environment(AppState())
+        .preferredColorScheme(.dark)
 }
