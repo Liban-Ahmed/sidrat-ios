@@ -52,6 +52,7 @@ struct EnhancedLessonPlayerView: View {
     
     // Animation states
     @State private var phaseTransitionOpacity: Double = 1.0
+    @State private var headerVisible = true
 
     private var allowSkipOnFirstViewingForTesting: Bool {
         #if DEBUG
@@ -83,7 +84,7 @@ struct EnhancedLessonPlayerView: View {
                     }
                     
                     // Header with phase indicator and close button
-                    if headerVisible {
+                    if  headerVisible {
                         headerView
                             .transition(.move(edge: .top).combined(with: .opacity))
                     }
