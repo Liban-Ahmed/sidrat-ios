@@ -21,40 +21,73 @@
 ```
 Sidrat/
 ├── App/                          # App entry and navigation
-│   ├── SidratApp.swift          # @main, AppState, SwiftData container
+│   ├── SidratApp.swift          # @main, AppState (at bottom), SwiftData container
 │   ├── RootView.swift           # Onboarding/Main switch, data seeding
 │   └── MainTabView.swift        # Tab navigation (5 tabs)
 │
 ├── Core/
-│   └── Models/                   # SwiftData models
-│       ├── Child.swift          # Child profile with progress
-│       ├── Lesson.swift         # Lesson content and metadata
-│       ├── LessonProgress.swift # Per-lesson completion tracking
-│       ├── Achievement.swift    # Badges/achievements
-│       └── FamilyActivity.swift # Weekly family activities
+│   ├── Models/                   # SwiftData models
+│   │   ├── Child.swift          # Child profile with progress
+│   │   ├── Lesson.swift         # Lesson content and metadata
+│   │   ├── LessonProgress.swift # Per-lesson completion tracking
+│   │   ├── Achievement.swift    # Badges/achievements
+│   │   ├── FamilyActivity.swift # Weekly family activities
+│   │   └── SidratModelsAvatarOption.swift # Avatar options
+│   └── Services/                 # Core services
+│       ├── AuthenticationService.swift # Sign in with Apple
+│       ├── AudioPlayerService.swift    # Audio playback
+│       ├── AudioQueueService.swift     # Audio queue management
+│       ├── AudioNarrationService.swift # Lesson narration
+│       ├── SoundEffectsService.swift   # Sound effects
+│       └── ElevenLabsService.swift     # AI voice generation
 │
 ├── Features/                     # Feature modules (MVVM)
-│   ├── Onboarding/              # US-102, US-103
+│   ├── Onboarding/              # US-102, US-103, US-104
+│   │   ├── OnboardingView.swift
+│   │   └── ChildProfileCreationView.swift
 │   ├── Home/                    # US-201
-│   ├── Learn/                   # US-202, US-203, US-204, US-205
+│   │   ├── HomeView.swift
+│   │   ├── DailyLessonCard.swift
+│   │   ├── ProfileSwitcherView.swift
+│   │   └── ProfileSwitcherViewModel.swift
+│   ├── Learn/                   # US-202, US-203, US-204
 │   │   ├── LearnView.swift
 │   │   ├── LessonDetailView.swift
 │   │   ├── LessonPlayerView.swift
-│   │   └── LessonCompletionView.swift
+│   │   ├── LessonPlayerViewModel.swift
+│   │   ├── LessonCompletionView.swift
+│   │   ├── LessonExperience/    # 4-phase lesson structure
+│   │   │   ├── HookPhaseView.swift
+│   │   │   ├── TeachPhaseView.swift
+│   │   │   ├── PracticePhaseView.swift
+│   │   │   └── RewardPhaseView.swift
+│   │   └── PracticeViews/       # Multiple practice types
 │   ├── Family/                  # US-401, US-402, US-403
-│   ├── Progress/                # US-301, US-302, US-303, US-304
+│   │   ├── FamilyView.swift
+│   │   └── FamilyActivityDetailView.swift
+│   ├── Progress/                # US-301, US-302, US-303
+│   │   └── ProgressDashboardView.swift
 │   └── Settings/                # US-501, US-502, US-503, US-504
+│       └── SettingsView.swift
 │
 ├── UI/
 │   ├── Theme/
 │   │   └── Theme.swift          # Colors, typography, spacing, shadows
 │   └── Components/
-│       └── Components.swift     # Reusable UI components
+│       ├── Components.swift     # Reusable UI components
+│       ├── ParentalGateView.swift    # COPPA-compliant parental gate
+│       ├── ParentalGateModifier.swift # Gate view modifiers
+│       ├── AvatarView.swift          # Avatar display
+│       ├── AvatarSelector.swift      # Avatar selection
+│       └── SignInWithAppleButton.swift # Auth button
 │
 └── Resources/
     ├── Assets.xcassets/         # Images, colors, app icon
+    ├── Audio/                   # Audio files folder
     └── Preview Content/         # Preview assets
 ```
+
+**Note:** AppState is defined at the bottom of `SidratApp.swift` (line ~131), not in a separate file.
 
 ---
 

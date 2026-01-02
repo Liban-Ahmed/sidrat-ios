@@ -79,6 +79,28 @@ enum LessonPhase: Int, CaseIterable, Identifiable {
         case .reward: return .practice
         }
     }
+    
+    /// Convert phase to storage string for LessonProgress
+    var storageString: String {
+        switch self {
+        case .hook: return "hook"
+        case .teach: return "teach"
+        case .practice: return "practice"
+        case .reward: return "reward"
+        }
+    }
+    
+    /// Create phase from storage string
+    static func from(storageString: String) -> LessonPhase? {
+        switch storageString {
+        case "hook": return .hook
+        case "teach": return .teach
+        case "practice": return .practice
+        case "reward": return .reward
+        default: return nil
+        }
+    }
+    }
 }
 
 // MARK: - Phase Progress

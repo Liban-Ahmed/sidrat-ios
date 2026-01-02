@@ -45,6 +45,11 @@ struct EnhancedLessonPlayerView: View {
     @State private var totalCount: Int = 0
     @State private var showShareSheet = false
     
+    // Progress tracking (US-204)
+    @State private var progressService: LessonProgressService?
+    @State private var hasPartialProgress = false
+    @State private var showResumeBanner = false
+    
     // Animation states
     @State private var phaseTransitionOpacity: Double = 1.0
     @State private var headerVisible = true
@@ -57,6 +62,13 @@ struct EnhancedLessonPlayerView: View {
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
+                    // Resume banner (US-204)
+                    if showResumeBanner {
+                        ResumeBanner(phaseName: currentPhase.title)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                            .zIndex(1)
+                    }
+                    
                     // Header with phase indicator and close button
                     if headerVisible {
                         headerView
@@ -71,7 +83,9 @@ struct EnhancedLessonPlayerView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
+            progressService = LessonProgressService(modelContext: modelContext)
             setupLesson()
+            checkForPartialProgress()
         }
         .onDisappear {
             audioService.stop()
@@ -86,7 +100,7 @@ struct EnhancedLessonPlayerView: View {
             }
             Button("Continue Learning", role: .cancel) {}
         } message: {
-            Text("Your progress won't be saved if you exit now.")
+            Text("If you exit now, your progress will be saved and you can resume this lesson later.")
         }
         .sheet(isPresented: $showShareSheet) {
             ShareSheet(items: [shareMessage])
@@ -257,6 +271,9 @@ struct EnhancedLessonPlayerView: View {
         // Stop current audio
         audioService.stop()
         
+        // Save current phase progress (US-204)
+        savePhaseProgress(currentPhase)
+        
         // Update progress for completed phase
         switch currentPhase {
         case .hook:
@@ -358,6 +375,18 @@ struct EnhancedLessonPlayerView: View {
         // Save changes
         do {
             try modelContext.save()
+            
+            // Mark lesson as complete in progress service (US-204)
+            if let service = progressService {
+                Task {
+                    try? await service.markLessonComplete(
+                        lessonId: lesson.id,
+                        childId: child.id,
+                        score: finalScore,
+                        xpEarned: xpEarned
+                    )
+                }
+            }
         } catch {
             print("Error saving lesson completion: \(error)")
         }
@@ -440,6 +469,93 @@ struct EnhancedLessonPlayerView: View {
             modelContext.insert(achievement)
             child.totalXP += achievement.achievementType.xpReward
         }
+    }
+    
+    // MARK: - Progress Management (US-204)
+    
+    /// Check for partial progress and resume from last completed phase
+    private func checkForPartialProgress() {
+        guard let service = progressService else { return }
+        
+        guard let lastPhaseString = service.loadPartialProgress(
+            lessonId: lesson.id,
+            childId: child.id
+        ) else {
+            return
+        }
+        
+        // Map phase string to enum using centralized method
+        guard let lastPhase = LessonPhase.from(storageString: lastPhaseString),
+              let nextPhase = lastPhase.next else {
+            return
+        }
+        
+        // Set resume state
+        hasPartialProgress = true
+        currentPhase = nextPhase
+        progress.currentPhase = nextPhase
+        
+        // Mark phases up to last completed
+        switch lastPhase {
+        case .hook:
+            progress.hookCompleted = true
+        case .teach:
+            progress.hookCompleted = true
+            progress.teachStepsCompleted = progress.teachTotalSteps
+        case .practice:
+            progress.hookCompleted = true
+            progress.teachStepsCompleted = progress.teachTotalSteps
+        case .reward:
+            break // Shouldn't happen
+        }
+        
+        // Show resume banner
+        withAnimation {
+            showResumeBanner = true
+        }
+        
+        // Auto-dismiss banner after 3 seconds
+        Task {
+            try? await Task.sleep(for: .seconds(3))
+            withAnimation {
+                showResumeBanner = false
+            }
+        }
+        
+        print("[EnhancedLessonPlayerView] Resuming from \(nextPhase.title) phase")
+    }
+    
+    /// Save progress after completing a phase
+    private func savePhaseProgress(_ phase: LessonPhase) {
+        guard let service = progressService else { return }
+        
+        // Don't save reward phase progress (it means lesson is complete)
+        guard phase != .reward else { return }
+        
+        // Map phase enum to string using centralized property
+        let phaseString = phase.storageString
+        
+        // Save asynchronously without blocking UI
+        Task {
+            do {
+                try await service.savePhaseProgress(
+                    lessonId: lesson.id,
+                    childId: child.id,
+                    phase: phaseString
+                )
+                print("[EnhancedLessonPlayerView] Phase \(phaseString) saved")
+            } catch {
+                handleProgressServiceError(
+                    context: "saving phase progress for phase \(phaseString)",
+                    error: error
+                )
+            }
+        }
+    }
+    
+    /// Centralized handler for progress service errors so behavior is consistent across operations
+    private func handleProgressServiceError(context: String, error: Error) {
+        print("[EnhancedLessonPlayerView] Progress service error while \(context): \(error)")
     }
 }
 

@@ -1,0 +1,17 @@
+{
+    "github.copilot.chat.customOAIModels": {
+
+    },
+    "chat.instructionsFilesLocations": {
+        ".github": true
+    },
+    "chat.agent.maxRequests": 30,
+    "github.copilot.chat.agent.autoFix": true,
+    "github.copilot.chat.scopeSelection": true,
+    "github.copilot.chat.codesearch.enabled": true,
+    "chat.promptFilesRecommendations": {
+        "plan-feature": true,
+        "implement-story": true
+    },
+    "chat.useNestedAgentsMdFiles": true
+}
