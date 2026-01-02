@@ -100,7 +100,7 @@ struct EnhancedLessonPlayerView: View {
             }
             Button("Continue Learning", role: .cancel) {}
         } message: {
-            Text("Your progress is saved! You can resume anytime.")
+            Text("If you exit now, your progress will be saved and you can resume this lesson later.")
         }
         .sheet(isPresented: $showShareSheet) {
             ShareSheet(items: [shareMessage])
@@ -484,15 +484,8 @@ struct EnhancedLessonPlayerView: View {
             return
         }
         
-        // Map phase string to enum
-        let phaseMap: [String: LessonPhase] = [
-            "hook": .hook,
-            "teach": .teach,
-            "practice": .practice,
-            "reward": .reward
-        ]
-        
-        guard let lastPhase = phaseMap[lastPhaseString],
+        // Map phase string to enum using centralized method
+        guard let lastPhase = LessonPhase.from(storageString: lastPhaseString),
               let nextPhase = lastPhase.next else {
             return
         }
@@ -539,10 +532,8 @@ struct EnhancedLessonPlayerView: View {
         // Don't save reward phase progress (it means lesson is complete)
         guard phase != .reward else { return }
         
-        // Map phase enum to string
-        let phaseString = phase.rawValue == 0 ? "hook" :
-                         phase.rawValue == 1 ? "teach" :
-                         phase.rawValue == 2 ? "practice" : "reward"
+        // Map phase enum to string using centralized property
+        let phaseString = phase.storageString
         
         // Save asynchronously without blocking UI
         Task {
@@ -554,9 +545,17 @@ struct EnhancedLessonPlayerView: View {
                 )
                 print("[EnhancedLessonPlayerView] Phase \(phaseString) saved")
             } catch {
-                print("[EnhancedLessonPlayerView] Failed to save phase progress: \(error)")
+                handleProgressServiceError(
+                    context: "saving phase progress for phase \(phaseString)",
+                    error: error
+                )
             }
         }
+    }
+    
+    /// Centralized handler for progress service errors so behavior is consistent across operations
+    private func handleProgressServiceError(context: String, error: Error) {
+        print("[EnhancedLessonPlayerView] Progress service error while \(context): \(error)")
     }
 }
 

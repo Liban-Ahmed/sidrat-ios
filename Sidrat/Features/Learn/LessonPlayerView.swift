@@ -135,7 +135,7 @@ struct LessonPlayerView: View {
                 viewModel?.cancelExit()
             }
         } message: {
-            Text("Your progress is saved! You can resume anytime.")
+            Text("If you exit now, your progress will be saved and you can resume this lesson later.")
         }
         .fullScreenCover(isPresented: $showingCompletion) {
             if let vm = viewModel {

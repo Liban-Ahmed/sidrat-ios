@@ -42,6 +42,27 @@ final class LessonPlayerViewModel {
             }
         }
         
+        /// Convert phase to storage string for LessonProgress
+        var storageString: String {
+            switch self {
+            case .hook: return "hook"
+            case .teach: return "teach"
+            case .practice: return "practice"
+            case .reward: return "reward"
+            }
+        }
+        
+        /// Create phase from storage string
+        static func from(storageString: String) -> Phase? {
+            switch storageString {
+            case "hook": return .hook
+            case "teach": return .teach
+            case "practice": return .practice
+            case "reward": return .reward
+            default: return nil
+            }
+        }
+        
         var color: Color {
             switch self {
             case .hook: return .brandAccent
@@ -676,15 +697,8 @@ final class LessonPlayerViewModel {
             return
         }
         
-        // Map phase string to enum
-        let phaseMap: [String: Phase] = [
-            "hook": .hook,
-            "teach": .teach,
-            "practice": .practice,
-            "reward": .reward
-        ]
-        
-        guard let lastPhase = phaseMap[lastPhaseString],
+        // Map phase string to enum using centralized method
+        guard let lastPhase = Phase.from(storageString: lastPhaseString),
               let nextPhase = lastPhase.next else {
             print("[LessonPlayerViewModel] Invalid phase or already at reward")
             return
@@ -712,14 +726,8 @@ final class LessonPlayerViewModel {
         // Don't save reward phase progress (it means lesson is complete)
         guard phase != .reward else { return }
         
-        // Map phase enum to string
-        let phaseString: String
-        switch phase {
-        case .hook: phaseString = "hook"
-        case .teach: phaseString = "teach"
-        case .practice: phaseString = "practice"
-        case .reward: phaseString = "reward"
-        }
+        // Map phase enum to string using centralized property
+        let phaseString = phase.storageString
         
         // Save asynchronously without blocking UI
         Task {

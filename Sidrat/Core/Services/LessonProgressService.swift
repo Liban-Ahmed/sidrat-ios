@@ -86,7 +86,7 @@ final class LessonProgressService {
     /// - Parameters:
     ///   - lessonId: The lesson's unique identifier
     ///   - childId: The child's unique identifier
-    /// - Returns: The next phase to resume from, or nil if no partial progress exists
+    /// - Returns: The last completed phase, or nil if no partial progress exists. The ViewModel is responsible for determining the next phase to resume.
     func loadPartialProgress(lessonId: UUID, childId: UUID) -> String? {
         print("[LessonProgressService] Loading partial progress for lesson \(lessonId)")
         
@@ -153,8 +153,8 @@ final class LessonProgressService {
         progress.attempts += 1
         progress.lastAccessedAt = Date()
         
-        // Clear partial progress state since lesson is complete
-        // (Keep phaseProgress for historical data)
+        // Clear resume indicator (lastCompletedPhase) since lesson is complete
+        // Keep phaseProgress for historical data
         progress.lastCompletedPhase = nil
         
         // Save
