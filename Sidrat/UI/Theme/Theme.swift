@@ -331,7 +331,7 @@ struct AdaptiveShadowModifier: ViewModifier {
     }
     
     private var shadowColor: Color {
-        colorScheme == .dark ? .white : .black
+        .black
     }
     
     private var primaryOpacity: Double {
