@@ -11,7 +11,6 @@ import SwiftData
 struct ProgressDashboardView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.modelContext) private var modelContext
     @Query private var children: [Child]
     @Query(sort: \Lesson.order) private var lessons: [Lesson]
     @State private var selectedTab = 0
@@ -196,7 +195,17 @@ struct ProgressDashboardView: View {
     // MARK: - Achievements Section
     
     private var achievementsSection: some View {
-        AchievementsBadgeGrid(unlockedAchievements: unlockedAchievements)
+        VStack {
+            if let child = currentChild, let service = achievementService {
+                AchievementGridView(child: child, achievementService: service)
+            } else {
+                EmptyState(
+                    icon: "star.circle",
+                    title: "No Profile Selected",
+                    message: "Select a child profile to view their achievements"
+                )
+            }
+        }
     }
     
     // MARK: - Learning History Section
