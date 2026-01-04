@@ -80,6 +80,7 @@ struct HookPhaseView: View {
         }
         .onDisappear {
             autoPlayTimer?.invalidate()
+            hasStartedAudio = false
         }
     }
     

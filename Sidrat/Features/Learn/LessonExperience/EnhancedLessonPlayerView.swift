@@ -84,7 +84,7 @@ struct EnhancedLessonPlayerView: View {
                     }
                     
                     // Header with phase indicator and close button
-                    if headerVisible {
+                    if  headerVisible {
                         headerView
                             .transition(.move(edge: .top).combined(with: .opacity))
                     }
@@ -326,7 +326,7 @@ struct EnhancedLessonPlayerView: View {
             break
         }
         
-        // Keep header visible across phases so skip/audio/exit controls remain consistent.
+        // Header remains visible across phases so skip/audio/exit controls stay consistent.
         
         // Transition animation
         if isReduceMotionEnabled {
