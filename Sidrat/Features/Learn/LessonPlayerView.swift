@@ -161,11 +161,13 @@ struct LessonPlayerView: View {
     private func setupViewModel() {
         guard let child = currentChild else { return }
         let progressService = LessonProgressService(modelContext: modelContext)
+        let streakService = StreakService(modelContext: modelContext)
         viewModel = LessonPlayerViewModel(
             lesson: lesson,
             child: child,
             modelContext: modelContext,
-            progressService: progressService
+            progressService: progressService,
+            streakService: streakService
         )
     }
     

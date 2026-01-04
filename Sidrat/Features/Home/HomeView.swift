@@ -24,6 +24,9 @@ struct HomeView: View {
     @State private var selectedLesson: Lesson?
     @State private var showingProfileSwitcher = false
     @State private var showLessonPlayer = false
+    @State private var showingStreakDetail = false
+    @State private var showingMilestoneCelebration = false
+    @State private var celebrationMilestone: StreakMilestone?
     
     // MARK: - Computed Properties
     
@@ -35,6 +38,17 @@ struct HomeView: View {
     
     private var hasMultipleChildren: Bool {
         children.count > 1
+    }
+    
+    // MARK: - Streak Service (US-303)
+    
+    private var streakService: StreakService {
+        StreakService(modelContext: modelContext)
+    }
+    
+    private var canGrantFreeze: Bool {
+        guard let child = currentChild else { return false }
+        return streakService.canGrantFreeze(to: child)
     }
     
     /// Get today's lesson - the next uncompleted lesson in sequence
@@ -148,6 +162,81 @@ struct HomeView: View {
             .sheet(isPresented: $showingProfileSwitcher) {
                 ProfileSwitcherView()
             }
+            .sheet(isPresented: $showingStreakDetail) {
+                if let child = currentChild {
+                    StreakDetailSheet(
+                        child: child,
+                        canGrantFreeze: canGrantFreeze,
+                        onGrantFreeze: {
+                            try await grantStreakFreeze()
+                        }
+                    )
+                }
+            }
+            .task {
+                // Check for expired streaks on app launch (US-303 Phase 2)
+                await checkExpiredStreaks()
+                
+                // Listen for milestone achievements (US-303 Phase 5)
+                setupMilestoneNotificationListener()
+            }
+            .fullScreenCover(isPresented: $showingMilestoneCelebration) {
+                if let milestone = celebrationMilestone {
+                    StreakMilestoneCelebrationView(
+                        milestone: milestone,
+                        onDismiss: {
+                            showingMilestoneCelebration = false
+                            celebrationMilestone = nil
+                        }
+                    )
+                }
+            }
+        }
+    }
+    
+    // MARK: - Streak Check (US-303)
+    
+    /// Check and reset expired streaks for all children on app launch
+    private func checkExpiredStreaks() async {
+        let streakService = StreakService(modelContext: modelContext)
+        
+        for child in children {
+            do {
+                try await streakService.checkAndResetExpiredStreak(child: child)
+            } catch {
+                #if DEBUG
+                print("❌ [HomeView] Failed to check streak for \(child.name): \(error.localizedDescription)")
+                #endif
+            }
+        }
+    }
+    
+    /// Grant streak freeze to current child
+    private func grantStreakFreeze() async throws {
+        guard let child = currentChild else { return }
+        try await streakService.grantFreeze(to: child)
+    }
+    
+    /// Setup notification listener for milestone achievements (US-303 Phase 5)
+    private func setupMilestoneNotificationListener() {
+        NotificationCenter.default.addObserver(
+            forName: .streakMilestoneAchieved,
+            object: nil,
+            queue: .main
+        ) { notification in
+            // Only show celebration for current child
+            guard let childId = notification.userInfo?["childId"] as? String,
+                  childId == appState.currentChildId,
+                  let milestone = notification.object as? StreakMilestone else {
+                return
+            }
+            
+            #if DEBUG
+            print("🎉 [HomeView] Showing milestone celebration for \(milestone.days) days")
+            #endif
+            
+            celebrationMilestone = milestone
+            showingMilestoneCelebration = true
         }
     }
     
@@ -168,8 +257,17 @@ struct HomeView: View {
             
             Spacer()
             
-            // Streak badge
-            StreakBadge(streak: currentChild?.currentStreak ?? 0)
+            // Enhanced streak badge with tap to show details
+            if let child = currentChild {
+                EnhancedStreakBadge(
+                    streak: child.currentStreak,
+                    hasFreeze: child.availableStreakFreezes > 0,
+                    hoursRemaining: streakService.hoursRemainingToday(),
+                    onTap: {
+                        showingStreakDetail = true
+                    }
+                )
+            }
         }
         .padding()
         .background(Color.backgroundPrimary)

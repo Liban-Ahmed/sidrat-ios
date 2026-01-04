@@ -195,6 +195,7 @@ final class LessonPlayerViewModel {
     private let child: Child
     private let modelContext: ModelContext
     private let progressService: LessonProgressService
+    private let streakService: StreakService
     private var lessonStartTime: Date = Date()
     
     // MARK: - Progress Tracking (US-204)
@@ -262,11 +263,12 @@ final class LessonPlayerViewModel {
     
     // MARK: - Initialization
     
-    init(lesson: Lesson, child: Child, modelContext: ModelContext, progressService: LessonProgressService) {
+    init(lesson: Lesson, child: Child, modelContext: ModelContext, progressService: LessonProgressService, streakService: StreakService) {
         self.lesson = lesson
         self.child = child
         self.modelContext = modelContext
         self.progressService = progressService
+        self.streakService = streakService
         
         setupLesson()
     }
@@ -571,32 +573,24 @@ final class LessonPlayerViewModel {
         }
     }
     
+    /// Update streak using StreakService
+    /// Handles streak increment, freeze consumption, and milestone detection
     private func updateStreak() {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        
-        if let lastActivity = child.lastLessonCompletedDate {
-            let lastActivityDay = calendar.startOfDay(for: lastActivity)
-            let daysDifference = calendar.dateComponents([.day], from: lastActivityDay, to: today).day ?? 0
-            
-            if daysDifference == 1 {
-                // Consecutive day - increase streak
-                child.currentStreak += 1
-                if child.currentStreak > child.longestStreak {
-                    child.longestStreak = child.currentStreak
-                }
-            } else if daysDifference > 1 {
-                // Streak broken - reset
-                child.currentStreak = 1
+        Task {
+            do {
+                // Use StreakService to handle all streak logic including freezes and milestones
+                try await streakService.updateStreakForCompletion(child: child)
+                
+                #if DEBUG
+                print("🔥 [LessonPlayerViewModel] Streak updated via StreakService: \(child.currentStreak)")
+                #endif
+            } catch {
+                #if DEBUG
+                print("❌ [LessonPlayerViewModel] Streak update failed: \(error.localizedDescription)")
+                #endif
+                errorMessage = "Failed to update streak: \(error.localizedDescription)"
             }
-            // If daysDifference == 0, same day - don't change streak
-        } else {
-            // First activity
-            child.currentStreak = 1
-            child.longestStreak = max(child.longestStreak, 1)
         }
-        
-        child.lastLessonCompletedDate = Date()
     }
     
     private func checkAchievements() {
@@ -614,8 +608,12 @@ final class LessonPlayerViewModel {
             newAchievements.append(achievement)
         }
         
-        // Streak achievements
+        // Note: Streak achievements (3, 7, 30, 100 days) now handled by StreakService.checkAndAwardMilestones()
+        // This prevents duplicate achievement checks and ensures freeze logic is considered
+        
+        // Other non-streak achievements below (kept for backward compatibility)
         if child.currentStreak >= 3 && !hasAchievement(.streak3) {
+            // This check kept as fallback, but StreakService should handle it
             let achievement = Achievement(achievementType: .streak3)
             achievement.child = child
             newAchievements.append(achievement)

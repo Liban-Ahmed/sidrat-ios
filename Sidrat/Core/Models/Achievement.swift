@@ -48,6 +48,7 @@ enum AchievementType: String, Codable, CaseIterable {
     case streak3 = "streak_3"
     case streak7 = "streak_7"
     case streak30 = "streak_30"
+    case streak100 = "streak_100"
     case perfectScore = "perfect_score"
     case wuduMaster = "wudu_master"
     case salahStarter = "salah_starter"
@@ -62,6 +63,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return "3 Day Streak"
         case .streak7: return "Week Warrior"
         case .streak30: return "Monthly Master"
+        case .streak100: return "Dedication Master"
         case .perfectScore: return "Perfect Score"
         case .wuduMaster: return "Wudu Master"
         case .salahStarter: return "Salah Starter"
@@ -78,6 +80,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return "Learned for 3 days in a row"
         case .streak7: return "Learned for 7 days in a row"
         case .streak30: return "Learned for 30 days in a row"
+        case .streak100: return "Learned for 100 days in a row!"
         case .perfectScore: return "Got 100% on a lesson!"
         case .wuduMaster: return "Completed all Wudu lessons"
         case .salahStarter: return "Started learning about Salah"
@@ -94,6 +97,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return "flame.fill"
         case .streak7: return "flame.fill"
         case .streak30: return "flame.fill"
+        case .streak100: return "flame.fill"
         case .perfectScore: return "checkmark.seal.fill"  // "100.circle.fill" doesn't exist in SF Symbols
         case .wuduMaster: return "drop.fill"
         case .salahStarter: return "person.fill"
@@ -117,6 +121,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return 30
         case .streak7: return 100
         case .streak30: return 500
+        case .streak100: return 2000
         case .perfectScore: return 50
         case .wuduMaster: return 200
         case .salahStarter: return 50

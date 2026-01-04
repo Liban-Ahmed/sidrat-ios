@@ -167,6 +167,191 @@ struct XPBadge: View {
     }
 }
 
+// MARK: - Enhanced Streak Badge (US-303)
+
+/// Enhanced streak badge with freeze indicator and optional tap action
+struct EnhancedStreakBadge: View {
+    let streak: Int
+    let hasFreeze: Bool
+    let hoursRemaining: Int?
+    let onTap: (() -> Void)?
+    
+    init(
+        streak: Int,
+        hasFreeze: Bool = false,
+        hoursRemaining: Int? = nil,
+        onTap: (() -> Void)? = nil
+    ) {
+        self.streak = streak
+        self.hasFreeze = hasFreeze
+        self.hoursRemaining = hoursRemaining
+        self.onTap = onTap
+    }
+    
+    var body: some View {
+        Group {
+            if let action = onTap {
+                Button(action: action) {
+                    badgeContent
+                }
+                .buttonStyle(.plain)
+            } else {
+                badgeContent
+            }
+        }
+    }
+    
+    private var badgeContent: some View {
+        VStack(spacing: Spacing.xxs) {
+            HStack(spacing: Spacing.xxs) {
+                Image(systemName: "flame.fill")
+                    .foregroundStyle(.brandAccent)
+                
+                Text("\(streak)")
+                    .font(.labelLarge)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.textPrimary)
+                
+                if hasFreeze {
+                    Image(systemName: "snowflake")
+                        .font(.caption)
+                        .foregroundStyle(.brandPrimary)
+                }
+            }
+            
+            if let hours = hoursRemaining, hours > 0, hours <= 3 {
+                Text("\(hours)h left")
+                    .font(.caption)
+                    .foregroundStyle(.textSecondary)
+            }
+        }
+        .padding(.horizontal, Spacing.sm)
+        .padding(.vertical, Spacing.xs)
+        .background(Color.brandAccent.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.small))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityText)
+    }
+    
+    private var accessibilityText: String {
+        var text = "Current streak: \(streak) day"
+        if streak != 1 { text += "s" }
+        if hasFreeze {
+            text += ", freeze available"
+        }
+        if let hours = hoursRemaining, hours > 0, hours <= 3 {
+            text += ", \(hours) hours remaining today"
+        }
+        return text
+    }
+}
+
+// MARK: - Streak Milestone Progress (US-303)
+
+/// Progress bar showing distance to next streak milestone
+struct StreakMilestoneProgress: View {
+    let currentStreak: Int
+    let nextMilestone: StreakMilestone?
+    
+    var progress: Double {
+        guard let milestone = nextMilestone else { return 1.0 }
+        let previousMilestone = getPreviousMilestone(for: milestone.days)
+        let range = Double(milestone.days - previousMilestone)
+        let current = Double(currentStreak - previousMilestone)
+        return min(max(current / range, 0), 1.0)
+    }
+    
+    var body: some View {
+        if let milestone = nextMilestone {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                HStack {
+                    Text(milestoneText)
+                        .font(.bodySmall)
+                        .foregroundStyle(.textSecondary)
+                    
+                    Spacer()
+                    
+                    Text("\(daysRemaining)")
+                        .font(.labelMedium)
+                        .foregroundStyle(.brandPrimary)
+                }
+                
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        // Background track
+                        RoundedRectangle(cornerRadius: CornerRadius.small)
+                            .fill(Color.backgroundSecondary)
+                            .frame(height: 8)
+                        
+                        // Progress fill
+                        RoundedRectangle(cornerRadius: CornerRadius.small)
+                            .fill(
+                                LinearGradient(
+                                    colors: [.brandPrimary, .brandSecondary],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: geometry.size.width * progress, height: 8)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.7), value: progress)
+                        
+                        // Flame icon at progress position
+                        if progress > 0.05 {
+                            Image(systemName: "flame.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.brandAccent)
+                                .offset(x: (geometry.size.width * progress) - 8)
+                                .animation(.spring(response: 0.6, dampingFraction: 0.7), value: progress)
+                        }
+                    }
+                }
+                .frame(height: 8)
+            }
+            .padding(Spacing.md)
+            .background(Color.backgroundPrimary)
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+            .cardShadow()
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Progress to \(milestone.achievementType.title): \(daysRemaining) to next milestone")
+        } else {
+            // All milestones achieved
+            HStack(spacing: Spacing.sm) {
+                Image(systemName: "trophy.fill")
+                    .foregroundStyle(.brandAccent)
+                
+                Text("All streak milestones achieved!")
+                    .font(.bodyMedium)
+                    .foregroundStyle(.textPrimary)
+            }
+            .padding(Spacing.md)
+            .frame(maxWidth: .infinity)
+            .background(Color.success.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+        }
+    }
+    
+    private var milestoneText: String {
+        guard let milestone = nextMilestone else { return "" }
+        return "Next: \(milestone.achievementType.title)"
+    }
+    
+    private var daysRemaining: String {
+        guard let milestone = nextMilestone else { return "" }
+        let remaining = milestone.days - currentStreak
+        return "\(remaining) day\(remaining == 1 ? "" : "s")"
+    }
+    
+    private func getPreviousMilestone(for days: Int) -> Int {
+        let milestones = [0, 3, 7, 30, 100]
+        for (index, milestone) in milestones.enumerated() {
+            if milestone >= days && index > 0 {
+                return milestones[index - 1]
+            }
+        }
+        return milestones.last ?? 0
+    }
+}
+
 // MARK: - Lesson Card
 
 struct LessonCard: View {

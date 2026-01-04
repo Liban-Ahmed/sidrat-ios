@@ -52,6 +52,17 @@ final class Child {
     /// Current week number in curriculum
     var currentWeekNumber: Int = 1
     
+    // MARK: - Streak Freeze System
+    
+    /// Number of streak freezes available (parent can grant 1 per week)
+    var availableStreakFreezes: Int = 0
+    
+    /// Date when last streak freeze was granted by parent
+    var lastStreakFreezeGrantedDate: Date?
+    
+    /// Date when streak freeze was last consumed
+    var lastStreakFreezeUsedDate: Date?
+    
     // MARK: - Relationships
     
     /// Lesson progress history
@@ -174,21 +185,25 @@ extension Child {
     /// - Parameters:
     ///   - xpEarned: Experience points earned from the lesson
     ///   - updateStreak: Whether to update the streak (default true)
+    /// - Note: This method is deprecated. Use StreakService.updateStreakForCompletion() instead.
+    ///         Kept for backward compatibility during migration.
     func recordLessonCompletion(xpEarned: Int, updateStreak: Bool = true) {
         // Update totals
         totalLessonsCompleted += 1
         totalXP += xpEarned
         
-        // Update streak if needed
-        if updateStreak {
-            updateStreakForToday()
-        }
+        // Note: Streak update now handled by StreakService in LessonPlayerViewModel
+        // This method kept for backward compatibility
         
         // Update last completed date
         lastLessonCompletedDate = Date()
     }
     
     /// Update streak based on today's completion
+    /// - Note: DEPRECATED - Use StreakService instead
+    /// This method is kept for backward compatibility but no longer used.
+    /// All streak logic now handled by StreakService which includes freeze support.
+    @available(*, deprecated, message: "Use StreakService.updateStreakForCompletion() instead")
     private func updateStreakForToday() {
         let calendar = Calendar.current
         
