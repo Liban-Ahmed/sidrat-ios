@@ -112,7 +112,20 @@ This document tracks what's implemented, in progress, and not started.
 - [x] Achievement badges with unlock status
 - [x] Streak tracking visualization
 - [x] Learning history timeline
-- [x] Tab selector for Achievements/History
+- [x] Tab selector for Tree/Badges/History
+- [x] **US-301: Learning Tree View** (Complete)
+  - [x] LearningTreeViewModel - tree data and state management
+  - [x] TreeBackgroundView - organic tree trunk and branches
+  - [x] CategoryBranchNode - lesson nodes on branches
+  - [x] WindingPathView - connecting paths between nodes
+  - [x] NodeDetailSheet - lesson details modal
+  - [x] CelebrationOverlay - new achievement celebration
+  - [x] TreeLegendView - growth state explanation
+  - [x] LearningTreeView - main tree component
+  - [x] Tree growth states (skeleton → sprouting → growing → flourishing)
+  - [x] Animated reveal with staggered nodes
+  - [x] Tap-to-view lesson details
+  - [x] Achievement celebration integration
 
 #### Settings Tab (US-501-504)
 - [x] SettingsView.swift - comprehensive settings
@@ -210,7 +223,17 @@ Sidrat/
 │   │   └── FamilyActivityDetailView.swift
 │   ├── Progress/ ✅
 │   │   ├── ProgressView.swift
-│   │   └── ProgressDashboardView.swift
+│   │   ├── ProgressDashboardView.swift
+│   │   ├── Components/
+│   │   │   ├── TreeBackgroundView.swift ✅ (US-301)
+│   │   │   ├── CategoryBranchNode.swift ✅ (US-301)
+│   │   │   ├── WindingPathView.swift ✅ (US-301)
+│   │   │   ├── TreeLegendView.swift ✅ (US-301)
+│   │   │   ├── NodeDetailSheet.swift ✅ (US-301)
+│   │   │   ├── CelebrationOverlay.swift ✅ (US-301)
+│   │   │   └── LearningTreeView.swift ✅ (US-301)
+│   │   └── ViewModels/
+│   │       └── LearningTreeViewModel.swift ✅ (US-301)
 │   └── Settings/ ✅
 │       └── SettingsView.swift
 ├── UI/

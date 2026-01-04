@@ -11,6 +11,7 @@ import SwiftData
 struct ProgressDashboardView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.modelContext) private var modelContext
     @Query private var children: [Child]
     @Query(sort: \Lesson.order) private var lessons: [Lesson]
     @State private var selectedTab = 0
@@ -69,6 +70,8 @@ struct ProgressDashboardView: View {
                     
                     // Content based on tab
                     if selectedTab == 0 {
+                        treeViewSection
+                    } else if selectedTab == 1 {
                         achievementsSection
                     } else {
                         learningHistorySection
@@ -114,77 +117,29 @@ struct ProgressDashboardView: View {
     // MARK: - Stats Overview
     
     private var statsOverview: some View {
-        VStack(spacing: Spacing.md) {
-            // Main stats row
-            HStack(spacing: Spacing.md) {
-                StatBox(
-                    value: "\(currentChild?.totalXP ?? 0)",
-                    label: "Total XP",
-                    icon: "star.fill",
-                    color: .brandAccent
-                )
-                
-                StatBox(
-                    value: "\(currentChild?.currentStreak ?? 0)",
-                    label: "Day Streak",
-                    icon: "flame.fill",
-                    color: .error
-                )
-                
-                StatBox(
-                    value: "\(currentChild?.totalLessonsCompleted ?? 0)",
-                    label: "Lessons",
-                    icon: "book.fill",
-                    color: .brandSecondary
-                )
-            }
-            
-            // Weekly progress bar
-            VStack(alignment: .leading, spacing: Spacing.xs) {
-                HStack {
-                    Text("Weekly Goal")
-                        .font(.labelMedium)
-                        .foregroundStyle(.textPrimary)
-                    
-                    Spacer()
-                    
-                    Text("\(weeklyLessonsCompleted)/5 lessons")
-                        .font(.bodySmall)
-                        .foregroundStyle(.textSecondary)
-                }
-                
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.backgroundTertiary)
-                            .frame(height: 8)
-                        
-                        let progress = min(1.0, Double(weeklyLessonsCompleted) / 5.0)
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(LinearGradient.primaryGradient)
-                            .frame(width: geometry.size.width * progress, height: 8)
-                            .animation(.spring(response: 0.4), value: weeklyLessonsCompleted)
-                    }
-                }
-                .frame(height: 8)
-            }
-        }
-        .padding()
-        .background(Color.backgroundPrimary)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
-        .cardShadow()
+        StatsOverviewCard(
+            totalXP: currentChild?.totalXP ?? 0,
+            currentStreak: currentChild?.currentStreak ?? 0,
+            totalLessons: currentChild?.totalLessonsCompleted ?? 0,
+            weeklyCompleted: weeklyLessonsCompleted,
+            weeklyGoal: 5
+        )
     }
     
     // MARK: - Tab Selector
     
     private var tabSelector: some View {
         HStack(spacing: 0) {
-            TabButton(title: "Achievements", isSelected: selectedTab == 0) {
+            TabButton(title: "Tree", isSelected: selectedTab == 0) {
                 withAnimation { selectedTab = 0 }
             }
             
-            TabButton(title: "History", isSelected: selectedTab == 1) {
+            TabButton(title: "Badges", isSelected: selectedTab == 1) {
                 withAnimation { selectedTab = 1 }
+            }
+            
+            TabButton(title: "History", isSelected: selectedTab == 2) {
+                withAnimation { selectedTab = 2 }
             }
         }
         .padding(4)
@@ -192,116 +147,68 @@ struct ProgressDashboardView: View {
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
     }
     
+    // MARK: - Tree View Section
+    
+    private var treeViewSection: some View {
+        VStack(spacing: Spacing.md) {
+            if let child = currentChild {
+                // Legend showing tree growth state
+                TreeLegendView(growthState: calculateGrowthState())
+                
+                // Main tree visualization
+                // NOTE: Tree is now part of the outer ScrollView - no inner scroll
+                LearningTreeView(child: child, lessons: lessons, modelContext: modelContext)
+                    .id(child.id) // Stabilize identity to prevent unnecessary recreations
+            } else {
+                // Empty state when no child selected
+                EmptyState(
+                    icon: "person.crop.circle.badge.questionmark",
+                    title: "No Profile Selected",
+                    message: "Select a child profile to view their learning tree"
+                )
+            }
+        }
+    }
+    
+    /// Calculate tree growth state based on completion percentage
+    private func calculateGrowthState() -> TreeGrowthState {
+        guard let child = currentChild else { return .skeleton }
+        
+        let completedCount = child.lessonProgress.filter { $0.isCompleted }.count
+        let totalLessons = lessons.count
+        
+        guard totalLessons > 0 else { return .skeleton }
+        
+        let percentage = Double(completedCount) / Double(totalLessons)
+        
+        switch percentage {
+        case 0..<0.25:
+            return .skeleton
+        case 0.25..<0.50:
+            return .sprouting
+        case 0.50..<0.75:
+            return .growing
+        default:
+            return .flourishing
+        }
+    }
+    
     // MARK: - Achievements Section
     
     private var achievementsSection: some View {
-        VStack(spacing: 0) {
-            if let child = currentChild, let service = achievementService {
-                AchievementGridView(child: child, achievementService: service)
-            } else {
-                // Placeholder while loading
-                VStack(spacing: Spacing.md) {
-                    ProgressView()
-                    Text("Loading achievements...")
-                        .font(.bodySmall)
-                        .foregroundStyle(.textSecondary)
-                }
-                .frame(maxWidth: .infinity, minHeight: 300)
-            }
-        }
+        AchievementsBadgeGrid(unlockedAchievements: unlockedAchievements)
     }
     
     // MARK: - Learning History Section
     
     private var learningHistorySection: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            Text("Recent Activity")
-                .font(.title3)
-                .foregroundStyle(.textPrimary)
-            
-            if completedLessonsInfo.isEmpty {
-                VStack(spacing: Spacing.sm) {
-                    Image(systemName: "clock.arrow.circlepath")
-                        .font(.largeTitle)
-                        .foregroundStyle(.textTertiary)
-                    
-                    Text("No lessons completed yet")
-                        .font(.bodyMedium)
-                        .foregroundStyle(.textSecondary)
-                    
-                    Text("Complete your first lesson to see it here!")
-                        .font(.bodySmall)
-                        .foregroundStyle(.textTertiary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Spacing.xl)
-            } else {
-                VStack(spacing: Spacing.sm) {
-                    ForEach(Array(completedLessonsInfo.prefix(5).enumerated()), id: \.offset) { index, info in
-                        HistoryItem(
-                            title: info.lesson.title,
-                            category: info.lesson.category.rawValue,
-                            xp: info.xp,
-                            date: formatRelativeDate(info.completedAt)
-                        )
-                    }
-                }
-            }
-        }
-        .padding()
-        .background(Color.backgroundPrimary)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
-        .cardShadow()
-    }
-    
-    private func formatRelativeDate(_ date: Date) -> String {
-        let calendar = Calendar.current
-        let now = Date()
-        let startOfToday = calendar.startOfDay(for: now)
-        let startOfDate = calendar.startOfDay(for: date)
-        
-        let days = calendar.dateComponents([.day], from: startOfDate, to: startOfToday).day ?? 0
-        
-        switch days {
-        case 0: return "Today"
-        case 1: return "Yesterday"
-        case 2...6: return "\(days) days ago"
-        default:
-            let formatter = DateFormatter()
-            formatter.dateStyle = .short
-            return formatter.string(from: date)
-        }
+        LearningHistoryList(completedLessonsInfo: completedLessonsInfo)
     }
 }
 
 // MARK: - Supporting Views
 
-struct StatBox: View {
-    let value: String
-    let label: String
-    let icon: String
-    let color: Color
-    
-    var body: some View {
-        VStack(spacing: Spacing.xs) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(color)
-            
-            Text(value)
-                .font(.title2)
-                .foregroundStyle(.textPrimary)
-            
-            Text(label)
-                .font(.caption)
-                .foregroundStyle(.textSecondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, Spacing.sm)
-    }
-}
-
-struct TabButton: View {
+private struct TabButton: View {
     let title: String
     let isSelected: Bool
     let action: () -> Void
@@ -316,72 +223,6 @@ struct TabButton: View {
                 .background(isSelected ? Color.backgroundPrimary : Color.clear)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.small))
         }
-    }
-}
-
-struct AchievementCard: View {
-    let achievement: AchievementType
-    let isUnlocked: Bool
-    
-    var body: some View {
-        VStack(spacing: Spacing.xs) {
-            ZStack {
-                Circle()
-                    .fill(isUnlocked ? Color.brandAccent.opacity(0.15) : Color.backgroundTertiary)
-                    .frame(width: 56, height: 56)
-                
-                Image(systemName: achievement.icon)
-                    .font(.title2)
-                    .foregroundStyle(isUnlocked ? .brandAccent : .textTertiary)
-            }
-            
-            Text(achievement.title)
-                .font(.caption)
-                .foregroundStyle(isUnlocked ? .textPrimary : .textTertiary)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-        }
-        .opacity(isUnlocked ? 1 : 0.5)
-    }
-}
-
-struct HistoryItem: View {
-    let title: String
-    let category: String
-    let xp: Int
-    let date: String
-    
-    var body: some View {
-        HStack(spacing: Spacing.md) {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.title2)
-                .foregroundStyle(.brandSecondary)
-            
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text(title)
-                    .font(.labelMedium)
-                    .foregroundStyle(.textPrimary)
-                
-                Text(category)
-                    .font(.caption)
-                    .foregroundStyle(.textSecondary)
-            }
-            
-            Spacer()
-            
-            VStack(alignment: .trailing, spacing: Spacing.xxs) {
-                Text("+\(xp) XP")
-                    .font(.labelSmall)
-                    .foregroundStyle(.brandAccent)
-                
-                Text(date)
-                    .font(.caption)
-                    .foregroundStyle(.textTertiary)
-            }
-        }
-        .padding()
-        .background(Color.backgroundSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.small))
     }
 }
 
