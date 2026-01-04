@@ -35,6 +35,7 @@ struct LaunchSplashView: View {
     @State private var storyboardStep = 0
     @State private var isFloating = false
     @State private var isSparkling = false
+    @State private var animationTasks: [Task<Void, Never>] = []
 
     var body: some View {
         ZStack {
@@ -122,17 +123,31 @@ struct LaunchSplashView: View {
             isFloating = false
             isSparkling = false
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.step1Delay) {
-                storyboardStep = 1
+            let task1 = Task {
+                try? await Task.sleep(nanoseconds: UInt64(Constants.step1Delay * 1_000_000_000))
+                await MainActor.run {
+                    storyboardStep = 1
+                }
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.step2Delay) {
-                storyboardStep = 2
-                isFloating = true
-                isSparkling = true
+            let task2 = Task {
+                try? await Task.sleep(nanoseconds: UInt64(Constants.step2Delay * 1_000_000_000))
+                await MainActor.run {
+                    storyboardStep = 2
+                    isFloating = true
+                    isSparkling = true
+                }
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.step3Delay) {
-                storyboardStep = 3
+            let task3 = Task {
+                try? await Task.sleep(nanoseconds: UInt64(Constants.step3Delay * 1_000_000_000))
+                await MainActor.run {
+                    storyboardStep = 3
+                }
             }
+            animationTasks = [task1, task2, task3]
+        }
+        .onDisappear {
+            animationTasks.forEach { $0.cancel() }
+            animationTasks.removeAll()
         }
     }
 
