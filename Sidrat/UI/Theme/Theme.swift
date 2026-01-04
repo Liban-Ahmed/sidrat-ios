@@ -167,8 +167,9 @@ extension ShapeStyle where Self == Color {
 // MARK: - Color Hex Initializer
 
 extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+    /// Creates a Color from a hex string (e.g., "0C7489" or "#0C7489")
+    init(hex hexString: String) {
+        let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
         let a, r, g, b: UInt64

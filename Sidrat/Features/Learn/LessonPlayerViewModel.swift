@@ -600,57 +600,19 @@ final class LessonPlayerViewModel {
     }
     
     private func checkAchievements() {
-        var newAchievements: [Achievement] = []
+        // Use the new AchievementService for comprehensive achievement checking
+        let achievementService = AchievementService(modelContext: modelContext)
         
-        func hasAchievement(_ type: AchievementType) -> Bool {
-            child.achievements.contains { $0.achievementType == type }
-        }
+        // Check all achievements
+        let newlyUnlocked = achievementService.checkAndUnlockAchievements(for: child)
         
-        // First Lesson achievement
-        let completedLessons = child.lessonProgress.filter { $0.isCompleted }.count
-        if completedLessons == 1 && !hasAchievement(.firstLesson) {
-            let achievement = Achievement(achievementType: .firstLesson)
-            achievement.child = child
-            newAchievements.append(achievement)
-        }
+        // Also check time-based achievements
+        let timeBasedAchievements = achievementService.checkTimeBasedAchievements(for: child)
         
-        // Streak achievements
-        if child.currentStreak >= 3 && !hasAchievement(.streak3) {
-            let achievement = Achievement(achievementType: .streak3)
-            achievement.child = child
-            newAchievements.append(achievement)
-        }
-        
-        if child.currentStreak >= 7 && !hasAchievement(.streak7) {
-            let achievement = Achievement(achievementType: .streak7)
-            achievement.child = child
-            newAchievements.append(achievement)
-        }
-        
-        if child.currentStreak >= 30 && !hasAchievement(.streak30) {
-            let achievement = Achievement(achievementType: .streak30)
-            achievement.child = child
-            newAchievements.append(achievement)
-        }
-        
-        // Super Learner - XP based
-        if child.totalXP >= 500 && !hasAchievement(.superLearner) {
-            let achievement = Achievement(achievementType: .superLearner)
-            achievement.child = child
-            newAchievements.append(achievement)
-        }
-        
-        // Perfect score achievements
-        if score == 100 && !hasAchievement(.perfectScore) {
-            let achievement = Achievement(achievementType: .perfectScore)
-            achievement.child = child
-            newAchievements.append(achievement)
-        }
-        
-        // Insert all new achievements and award XP
-        for achievement in newAchievements {
-            modelContext.insert(achievement)
-            child.totalXP += achievement.achievementType.xpReward
+        // Store newly unlocked achievements for celebration
+        // (The service already handles adding them to the child and awarding XP)
+        if !newlyUnlocked.isEmpty || !timeBasedAchievements.isEmpty {
+            print("[LessonPlayerViewModel] Unlocked \(newlyUnlocked.count + timeBasedAchievements.count) new achievements!")
         }
     }
     

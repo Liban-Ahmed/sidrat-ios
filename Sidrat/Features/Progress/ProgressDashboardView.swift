@@ -10,9 +10,13 @@ import SwiftData
 
 struct ProgressDashboardView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.modelContext) private var modelContext
     @Query private var children: [Child]
     @Query(sort: \Lesson.order) private var lessons: [Lesson]
     @State private var selectedTab = 0
+    @State private var achievementService: AchievementService?
+    @State private var showingAchievementUnlock = false
+    @State private var pendingAchievements: [AchievementType] = []
     
     private var currentChild: Child? {
         guard let childId = appState.currentChildId,
@@ -74,6 +78,36 @@ struct ProgressDashboardView: View {
             }
             .background(Color.backgroundSecondary)
             .navigationTitle("Progress")
+            .onAppear {
+                if achievementService == nil {
+                    achievementService = AchievementService(modelContext: modelContext)
+                }
+                
+                // Check for new achievements when view appears
+                if let child = currentChild, let service = achievementService {
+                    let newAchievements = service.checkAndUnlockAchievements(for: child)
+                    if !newAchievements.isEmpty {
+                        pendingAchievements = newAchievements
+                        showingAchievementUnlock = true
+                    }
+                }
+            }
+        }
+        .overlay {
+            // Achievement unlock celebration overlay
+            if showingAchievementUnlock, let achievement = pendingAchievements.first {
+                AchievementUnlockView(achievement: achievement) {
+                    // Remove the shown achievement from pending
+                    pendingAchievements.removeFirst()
+                    
+                    // If more achievements pending, keep showing
+                    if pendingAchievements.isEmpty {
+                        showingAchievementUnlock = false
+                    }
+                }
+                .transition(.opacity.combined(with: .scale))
+                .zIndex(999)
+            }
         }
     }
     
@@ -161,28 +195,20 @@ struct ProgressDashboardView: View {
     // MARK: - Achievements Section
     
     private var achievementsSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            Text("Your Badges")
-                .font(.title3)
-                .foregroundStyle(.textPrimary)
-            
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: Spacing.md) {
-                ForEach(AchievementType.allCases, id: \.self) { achievement in
-                    AchievementCard(
-                        achievement: achievement,
-                        isUnlocked: unlockedAchievements.contains(achievement)
-                    )
+        VStack(spacing: 0) {
+            if let child = currentChild, let service = achievementService {
+                AchievementGridView(child: child, achievementService: service)
+            } else {
+                // Placeholder while loading
+                VStack(spacing: Spacing.md) {
+                    ProgressView()
+                    Text("Loading achievements...")
+                        .font(.bodySmall)
+                        .foregroundStyle(.textSecondary)
                 }
+                .frame(maxWidth: .infinity, minHeight: 300)
             }
         }
-        .padding()
-        .background(Color.backgroundPrimary)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
-        .cardShadow()
     }
     
     // MARK: - Learning History Section
