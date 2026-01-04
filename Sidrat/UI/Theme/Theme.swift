@@ -252,6 +252,9 @@ extension Font {
     // Caption
     static let caption = Font.system(size: 12, weight: .regular, design: .default)
     static let captionBold = Font.system(size: 12, weight: .semibold, design: .rounded)
+    
+    // Special
+    static let celebrationIcon = Font.system(size: 56, weight: .regular, design: .default)
 }
 
 // MARK: - Spacing

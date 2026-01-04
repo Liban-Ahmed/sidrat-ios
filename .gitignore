@@ -74,3 +74,6 @@ Sidrat.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
 
 # GitHub Copilot workspace files (personal AI assistant configuration)
 .github/
+
+# extra docs
+docs/guides/
