@@ -8,12 +8,15 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import os
 
 @Observable
 final class AchievementService {
     // MARK: - Dependencies
     
     private let modelContext: ModelContext
+
+    private let logger = Logger(subsystem: "Sidrat", category: "AchievementService")
     
     // MARK: - State
     
@@ -24,6 +27,14 @@ final class AchievementService {
     
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
+    }
+
+    private func saveContext(_ reason: String) {
+        do {
+            try modelContext.save()
+        } catch {
+            logger.error("ModelContext save failed (\(reason, privacy: .public)): \(error.localizedDescription, privacy: .public)")
+        }
     }
     
     // MARK: - Main Achievement Checking
@@ -438,14 +449,14 @@ final class AchievementService {
         child.totalXP += type.xpReward
         
         // Save context
-        try? modelContext.save()
+        saveContext("unlockAchievement \(type.rawValue)")
     }
     
     // MARK: - Mark Achievement as Seen
     
     func markAchievementAsSeen(_ achievement: Achievement) {
         achievement.isNew = false
-        try? modelContext.save()
+        saveContext("markAchievementAsSeen")
     }
     
     // MARK: - Get All Progress

@@ -9,6 +9,10 @@ import SwiftUI
 import SwiftData
 
 struct AchievementGridView: View {
+    private enum Constants {
+        static let refreshDelayNanoseconds: UInt64 = 500_000_000 // 0.5 seconds
+    }
+
     // MARK: - Properties
     
     let child: Child
@@ -208,7 +212,7 @@ struct AchievementGridView: View {
         let _ = achievementService.checkAndUnlockAchievements(for: child)
         
         // Brief delay for smooth animation
-        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+        try? await Task.sleep(nanoseconds: Constants.refreshDelayNanoseconds)
         
         isRefreshing = false
     }

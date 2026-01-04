@@ -153,7 +153,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .wuduMaster: return "Wudu Master"
         case .salahMaster: return "Salah Master"
         case .quranMaster: return "Quran Master"
-        case .duaMaster: return "Dua Master"
+        case .duaMaster: return "Du'a Master"
         case .prophetStoriesMaster: return "Story Master"
         case .categoryExplorer: return "Explorer"
         case .allCategoriesMaster: return "Ultimate Master"
@@ -192,7 +192,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .wuduMaster: return "Completed all Wudu lessons"
         case .salahMaster: return "Completed all Salah lessons"
         case .quranMaster: return "Completed all Quran lessons"
-        case .duaMaster: return "Completed all Dua lessons"
+        case .duaMaster: return "Completed all Du'a lessons"
         case .prophetStoriesMaster: return "Completed all Prophet Stories"
         case .categoryExplorer: return "Tried lessons from all categories"
         case .allCategoriesMaster: return "Mastered every category!"
@@ -326,11 +326,11 @@ enum AchievementType: String, Codable, CaseIterable {
         case .firstLesson: return .lessonCount(count: 1)
             
         // Category completion
-        case .wuduMaster: return .categoryCompletion(category: "Wudu")
-        case .salahMaster: return .categoryCompletion(category: "Salah")
-        case .quranMaster: return .categoryCompletion(category: "Quran")
-        case .duaMaster: return .categoryCompletion(category: "Dua")
-        case .prophetStoriesMaster: return .categoryCompletion(category: "Prophet Stories")
+        case .wuduMaster: return .categoryCompletion(category: LessonCategory.wudu.rawValue)
+        case .salahMaster: return .categoryCompletion(category: LessonCategory.salah.rawValue)
+        case .quranMaster: return .categoryCompletion(category: LessonCategory.quran.rawValue)
+        case .duaMaster: return .categoryCompletion(category: LessonCategory.duaa.rawValue)
+        case .prophetStoriesMaster: return .categoryCompletion(category: LessonCategory.stories.rawValue)
         case .categoryExplorer: return .allCategoriesTried
         case .allCategoriesMaster: return .allCategoriesCompleted
             
@@ -432,9 +432,9 @@ enum UnlockRequirement {
             return count == 1 ? "Get a perfect score on a lesson" : "Get perfect scores on \(count) lessons"
         case .timeOfDay(let before, let after):
             if let before = before {
-                return "Complete a lesson before \(before):00 AM"
+                return "Complete a lesson before \(formattedHour(before))"
             } else if let after = after {
-                return "Complete a lesson after \(after):00 PM"
+                return "Complete a lesson after \(formattedHour(after))"
             }
             return "Complete a lesson at a special time"
         case .streakFreezeUsed:
@@ -446,6 +446,14 @@ enum UnlockRequirement {
         case .specialEvent(let name):
             return "Complete \(name) special lesson"
         }
+    }
+
+    private func formattedHour(_ hour24: Int) -> String {
+        // Clamp to a sensible range to avoid confusing output
+        let hour = max(0, min(23, hour24))
+        let isPM = hour >= 12
+        let hour12 = (hour % 12 == 0) ? 12 : (hour % 12)
+        return "\(hour12):00 \(isPM ? "PM" : "AM")"
     }
 }
 

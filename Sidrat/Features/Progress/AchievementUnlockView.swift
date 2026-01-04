@@ -8,6 +8,26 @@
 import SwiftUI
 
 struct AchievementUnlockView: View {
+    private enum Constants {
+        static let autoDismissDelay: TimeInterval = 4
+
+        static let badgePopResponse: Double = 0.6
+        static let badgePopDamping: Double = 0.6
+        static let badgePopScale: CGFloat = 1.2
+
+        static let badgeSettleResponse: Double = 0.3
+        static let badgeSettleDamping: Double = 0.8
+        static let badgeSettleDelay: TimeInterval = 0.3
+
+        static let confettiDelay: TimeInterval = 0.2
+
+        static let textAppearDelay: TimeInterval = 0.5
+        static let textFadeDuration: TimeInterval = 0.4
+
+        static let dismissFadeDuration: TimeInterval = 0.3
+        static let dismissDelay: TimeInterval = 0.3
+    }
+
     // MARK: - Properties
     
     let achievement: AchievementType
@@ -173,7 +193,7 @@ struct AchievementUnlockView: View {
             startCelebration()
             
             // Auto-dismiss after 4 seconds if user doesn't interact
-            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.autoDismissDelay) {
                 if showText {
                     dismissWithAnimation()
                 }
@@ -222,24 +242,24 @@ struct AchievementUnlockView: View {
         } else {
             // Full animation sequence
             // 1. Show badge with spring animation
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.6, blendDuration: 0)) {
+            withAnimation(.spring(response: Constants.badgePopResponse, dampingFraction: Constants.badgePopDamping, blendDuration: 0)) {
                 showBadge = true
-                badgeScale = 1.2
+                badgeScale = Constants.badgePopScale
             }
             
             // 2. Settle badge to final size
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8).delay(0.3)) {
+            withAnimation(.spring(response: Constants.badgeSettleResponse, dampingFraction: Constants.badgeSettleDamping).delay(Constants.badgeSettleDelay)) {
                 badgeScale = 1.0
             }
             
             // 3. Show confetti
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.confettiDelay) {
                 showConfetti = true
             }
             
             // 4. Show text
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation(.easeOut(duration: 0.4)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.textAppearDelay) {
+                withAnimation(.easeOut(duration: Constants.textFadeDuration)) {
                     showText = true
                     textOpacity = 1.0
                 }
@@ -251,12 +271,12 @@ struct AchievementUnlockView: View {
         if reduceMotion {
             onDismiss()
         } else {
-            withAnimation(.easeOut(duration: 0.3)) {
+            withAnimation(.easeOut(duration: Constants.dismissFadeDuration)) {
                 textOpacity = 0
                 badgeScale = 0.8
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.dismissDelay) {
                 onDismiss()
             }
         }
