@@ -10,8 +10,10 @@
 		APP0001 /* SidratApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0001 /* SidratApp.swift */; };
 		APP0002 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0002 /* RootView.swift */; };
 		APP0003 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0003 /* MainTabView.swift */; };
+		APP0004 /* LaunchSplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0110 /* LaunchSplashView.swift */; };
 		AST0001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = RES0001 /* Assets.xcassets */; };
 		AST0002 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = RES0002 /* Preview Assets.xcassets */; };
+		AST0003 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = RES0003 /* LaunchScreen.storyboard */; };
 		AUD0002 /* AudioControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0081 /* AudioControlsView.swift */; };
 		AUD0003 /* AudioPlayingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0082 /* AudioPlayingIndicator.swift */; };
 		AUD0004 /* AudioComponentsShowcase.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0083 /* AudioComponentsShowcase.swift */; };
@@ -76,9 +78,11 @@
 		PROD001 /* Sidrat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sidrat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		RES0001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		RES0002 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		RES0003 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		SRC0001 /* SidratApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidratApp.swift; sourceTree = "<group>"; };
 		SRC0002 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		SRC0003 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		SRC0110 /* LaunchSplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSplashView.swift; sourceTree = "<group>"; };
 		SRC0010 /* Child.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Child.swift; sourceTree = "<group>"; };
 		SRC0011 /* Lesson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lesson.swift; sourceTree = "<group>"; };
 		SRC0012 /* LessonProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonProgress.swift; sourceTree = "<group>"; };
@@ -178,6 +182,7 @@
 				SRC0001 /* SidratApp.swift */,
 				SRC0002 /* RootView.swift */,
 				SRC0003 /* MainTabView.swift */,
+				SRC0110 /* LaunchSplashView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -369,6 +374,7 @@
 			isa = PBXGroup;
 			children = (
 				RES0001 /* Assets.xcassets */,
+				RES0003 /* LaunchScreen.storyboard */,
 				GRP0051 /* Preview Content */,
 			);
 			path = Resources;
@@ -453,6 +459,7 @@
 			files = (
 				AST0001 /* Assets.xcassets in Resources */,
 				AST0002 /* Preview Assets.xcassets in Resources */,
+				AST0003 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,6 +473,7 @@
 				APP0001 /* SidratApp.swift in Sources */,
 				APP0002 /* RootView.swift in Sources */,
 				APP0003 /* MainTabView.swift in Sources */,
+				APP0004 /* LaunchSplashView.swift in Sources */,
 				MOD0001 /* Child.swift in Sources */,
 				MOD0002 /* Lesson.swift in Sources */,
 				MOD0003 /* LessonProgress.swift in Sources */,
@@ -663,7 +671,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -692,7 +701,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
