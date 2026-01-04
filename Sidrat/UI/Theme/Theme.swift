@@ -167,12 +167,13 @@ extension ShapeStyle where Self == Color {
 // MARK: - Color Hex Initializer
 
 extension Color {
+    /// Creates a Color from a hex string (e.g., "0C7489" or "#0C7489")
     init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        let sanitizedHex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
+        Scanner(string: sanitizedHex).scanHexInt64(&int)
         let a, r, g, b: UInt64
-        switch hex.count {
+        switch sanitizedHex.count {
         case 3: // RGB (12-bit)
             (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
         case 6: // RGB (24-bit)

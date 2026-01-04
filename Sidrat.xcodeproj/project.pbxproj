@@ -21,6 +21,7 @@
 		FEA0002 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0021 /* HomeView.swift */; };
 		FEA0003 /* LearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0022 /* LearnView.swift */; };
 		FEA0004 /* FamilyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0023 /* FamilyView.swift */; };
+		FEA0005 /* ProgressDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0024 /* ProgressDashboardView.swift */; };
 		FEA0006 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0025 /* SettingsView.swift */; };
 		FEA0007 /* LessonDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0026 /* LessonDetailView.swift */; };
 		FEA0008 /* LessonPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0027 /* LessonPlayerView.swift */; };
@@ -54,6 +55,20 @@
 		UI0005 /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0036 /* AvatarView.swift */; };
 		UI0006 /* ParentalGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0038 /* ParentalGateView.swift */; };
 		UI0007 /* ParentalGateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0039 /* ParentalGateModifier.swift */; };
+		ACH0001 /* AchievementUnlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0090 /* AchievementUnlockView.swift */; };
+		ACH0002 /* AchievementGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0091 /* AchievementGridView.swift */; };
+		ACH0003 /* AchievementDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0092 /* AchievementDetailView.swift */; };
+		UI0008 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0093 /* ConfettiView.swift */; };
+		PRG0001 /* StatsOverviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0100 /* StatsOverviewCard.swift */; };
+		PRG0002 /* LearningTreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0101 /* LearningTreeView.swift */; };
+		PRG0003 /* TreeLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0102 /* TreeLegendView.swift */; };
+		PRG0004 /* LearningHistoryList.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0103 /* LearningHistoryList.swift */; };
+		PRG0005 /* CategoryBranchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0104 /* CategoryBranchNode.swift */; };
+		PRG0006 /* TreeBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0105 /* TreeBackgroundView.swift */; };
+		PRG0007 /* WindingPathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0106 /* WindingPathView.swift */; };
+		PRG0008 /* NodeDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0107 /* NodeDetailSheet.swift */; };
+		PRG0009 /* CelebrationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0108 /* CelebrationOverlay.swift */; };
+		PRG0010 /* LearningTreeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0109 /* LearningTreeViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,6 +88,7 @@
 		SRC0021 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		SRC0022 /* LearnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnView.swift; sourceTree = "<group>"; };
 		SRC0023 /* FamilyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyView.swift; sourceTree = "<group>"; };
+		SRC0024 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
 		SRC0025 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		SRC0026 /* LessonDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonDetailView.swift; sourceTree = "<group>"; };
 		SRC0027 /* LessonPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonPlayerView.swift; sourceTree = "<group>"; };
@@ -105,11 +121,24 @@
 		SRC0081 /* AudioControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioControlsView.swift; sourceTree = "<group>"; };
 		SRC0082 /* AudioPlayingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayingIndicator.swift; sourceTree = "<group>"; };
 		SRC0083 /* AudioComponentsShowcase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioComponentsShowcase.swift; sourceTree = "<group>"; };
+		SRC0090 /* AchievementUnlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementUnlockView.swift; sourceTree = "<group>"; };
+		SRC0091 /* AchievementGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementGridView.swift; sourceTree = "<group>"; };
+		SRC0092 /* AchievementDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementDetailView.swift; sourceTree = "<group>"; };
+		SRC0093 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
+		SRC0100 /* StatsOverviewCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsOverviewCard.swift; sourceTree = "<group>"; };
+		SRC0101 /* LearningTreeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningTreeView.swift; sourceTree = "<group>"; };
+		SRC0102 /* TreeLegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeLegendView.swift; sourceTree = "<group>"; };
+		SRC0103 /* LearningHistoryList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningHistoryList.swift; sourceTree = "<group>"; };
+		SRC0104 /* CategoryBranchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryBranchNode.swift; sourceTree = "<group>"; };
+		SRC0105 /* TreeBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeBackgroundView.swift; sourceTree = "<group>"; };
+		SRC0106 /* WindingPathView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindingPathView.swift; sourceTree = "<group>"; };
+		SRC0107 /* NodeDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDetailSheet.swift; sourceTree = "<group>"; };
+		SRC0108 /* CelebrationOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationOverlay.swift; sourceTree = "<group>"; };
+		SRC0109 /* LearningTreeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningTreeViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D86E73B32F077FC700DBE381 /* Services */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Services; sourceTree = "<group>"; };
-		D8E9ECBD2F09ACAA00D09DD1 /* Progress */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Progress; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,11 +207,11 @@
 		GRP0030 /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				D8E9ECBD2F09ACAA00D09DD1 /* Progress */,
 				GRP0031 /* Onboarding */,
 				GRP0032 /* Home */,
 				GRP0033 /* Learn */,
 				GRP0034 /* Family */,
+				GRP0035 /* Progress */,
 				GRP0036 /* Settings */,
 			);
 			path = Features;
@@ -233,6 +262,43 @@
 				SRC0029 /* FamilyActivityDetailView.swift */,
 			);
 			path = Family;
+			sourceTree = "<group>";
+		};
+		GRP0035 /* Progress */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0024 /* ProgressDashboardView.swift */,
+				SRC0090 /* AchievementUnlockView.swift */,
+				SRC0091 /* AchievementGridView.swift */,
+				SRC0092 /* AchievementDetailView.swift */,
+				GRP0137 /* Components */,
+				GRP0138 /* ViewModels */,
+			);
+			path = Progress;
+			sourceTree = "<group>";
+		};
+		GRP0137 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0100 /* StatsOverviewCard.swift */,
+				SRC0101 /* LearningTreeView.swift */,
+				SRC0102 /* TreeLegendView.swift */,
+				SRC0103 /* LearningHistoryList.swift */,
+				SRC0104 /* CategoryBranchNode.swift */,
+				SRC0105 /* TreeBackgroundView.swift */,
+				SRC0106 /* WindingPathView.swift */,
+				SRC0107 /* NodeDetailSheet.swift */,
+				SRC0108 /* CelebrationOverlay.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		GRP0138 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0109 /* LearningTreeViewModel.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		GRP0036 /* Settings */ = {
@@ -291,6 +357,7 @@
 				SRC0034 /* AvatarSelector.swift */,
 				SRC0036 /* AvatarView.swift */,
 				SRC0031 /* Components.swift */,
+				SRC0093 /* ConfettiView.swift */,
 				SRC0039 /* ParentalGateModifier.swift */,
 				SRC0038 /* ParentalGateView.swift */,
 				SRC0041 /* SignInWithAppleButton.swift */,
@@ -340,7 +407,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				D86E73B32F077FC700DBE381 /* Services */,
-				D8E9ECBD2F09ACAA00D09DD1 /* Progress */,
 			);
 			name = Sidrat;
 			productName = Sidrat;
@@ -410,6 +476,7 @@
 				FEA0002 /* HomeView.swift in Sources */,
 				FEA0003 /* LearnView.swift in Sources */,
 				FEA0004 /* FamilyView.swift in Sources */,
+				FEA0005 /* ProgressDashboardView.swift in Sources */,
 				FEA0006 /* SettingsView.swift in Sources */,
 				FEA0007 /* LessonDetailView.swift in Sources */,
 				FEA0008 /* LessonPlayerView.swift in Sources */,
@@ -442,6 +509,20 @@
 				AUD0002 /* AudioControlsView.swift in Sources */,
 				AUD0003 /* AudioPlayingIndicator.swift in Sources */,
 				AUD0004 /* AudioComponentsShowcase.swift in Sources */,
+				ACH0001 /* AchievementUnlockView.swift in Sources */,
+				ACH0002 /* AchievementGridView.swift in Sources */,
+				ACH0003 /* AchievementDetailView.swift in Sources */,
+				UI0008 /* ConfettiView.swift in Sources */,
+				PRG0001 /* StatsOverviewCard.swift in Sources */,
+				PRG0002 /* LearningTreeView.swift in Sources */,
+				PRG0003 /* TreeLegendView.swift in Sources */,
+				PRG0004 /* LearningHistoryList.swift in Sources */,
+				PRG0005 /* CategoryBranchNode.swift in Sources */,
+				PRG0006 /* TreeBackgroundView.swift in Sources */,
+				PRG0007 /* WindingPathView.swift in Sources */,
+				PRG0008 /* NodeDetailSheet.swift in Sources */,
+				PRG0009 /* CelebrationOverlay.swift in Sources */,
+				PRG0010 /* LearningTreeViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
