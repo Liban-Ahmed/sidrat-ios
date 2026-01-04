@@ -21,7 +21,6 @@
 		FEA0002 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0021 /* HomeView.swift */; };
 		FEA0003 /* LearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0022 /* LearnView.swift */; };
 		FEA0004 /* FamilyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0023 /* FamilyView.swift */; };
-		FEA0005 /* ProgressDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0024 /* ProgressDashboardView.swift */; };
 		FEA0006 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0025 /* SettingsView.swift */; };
 		FEA0007 /* LessonDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0026 /* LessonDetailView.swift */; };
 		FEA0008 /* LessonPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0027 /* LessonPlayerView.swift */; };
@@ -74,7 +73,6 @@
 		SRC0021 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		SRC0022 /* LearnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnView.swift; sourceTree = "<group>"; };
 		SRC0023 /* FamilyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyView.swift; sourceTree = "<group>"; };
-		SRC0024 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
 		SRC0025 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		SRC0026 /* LessonDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonDetailView.swift; sourceTree = "<group>"; };
 		SRC0027 /* LessonPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonPlayerView.swift; sourceTree = "<group>"; };
@@ -111,6 +109,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D86E73B32F077FC700DBE381 /* Services */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Services; sourceTree = "<group>"; };
+		D8E9ECBD2F09ACAA00D09DD1 /* Progress */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Progress; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -179,11 +178,11 @@
 		GRP0030 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				D8E9ECBD2F09ACAA00D09DD1 /* Progress */,
 				GRP0031 /* Onboarding */,
 				GRP0032 /* Home */,
 				GRP0033 /* Learn */,
 				GRP0034 /* Family */,
-				GRP0035 /* Progress */,
 				GRP0036 /* Settings */,
 			);
 			path = Features;
@@ -234,14 +233,6 @@
 				SRC0029 /* FamilyActivityDetailView.swift */,
 			);
 			path = Family;
-			sourceTree = "<group>";
-		};
-		GRP0035 /* Progress */ = {
-			isa = PBXGroup;
-			children = (
-				SRC0024 /* ProgressDashboardView.swift */,
-			);
-			path = Progress;
 			sourceTree = "<group>";
 		};
 		GRP0036 /* Settings */ = {
@@ -349,6 +340,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				D86E73B32F077FC700DBE381 /* Services */,
+				D8E9ECBD2F09ACAA00D09DD1 /* Progress */,
 			);
 			name = Sidrat;
 			productName = Sidrat;
@@ -418,7 +410,6 @@
 				FEA0002 /* HomeView.swift in Sources */,
 				FEA0003 /* LearnView.swift in Sources */,
 				FEA0004 /* FamilyView.swift in Sources */,
-				FEA0005 /* ProgressDashboardView.swift in Sources */,
 				FEA0006 /* SettingsView.swift in Sources */,
 				FEA0007 /* LessonDetailView.swift in Sources */,
 				FEA0008 /* LessonPlayerView.swift in Sources */,
