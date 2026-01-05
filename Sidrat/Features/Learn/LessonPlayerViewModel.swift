@@ -594,6 +594,19 @@ final class LessonPlayerViewModel {
     }
     
     private func checkAchievements() {
+        // Use the new AchievementService for comprehensive achievement checking
+        let achievementService = AchievementService(modelContext: modelContext)
+        
+        // Check all achievements
+        let newlyUnlocked = achievementService.checkAndUnlockAchievements(for: child)
+        
+        // Also check time-based achievements
+        let timeBasedAchievements = achievementService.checkTimeBasedAchievements(for: child)
+        
+        // Store newly unlocked achievements for celebration
+        // (The service already handles adding them to the child and awarding XP)
+        if !newlyUnlocked.isEmpty || !timeBasedAchievements.isEmpty {
+            print("[LessonPlayerViewModel] Unlocked \(newlyUnlocked.count + timeBasedAchievements.count) new achievements!")
         var newAchievements: [Achievement] = []
         
         func hasAchievement(_ type: AchievementType) -> Bool {

@@ -14,6 +14,9 @@ struct ProgressDashboardView: View {
     @Query private var children: [Child]
     @Query(sort: \Lesson.order) private var lessons: [Lesson]
     @State private var selectedTab = 0
+    @State private var achievementService: AchievementService?
+    @State private var showingAchievementUnlock = false
+    @State private var pendingAchievements: [AchievementType] = []
     
     private var currentChild: Child? {
         guard let childId = appState.currentChildId,
@@ -77,6 +80,36 @@ struct ProgressDashboardView: View {
             }
             .background(Color.backgroundSecondary)
             .navigationTitle("Progress")
+            .onAppear {
+                if achievementService == nil {
+                    achievementService = AchievementService(modelContext: modelContext)
+                }
+                
+                // Check for new achievements when view appears
+                if let child = currentChild, let service = achievementService {
+                    let newAchievements = service.checkAndUnlockAchievements(for: child)
+                    if !newAchievements.isEmpty {
+                        pendingAchievements = newAchievements
+                        showingAchievementUnlock = true
+                    }
+                }
+            }
+        }
+        .overlay {
+            // Achievement unlock celebration overlay
+            if showingAchievementUnlock, let achievement = pendingAchievements.first {
+                AchievementUnlockView(achievement: achievement) {
+                    // Remove the shown achievement from pending
+                    pendingAchievements.removeFirst()
+                    
+                    // If more achievements pending, keep showing
+                    if pendingAchievements.isEmpty {
+                        showingAchievementUnlock = false
+                    }
+                }
+                .transition(.opacity.combined(with: .scale))
+                .zIndex(999)
+            }
         }
     }
     
@@ -162,7 +195,17 @@ struct ProgressDashboardView: View {
     // MARK: - Achievements Section
     
     private var achievementsSection: some View {
-        AchievementsBadgeGrid(unlockedAchievements: unlockedAchievements)
+        VStack {
+            if let child = currentChild, let service = achievementService {
+                AchievementGridView(child: child, achievementService: service)
+            } else {
+                EmptyState(
+                    icon: "star.circle",
+                    title: "No Profile Selected",
+                    message: "Select a child profile to view their achievements"
+                )
+            }
+        }
     }
     
     // MARK: - Learning History Section

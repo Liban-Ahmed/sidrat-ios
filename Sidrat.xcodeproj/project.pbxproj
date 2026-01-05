@@ -10,21 +10,29 @@
 		APP0001 /* SidratApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0001 /* SidratApp.swift */; };
 		APP0002 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0002 /* RootView.swift */; };
 		APP0003 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0003 /* MainTabView.swift */; };
+		APP0004 /* LaunchSplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0110 /* LaunchSplashView.swift */; };
 		AST0001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = RES0001 /* Assets.xcassets */; };
 		AST0002 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = RES0002 /* Preview Assets.xcassets */; };
+		AST0003 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = RES0003 /* LaunchScreen.storyboard */; };
 		AUD0002 /* AudioControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0081 /* AudioControlsView.swift */; };
 		AUD0003 /* AudioPlayingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0082 /* AudioPlayingIndicator.swift */; };
 		AUD0004 /* AudioComponentsShowcase.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0083 /* AudioComponentsShowcase.swift */; };
 		AUTH0002 /* SignInWithAppleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0041 /* SignInWithAppleButton.swift */; };
 		DE0FD7522EFFA10700673B6F /* SidratModelsAvatarOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0FD7512EFFA10700673B6F /* SidratModelsAvatarOption.swift */; };
 		FEA0001 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0020 /* OnboardingView.swift */; };
+		FEA0002 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0021 /* HomeView.swift */; };
 		FEA0003 /* LearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0022 /* LearnView.swift */; };
 		FEA0004 /* FamilyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0023 /* FamilyView.swift */; };
+		FEA0005 /* ProgressDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0024 /* ProgressDashboardView.swift */; };
+		FEA0006 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0025 /* SettingsView.swift */; };
 		FEA0007 /* LessonDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0026 /* LessonDetailView.swift */; };
 		FEA0008 /* LessonPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0027 /* LessonPlayerView.swift */; };
 		FEA0009 /* LessonCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0028 /* LessonCompletionView.swift */; };
 		FEA0010 /* FamilyActivityDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0029 /* FamilyActivityDetailView.swift */; };
+		FEA0011 /* ProfileSwitcherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0032 /* ProfileSwitcherView.swift */; };
 		FEA0012 /* ChildProfileCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0035 /* ChildProfileCreationView.swift */; };
+		FEA0013 /* ProfileSwitcherViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0037 /* ProfileSwitcherViewModel.swift */; };
+		FEA0014 /* DailyLessonCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0042 /* DailyLessonCard.swift */; };
 		LEX0001 /* LessonPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0050 /* LessonPhase.swift */; };
 		LEX0002 /* AudioNarrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0051 /* AudioNarrationService.swift */; };
 		LEX0003 /* LessonPhaseIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0052 /* LessonPhaseIndicator.swift */; };
@@ -49,6 +57,20 @@
 		UI0005 /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0036 /* AvatarView.swift */; };
 		UI0006 /* ParentalGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0038 /* ParentalGateView.swift */; };
 		UI0007 /* ParentalGateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0039 /* ParentalGateModifier.swift */; };
+		ACH0001 /* AchievementUnlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0090 /* AchievementUnlockView.swift */; };
+		ACH0002 /* AchievementGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0091 /* AchievementGridView.swift */; };
+		ACH0003 /* AchievementDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0092 /* AchievementDetailView.swift */; };
+		UI0008 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0093 /* ConfettiView.swift */; };
+		PRG0001 /* StatsOverviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0100 /* StatsOverviewCard.swift */; };
+		PRG0002 /* LearningTreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0101 /* LearningTreeView.swift */; };
+		PRG0003 /* TreeLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0102 /* TreeLegendView.swift */; };
+		PRG0004 /* LearningHistoryList.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0103 /* LearningHistoryList.swift */; };
+		PRG0005 /* CategoryBranchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0104 /* CategoryBranchNode.swift */; };
+		PRG0006 /* TreeBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0105 /* TreeBackgroundView.swift */; };
+		PRG0007 /* WindingPathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0106 /* WindingPathView.swift */; };
+		PRG0008 /* NodeDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0107 /* NodeDetailSheet.swift */; };
+		PRG0009 /* CelebrationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0108 /* CelebrationOverlay.swift */; };
+		PRG0010 /* LearningTreeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0109 /* LearningTreeViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,30 +78,38 @@
 		PROD001 /* Sidrat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sidrat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		RES0001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		RES0002 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		RES0003 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		SRC0001 /* SidratApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidratApp.swift; sourceTree = "<group>"; };
 		SRC0002 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		SRC0003 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		SRC0110 /* LaunchSplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSplashView.swift; sourceTree = "<group>"; };
 		SRC0010 /* Child.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Child.swift; sourceTree = "<group>"; };
 		SRC0011 /* Lesson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lesson.swift; sourceTree = "<group>"; };
 		SRC0012 /* LessonProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonProgress.swift; sourceTree = "<group>"; };
 		SRC0013 /* Achievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievement.swift; sourceTree = "<group>"; };
 		SRC0014 /* FamilyActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyActivity.swift; sourceTree = "<group>"; };
 		SRC0020 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		SRC0021 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		SRC0022 /* LearnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnView.swift; sourceTree = "<group>"; };
 		SRC0023 /* FamilyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyView.swift; sourceTree = "<group>"; };
+		SRC0024 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
+		SRC0025 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		SRC0026 /* LessonDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonDetailView.swift; sourceTree = "<group>"; };
 		SRC0027 /* LessonPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonPlayerView.swift; sourceTree = "<group>"; };
 		SRC0028 /* LessonCompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonCompletionView.swift; sourceTree = "<group>"; };
 		SRC0029 /* FamilyActivityDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyActivityDetailView.swift; sourceTree = "<group>"; };
 		SRC0030 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		SRC0031 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		SRC0032 /* ProfileSwitcherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSwitcherView.swift; sourceTree = "<group>"; };
 		SRC0033 /* ColorShowcase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorShowcase.swift; sourceTree = "<group>"; };
 		SRC0034 /* AvatarSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarSelector.swift; sourceTree = "<group>"; };
 		SRC0035 /* ChildProfileCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProfileCreationView.swift; sourceTree = "<group>"; };
 		SRC0036 /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarView.swift; sourceTree = "<group>"; };
+		SRC0037 /* ProfileSwitcherViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSwitcherViewModel.swift; sourceTree = "<group>"; };
 		SRC0038 /* ParentalGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentalGateView.swift; sourceTree = "<group>"; };
 		SRC0039 /* ParentalGateModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentalGateModifier.swift; sourceTree = "<group>"; };
 		SRC0041 /* SignInWithAppleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInWithAppleButton.swift; sourceTree = "<group>"; };
+		SRC0042 /* DailyLessonCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyLessonCard.swift; sourceTree = "<group>"; };
 		SRC0050 /* LessonPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonPhase.swift; sourceTree = "<group>"; };
 		SRC0051 /* AudioNarrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioNarrationService.swift; sourceTree = "<group>"; };
 		SRC0052 /* LessonPhaseIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonPhaseIndicator.swift; sourceTree = "<group>"; };
@@ -95,13 +125,24 @@
 		SRC0081 /* AudioControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioControlsView.swift; sourceTree = "<group>"; };
 		SRC0082 /* AudioPlayingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayingIndicator.swift; sourceTree = "<group>"; };
 		SRC0083 /* AudioComponentsShowcase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioComponentsShowcase.swift; sourceTree = "<group>"; };
+		SRC0090 /* AchievementUnlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementUnlockView.swift; sourceTree = "<group>"; };
+		SRC0091 /* AchievementGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementGridView.swift; sourceTree = "<group>"; };
+		SRC0092 /* AchievementDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementDetailView.swift; sourceTree = "<group>"; };
+		SRC0093 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
+		SRC0100 /* StatsOverviewCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsOverviewCard.swift; sourceTree = "<group>"; };
+		SRC0101 /* LearningTreeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningTreeView.swift; sourceTree = "<group>"; };
+		SRC0102 /* TreeLegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeLegendView.swift; sourceTree = "<group>"; };
+		SRC0103 /* LearningHistoryList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningHistoryList.swift; sourceTree = "<group>"; };
+		SRC0104 /* CategoryBranchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryBranchNode.swift; sourceTree = "<group>"; };
+		SRC0105 /* TreeBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeBackgroundView.swift; sourceTree = "<group>"; };
+		SRC0106 /* WindingPathView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindingPathView.swift; sourceTree = "<group>"; };
+		SRC0107 /* NodeDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDetailSheet.swift; sourceTree = "<group>"; };
+		SRC0108 /* CelebrationOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationOverlay.swift; sourceTree = "<group>"; };
+		SRC0109 /* LearningTreeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningTreeViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D86E73B32F077FC700DBE381 /* Services */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Services; sourceTree = "<group>"; };
-		D8E9ECBD2F09ACAA00D09DD1 /* Progress */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Progress; sourceTree = "<group>"; };
-		D8E9ED082F0A16D000D09DD1 /* Home */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Home; sourceTree = "<group>"; };
-		D8E9ED112F0A183700D09DD1 /* Settings */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Settings; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +182,7 @@
 				SRC0001 /* SidratApp.swift */,
 				SRC0002 /* RootView.swift */,
 				SRC0003 /* MainTabView.swift */,
+				SRC0110 /* LaunchSplashView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -170,12 +212,12 @@
 		GRP0030 /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				D8E9ED112F0A183700D09DD1 /* Settings */,
-				D8E9ED082F0A16D000D09DD1 /* Home */,
-				D8E9ECBD2F09ACAA00D09DD1 /* Progress */,
 				GRP0031 /* Onboarding */,
+				GRP0032 /* Home */,
 				GRP0033 /* Learn */,
 				GRP0034 /* Family */,
+				GRP0035 /* Progress */,
+				GRP0036 /* Settings */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -187,6 +229,17 @@
 				SRC0020 /* OnboardingView.swift */,
 			);
 			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		GRP0032 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0042 /* DailyLessonCard.swift */,
+				SRC0021 /* HomeView.swift */,
+				SRC0032 /* ProfileSwitcherView.swift */,
+				SRC0037 /* ProfileSwitcherViewModel.swift */,
+			);
+			path = Home;
 			sourceTree = "<group>";
 		};
 		GRP0033 /* Learn */ = {
@@ -214,6 +267,51 @@
 				SRC0029 /* FamilyActivityDetailView.swift */,
 			);
 			path = Family;
+			sourceTree = "<group>";
+		};
+		GRP0035 /* Progress */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0024 /* ProgressDashboardView.swift */,
+				SRC0090 /* AchievementUnlockView.swift */,
+				SRC0091 /* AchievementGridView.swift */,
+				SRC0092 /* AchievementDetailView.swift */,
+				GRP0137 /* Components */,
+				GRP0138 /* ViewModels */,
+			);
+			path = Progress;
+			sourceTree = "<group>";
+		};
+		GRP0137 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0100 /* StatsOverviewCard.swift */,
+				SRC0101 /* LearningTreeView.swift */,
+				SRC0102 /* TreeLegendView.swift */,
+				SRC0103 /* LearningHistoryList.swift */,
+				SRC0104 /* CategoryBranchNode.swift */,
+				SRC0105 /* TreeBackgroundView.swift */,
+				SRC0106 /* WindingPathView.swift */,
+				SRC0107 /* NodeDetailSheet.swift */,
+				SRC0108 /* CelebrationOverlay.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		GRP0138 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0109 /* LearningTreeViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		GRP0036 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0025 /* SettingsView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		GRP0037 /* LessonExperience */ = {
@@ -264,6 +362,7 @@
 				SRC0034 /* AvatarSelector.swift */,
 				SRC0036 /* AvatarView.swift */,
 				SRC0031 /* Components.swift */,
+				SRC0093 /* ConfettiView.swift */,
 				SRC0039 /* ParentalGateModifier.swift */,
 				SRC0038 /* ParentalGateView.swift */,
 				SRC0041 /* SignInWithAppleButton.swift */,
@@ -275,6 +374,7 @@
 			isa = PBXGroup;
 			children = (
 				RES0001 /* Assets.xcassets */,
+				RES0003 /* LaunchScreen.storyboard */,
 				GRP0051 /* Preview Content */,
 			);
 			path = Resources;
@@ -313,9 +413,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				D86E73B32F077FC700DBE381 /* Services */,
-				D8E9ECBD2F09ACAA00D09DD1 /* Progress */,
-				D8E9ED082F0A16D000D09DD1 /* Home */,
-				D8E9ED112F0A183700D09DD1 /* Settings */,
 			);
 			name = Sidrat;
 			productName = Sidrat;
@@ -362,6 +459,7 @@
 			files = (
 				AST0001 /* Assets.xcassets in Resources */,
 				AST0002 /* Preview Assets.xcassets in Resources */,
+				AST0003 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -375,6 +473,7 @@
 				APP0001 /* SidratApp.swift in Sources */,
 				APP0002 /* RootView.swift in Sources */,
 				APP0003 /* MainTabView.swift in Sources */,
+				APP0004 /* LaunchSplashView.swift in Sources */,
 				MOD0001 /* Child.swift in Sources */,
 				MOD0002 /* Lesson.swift in Sources */,
 				MOD0003 /* LessonProgress.swift in Sources */,
@@ -382,12 +481,16 @@
 				MOD0005 /* FamilyActivity.swift in Sources */,
 				FEA0001 /* OnboardingView.swift in Sources */,
 				DE0FD7522EFFA10700673B6F /* SidratModelsAvatarOption.swift in Sources */,
+				FEA0002 /* HomeView.swift in Sources */,
 				FEA0003 /* LearnView.swift in Sources */,
 				FEA0004 /* FamilyView.swift in Sources */,
+				FEA0005 /* ProgressDashboardView.swift in Sources */,
+				FEA0006 /* SettingsView.swift in Sources */,
 				FEA0007 /* LessonDetailView.swift in Sources */,
 				FEA0008 /* LessonPlayerView.swift in Sources */,
 				FEA0009 /* LessonCompletionView.swift in Sources */,
 				FEA0010 /* FamilyActivityDetailView.swift in Sources */,
+				FEA0011 /* ProfileSwitcherView.swift in Sources */,
 				UI0001 /* Theme.swift in Sources */,
 				UI0002 /* Components.swift in Sources */,
 				UI0003 /* ColorShowcase.swift in Sources */,
@@ -403,8 +506,10 @@
 				UI0004 /* AvatarSelector.swift in Sources */,
 				FEA0012 /* ChildProfileCreationView.swift in Sources */,
 				UI0005 /* AvatarView.swift in Sources */,
+				FEA0013 /* ProfileSwitcherViewModel.swift in Sources */,
 				UI0006 /* ParentalGateView.swift in Sources */,
 				UI0007 /* ParentalGateModifier.swift in Sources */,
+				FEA0014 /* DailyLessonCard.swift in Sources */,
 				LEX0070 /* LessonPlayerViewModel.swift in Sources */,
 				LEX0071 /* PhaseIndicator.swift in Sources */,
 				LEX0072 /* QuizView.swift in Sources */,
@@ -412,6 +517,20 @@
 				AUD0002 /* AudioControlsView.swift in Sources */,
 				AUD0003 /* AudioPlayingIndicator.swift in Sources */,
 				AUD0004 /* AudioComponentsShowcase.swift in Sources */,
+				ACH0001 /* AchievementUnlockView.swift in Sources */,
+				ACH0002 /* AchievementGridView.swift in Sources */,
+				ACH0003 /* AchievementDetailView.swift in Sources */,
+				UI0008 /* ConfettiView.swift in Sources */,
+				PRG0001 /* StatsOverviewCard.swift in Sources */,
+				PRG0002 /* LearningTreeView.swift in Sources */,
+				PRG0003 /* TreeLegendView.swift in Sources */,
+				PRG0004 /* LearningHistoryList.swift in Sources */,
+				PRG0005 /* CategoryBranchNode.swift in Sources */,
+				PRG0006 /* TreeBackgroundView.swift in Sources */,
+				PRG0007 /* WindingPathView.swift in Sources */,
+				PRG0008 /* NodeDetailSheet.swift in Sources */,
+				PRG0009 /* CelebrationOverlay.swift in Sources */,
+				PRG0010 /* LearningTreeViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -552,7 +671,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -581,7 +701,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
