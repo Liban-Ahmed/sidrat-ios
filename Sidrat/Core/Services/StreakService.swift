@@ -68,20 +68,11 @@ final class StreakService {
                 print("🔥 [StreakService] Streak incremented: \(child.name) now at \(child.currentStreak) days")
                 #endif
             } else if daysSince > 1 {
-                // Gap detected - check for freeze
-                if consumeFreezeIfAvailable(for: child) {
-                    // Freeze used - maintain streak and increment
-                    child.currentStreak += 1
-                    #if DEBUG
-                    print("❄️ [StreakService] Freeze consumed for \(child.name), streak maintained at \(child.currentStreak)")
-                    #endif
-                } else {
-                    // No freeze - reset streak to 1 (this lesson starts new streak)
-                    child.currentStreak = 1
-                    #if DEBUG
-                    print("🔥 [StreakService] Streak reset for \(child.name), starting new streak at 1")
-                    #endif
-                }
+                // Gap detected - reset streak to 1 (this lesson starts new streak)
+                child.currentStreak = 1
+                #if DEBUG
+                print("🔥 [StreakService] Streak reset for \(child.name), starting new streak at 1")
+                #endif
             }
         } else {
             // First lesson ever
@@ -120,21 +111,12 @@ final class StreakService {
         let daysSince = daysBetween(lastDate, and: Date())
         
         if daysSince > 1 {
-            // More than 1 day missed
-            if child.availableStreakFreezes > 0 {
-                // Consume freeze automatically
-                _ = consumeFreezeIfAvailable(for: child)
-                #if DEBUG
-                print("❄️ [StreakService] Freeze auto-consumed for \(child.name), streak maintained")
-                #endif
-            } else {
-                // No freeze - reset streak
-                child.currentStreak = 0
-                try modelContext.save()
-                #if DEBUG
-                print("🔥 [StreakService] Streak expired for \(child.name), reset to 0")
-                #endif
-            }
+            // More than 1 day missed - reset streak
+            child.currentStreak = 0
+            try modelContext.save()
+            #if DEBUG
+            print("🔥 [StreakService] Streak expired for \(child.name), reset to 0")
+            #endif
         }
     }
     
@@ -161,56 +143,6 @@ final class StreakService {
         
         let secondsRemaining = endOfDay.timeIntervalSince(now)
         return max(0, Int(secondsRemaining / 3600))
-    }
-    
-    // MARK: - Freeze Management
-    
-    /// Check if parent can grant a freeze to the child
-    /// Parent can grant 1 freeze per week
-    /// - Parameter child: The child to check
-    /// - Returns: True if a freeze can be granted
-    func canGrantFreeze(to child: Child) -> Bool {
-        guard let lastGrantDate = child.lastStreakFreezeGrantedDate else {
-            return true // Never granted before
-        }
-        
-        let calendar = Calendar.current
-        let weeksSince = calendar.dateComponents([.weekOfYear],
-                                                  from: lastGrantDate,
-                                                  to: Date()).weekOfYear ?? 0
-        return weeksSince >= 1
-    }
-    
-    /// Grant a streak freeze to the child
-    /// Can only be called once per week by parent
-    /// - Parameter child: The child receiving the freeze
-    func grantFreeze(to child: Child) async throws {
-        guard canGrantFreeze(to: child) else {
-            throw StreakError.freezeAlreadyGrantedThisWeek
-        }
-        
-        child.availableStreakFreezes += 1
-        child.lastStreakFreezeGrantedDate = Date()
-        
-        try modelContext.save()
-        
-        #if DEBUG
-        print("❄️ [StreakService] Freeze granted to \(child.name), total: \(child.availableStreakFreezes)")
-        #endif
-    }
-    
-    /// Consume a freeze if available
-    /// Freezes do not roll over to next week
-    /// - Parameter child: The child using the freeze
-    /// - Returns: True if freeze was consumed, false if none available
-    private func consumeFreezeIfAvailable(for child: Child) -> Bool {
-        guard child.availableStreakFreezes > 0 else {
-            return false
-        }
-        
-        child.availableStreakFreezes -= 1
-        child.lastStreakFreezeUsedDate = Date()
-        return true
     }
     
     // MARK: - Milestone Detection
@@ -290,17 +222,11 @@ struct StreakMilestone {
 
 /// Errors that can occur during streak operations
 enum StreakError: LocalizedError {
-    case freezeAlreadyGrantedThisWeek
-    case noFreezeAvailable
     case invalidDateRange
     case saveFailed(Error)
     
     var errorDescription: String? {
         switch self {
-        case .freezeAlreadyGrantedThisWeek:
-            return "You can only grant one freeze per week"
-        case .noFreezeAvailable:
-            return "No freeze available to use"
         case .invalidDateRange:
             return "Invalid date range for streak calculation"
         case .saveFailed(let error):

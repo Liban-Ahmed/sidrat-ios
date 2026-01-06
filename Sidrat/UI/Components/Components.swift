@@ -172,18 +172,15 @@ struct XPBadge: View {
 /// Enhanced streak badge with freeze indicator and optional tap action
 struct EnhancedStreakBadge: View {
     let streak: Int
-    let hasFreeze: Bool
     let hoursRemaining: Int?
     let onTap: (() -> Void)?
     
     init(
         streak: Int,
-        hasFreeze: Bool = false,
         hoursRemaining: Int? = nil,
         onTap: (() -> Void)? = nil
     ) {
         self.streak = streak
-        self.hasFreeze = hasFreeze
         self.hoursRemaining = hoursRemaining
         self.onTap = onTap
     }
@@ -211,12 +208,6 @@ struct EnhancedStreakBadge: View {
                     .font(.labelLarge)
                     .fontWeight(.bold)
                     .foregroundStyle(.textPrimary)
-                
-                if hasFreeze {
-                    Image(systemName: "snowflake")
-                        .font(.caption)
-                        .foregroundStyle(.brandPrimary)
-                }
             }
             
             if let hours = hoursRemaining, hours > 0, hours <= 3 {
@@ -236,9 +227,6 @@ struct EnhancedStreakBadge: View {
     private var accessibilityText: String {
         var text = "Current streak: \(streak) day"
         if streak != 1 { text += "s" }
-        if hasFreeze {
-            text += ", freeze available"
-        }
         if let hours = hoursRemaining, hours > 0, hours <= 3 {
             text += ", \(hours) hours remaining today"
         }

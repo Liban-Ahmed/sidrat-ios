@@ -19,14 +19,8 @@ struct StreakDetailSheet: View {
     // MARK: - Properties
     
     let child: Child
-    let canGrantFreeze: Bool
-    let onGrantFreeze: () async throws -> Void
     
     // MARK: - State
-    
-    @State private var isGrantingFreeze = false
-    @State private var grantError: String?
-    @State private var showingParentalGate = false
     
     // MARK: - Computed Properties
     
@@ -78,11 +72,6 @@ struct StreakDetailSheet: View {
                     // All milestones
                     allMilestonesSection
                     
-                    // Freeze status (parent only)
-                    if appState.hasParentAccount {
-                        freezeSection
-                    }
-                    
                     // Stats
                     statsSection
                 }
@@ -97,20 +86,6 @@ struct StreakDetailSheet: View {
                         dismiss()
                     }
                 }
-            }
-            .sheet(isPresented: $showingParentalGate) {
-                ParentalGateView(
-                    onSuccess: {
-                        showingParentalGate = false
-                        Task {
-                            await handleGrantFreeze()
-                        }
-                    },
-                    onDismiss: {
-                        showingParentalGate = false
-                    },
-                    context: "Grant Streak Freeze"
-                )
             }
         }
     }
@@ -250,55 +225,6 @@ struct StreakDetailSheet: View {
         .accessibilityLabel("\(milestone.type.title), \(milestone.days) days, \(milestone.unlocked ? "unlocked" : "locked")")
     }
     
-    // MARK: - Freeze Section (Parent Only)
-    
-    private var freezeSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            Text("Streak Freeze")
-                .font(.title3)
-                .foregroundStyle(.textPrimary)
-            
-            VStack(alignment: .leading, spacing: Spacing.sm) {
-                HStack {
-                    Image(systemName: "snowflake")
-                        .font(.title3)
-                        .foregroundStyle(.brandPrimary)
-                    
-                    VStack(alignment: .leading, spacing: Spacing.xxs) {
-                        Text("Available: \(child.availableStreakFreezes)")
-                            .font(.labelLarge)
-                            .foregroundStyle(.textPrimary)
-                        
-                        Text("Protects streak if a day is missed")
-                            .font(.bodySmall)
-                            .foregroundStyle(.textSecondary)
-                    }
-                    
-                    Spacer()
-                }
-                
-                if let error = grantError {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundStyle(.error)
-                        .padding(.vertical, Spacing.xs)
-                }
-                
-                PrimaryButton(
-                    canGrantFreeze ? "Grant Freeze" : "Already Granted This Week",
-                    icon: "snowflake"
-                ) {
-                    showingParentalGate = true
-                }
-                .disabled(!canGrantFreeze || isGrantingFreeze)
-                .opacity(canGrantFreeze ? 1.0 : 0.6)
-            }
-            .padding(Spacing.md)
-            .background(Color.brandPrimary.opacity(0.05))
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
-        }
-    }
-    
     // MARK: - Stats Section
     
     private var statsSection: some View {
@@ -346,22 +272,6 @@ struct StreakDetailSheet: View {
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
         .cardShadow()
     }
-    
-    // MARK: - Actions
-    
-    private func handleGrantFreeze() async {
-        isGrantingFreeze = true
-        grantError = nil
-        
-        do {
-            try await onGrantFreeze()
-            showingParentalGate = false
-        } catch {
-            grantError = error.localizedDescription
-        }
-        
-        isGrantingFreeze = false
-    }
 }
 
 // MARK: - Preview
@@ -378,17 +288,10 @@ struct StreakDetailSheet: View {
     child.currentStreak = 12
     child.longestStreak = 15
     child.totalLessonsCompleted = 25
-    child.availableStreakFreezes = 1
     
     container.mainContext.insert(child)
     
-    return StreakDetailSheet(
-        child: child,
-        canGrantFreeze: true,
-        onGrantFreeze: {
-            print("Grant freeze tapped")
-        }
-    )
+    return StreakDetailSheet(child: child)
     .modelContainer(container)
     .environment(AppState())
 }
@@ -405,17 +308,10 @@ struct StreakDetailSheet: View {
     child.currentStreak = 45
     child.longestStreak = 45
     child.totalLessonsCompleted = 50
-    child.availableStreakFreezes = 0
     
     container.mainContext.insert(child)
     
-    return StreakDetailSheet(
-        child: child,
-        canGrantFreeze: false,
-        onGrantFreeze: {
-            print("Grant freeze tapped")
-        }
-    )
+    return StreakDetailSheet(child: child)
     .modelContainer(container)
     .environment(AppState())
 }

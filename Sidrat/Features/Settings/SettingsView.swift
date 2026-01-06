@@ -23,9 +23,6 @@ struct SettingsView: View {
     @State private var showingEditProfile = false
     @State private var showingResetGate = false
     @State private var showingEditGate = false
-    @State private var showingFreezeGate = false
-    @State private var freezeGrantError: String?
-    @State private var isGrantingFreeze = false
     
     // Navigation state - managed at NavigationStack level to avoid lazy container issues
     @State private var navigateToCurriculum = false
@@ -45,17 +42,6 @@ struct SettingsView: View {
         guard let child = currentChild else { return 1 }
         let lessonsCompleted = child.totalLessonsCompleted
         return max(1, (lessonsCompleted / 5) + 1)
-    }
-    
-    // MARK: - Streak Service (US-303 Phase 4)
-    
-    private var streakService: StreakService {
-        StreakService(modelContext: modelContext)
-    }
-    
-    private var canGrantFreeze: Bool {
-        guard let child = currentChild else { return false }
-        return streakService.canGrantFreeze(to: child)
     }
     
     // MARK: - Body
@@ -106,20 +92,6 @@ struct SettingsView: View {
                 context: ParentalGateContext.resetProgress
             ) {
                 showingResetConfirmation = true
-            }
-            .sheet(isPresented: $showingFreezeGate) {
-                ParentalGateView(
-                    onSuccess: {
-                        showingFreezeGate = false
-                        Task {
-                            await handleGrantFreeze()
-                        }
-                    },
-                    onDismiss: {
-                        showingFreezeGate = false
-                    },
-                    context: "Grant Streak Freeze"
-                )
             }
             .alert("Reset Progress", isPresented: $showingResetConfirmation) {
                 Button("Cancel", role: .cancel) { }
@@ -275,21 +247,6 @@ struct SettingsView: View {
     
     private var familySection: some View {
         Section {
-            // Streak Freeze Support (US-303 Phase 4)
-            if let child = currentChild, appState.hasParentAccount {
-                StreakFreezeCard(
-                    child: child,
-                    canGrantFreeze: canGrantFreeze,
-                    isGranting: isGrantingFreeze,
-                    error: freezeGrantError,
-                    onGrantTapped: {
-                        showingFreezeGate = true
-                    }
-                )
-                .listRowInsets(EdgeInsets(top: Spacing.md, leading: Spacing.md, bottom: Spacing.md, trailing: Spacing.md))
-                .listRowBackground(Color.clear)
-            }
-            
             // Parent Dashboard - requires parental gate
             GatedNavigationRow(
                 context: ParentalGateContext.parentDashboard,
@@ -361,28 +318,6 @@ struct SettingsView: View {
     }
     
     // MARK: - Actions
-    
-    /// Handle granting streak freeze to current child
-    private func handleGrantFreeze() async {
-        guard let child = currentChild else { return }
-        
-        isGrantingFreeze = true
-        freezeGrantError = nil
-        
-        do {
-            try await streakService.grantFreeze(to: child)
-            #if DEBUG
-            print("❄️ [SettingsView] Freeze granted to \(child.name)")
-            #endif
-        } catch {
-            freezeGrantError = error.localizedDescription
-            #if DEBUG
-            print("❌ [SettingsView] Failed to grant freeze: \(error.localizedDescription)")
-            #endif
-        }
-        
-        isGrantingFreeze = false
-    }
     
     private func resetProgress() {
         guard let child = currentChild else { return }

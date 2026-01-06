@@ -47,11 +47,6 @@ struct HomeView: View {
         StreakService(modelContext: modelContext)
     }
     
-    private var canGrantFreeze: Bool {
-        guard let child = currentChild else { return false }
-        return streakService.canGrantFreeze(to: child)
-    }
-    
     /// Get today's lesson - the next uncompleted lesson in sequence
     private var todaysLesson: Lesson? {
         guard let child = currentChild else {
@@ -157,13 +152,7 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showingStreakDetail) {
                 if let child = currentChild {
-                    StreakDetailSheet(
-                        child: child,
-                        canGrantFreeze: canGrantFreeze,
-                        onGrantFreeze: {
-                            try await grantStreakFreeze()
-                        }
-                    )
+                    StreakDetailSheet(child: child)
                 }
             }
             .task {
@@ -211,12 +200,6 @@ struct HomeView: View {
         }
     }
     
-    /// Grant streak freeze to current child
-    private func grantStreakFreeze() async throws {
-        guard let child = currentChild else { return }
-        try await streakService.grantFreeze(to: child)
-    }
-    
     /// Setup notification listener for milestone achievements (US-303 Phase 5)
     private func setupMilestoneNotificationListener() {
         milestoneObserver = NotificationCenter.default.addObserver(
@@ -261,7 +244,6 @@ struct HomeView: View {
             if let child = currentChild {
                 EnhancedStreakBadge(
                     streak: child.currentStreak,
-                    hasFreeze: child.availableStreakFreezes > 0,
                     hoursRemaining: streakService.hoursRemainingToday(),
                     onTap: {
                         showingStreakDetail = true

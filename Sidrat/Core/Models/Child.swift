@@ -52,17 +52,6 @@ final class Child {
     /// Current week number in curriculum
     var currentWeekNumber: Int = 1
     
-    // MARK: - Streak Freeze System
-    
-    /// Number of streak freezes available (parent can grant 1 per week)
-    var availableStreakFreezes: Int = 0
-    
-    /// Date when last streak freeze was granted by parent
-    var lastStreakFreezeGrantedDate: Date?
-    
-    /// Date when streak freeze was last consumed
-    var lastStreakFreezeUsedDate: Date?
-    
     // MARK: - Relationships
     
     /// Lesson progress history
