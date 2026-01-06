@@ -27,6 +27,7 @@ struct HomeView: View {
     @State private var showingStreakDetail = false
     @State private var showingMilestoneCelebration = false
     @State private var celebrationMilestone: StreakMilestone?
+    @State private var milestoneObserver: NSObjectProtocol?
     
     // MARK: - Computed Properties
     
@@ -172,6 +173,13 @@ struct HomeView: View {
                 // Listen for milestone achievements (US-303 Phase 5)
                 setupMilestoneNotificationListener()
             }
+            .onDisappear {
+                // Remove notification observer to prevent memory leak
+                if let observer = milestoneObserver {
+                    NotificationCenter.default.removeObserver(observer)
+                    milestoneObserver = nil
+                }
+            }
             .fullScreenCover(isPresented: $showingMilestoneCelebration) {
                 if let milestone = celebrationMilestone {
                     StreakMilestoneCelebrationView(
@@ -211,14 +219,14 @@ struct HomeView: View {
     
     /// Setup notification listener for milestone achievements (US-303 Phase 5)
     private func setupMilestoneNotificationListener() {
-        NotificationCenter.default.addObserver(
+        milestoneObserver = NotificationCenter.default.addObserver(
             forName: .streakMilestoneAchieved,
             object: nil,
             queue: .main
-        ) { notification in
+        ) { [weak appState] notification in
             // Only show celebration for current child
             guard let childId = notification.userInfo?["childId"] as? String,
-                  childId == appState.currentChildId,
+                  childId == appState?.currentChildId,
                   let milestone = notification.object as? StreakMilestone else {
                 return
             }
