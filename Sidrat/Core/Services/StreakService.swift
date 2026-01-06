@@ -23,6 +23,16 @@ final class StreakService {
     
     var errorMessage: String?
     
+    // MARK: - Constants
+    
+    /// Streak milestone definitions with achievement types and XP rewards
+    private static let milestones: [StreakMilestone] = [
+        StreakMilestone(days: 3, achievementType: .streak3, xpReward: 30),
+        StreakMilestone(days: 7, achievementType: .streak7, xpReward: 100),
+        StreakMilestone(days: 30, achievementType: .streak30, xpReward: 500),
+        StreakMilestone(days: 100, achievementType: .streak100, xpReward: 2000)
+    ]
+    
     // MARK: - Init
     
     init(modelContext: ModelContext) {
@@ -206,17 +216,10 @@ final class StreakService {
     // MARK: - Milestone Detection
     
     /// Check and award streak milestone achievements
-    /// Awards achievements at 7, 30, 100 days
+    /// Awards achievements at 3, 7, 30, 100 days
     /// - Parameter child: The child to check for milestones
     func checkAndAwardMilestones(for child: Child) async throws {
-        let milestones: [StreakMilestone] = [
-            StreakMilestone(days: 3, achievementType: .streak3, xpReward: 30),
-            StreakMilestone(days: 7, achievementType: .streak7, xpReward: 100),
-            StreakMilestone(days: 30, achievementType: .streak30, xpReward: 500),
-            StreakMilestone(days: 100, achievementType: .streak100, xpReward: 2000)
-        ]
-        
-        for milestone in milestones {
+        for milestone in Self.milestones {
             if child.currentStreak == milestone.days {
                 // Check if achievement already awarded
                 let hasAchievement = child.achievements.contains {
@@ -257,14 +260,7 @@ final class StreakService {
     /// - Parameter currentStreak: The current streak count
     /// - Returns: The next milestone to achieve, or nil if past all milestones
     func getNextMilestone(currentStreak: Int) -> StreakMilestone? {
-        let milestones: [StreakMilestone] = [
-            StreakMilestone(days: 3, achievementType: .streak3, xpReward: 30),
-            StreakMilestone(days: 7, achievementType: .streak7, xpReward: 100),
-            StreakMilestone(days: 30, achievementType: .streak30, xpReward: 500),
-            StreakMilestone(days: 100, achievementType: .streak100, xpReward: 2000)
-        ]
-        
-        return milestones.first { $0.days > currentStreak }
+        return Self.milestones.first { $0.days > currentStreak }
     }
     
     // MARK: - Helper Methods
