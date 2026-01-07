@@ -12,6 +12,7 @@ import Foundation
 
 // MARK: - Streak Service
 
+@MainActor
 @Observable
 final class StreakService {
     

@@ -116,6 +116,13 @@ struct SidratApp: App {
             RootView()
                 .environment(appState)
                 .modelContainer(modelContainer)
+                .onAppear {
+                    // Initialize keyboard manager
+                    _ = KeyboardManager.shared
+                    
+                    // Suppress RTI Input System warning logs (cosmetic only)
+                    UserDefaults.standard.set(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
+                }
                 #if DEBUG
                 .onShake {
                     // Shake device or Cmd+Ctrl+Z in simulator to reset

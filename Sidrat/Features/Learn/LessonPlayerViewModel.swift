@@ -642,6 +642,7 @@ final class LessonPlayerViewModel {
     // MARK: - Progress Management (US-204)
     
     /// Check for partial progress and resume from last completed phase
+    @MainActor
     func checkForPartialProgress() async {
         print("[LessonPlayerViewModel] Checking for partial progress...")
         

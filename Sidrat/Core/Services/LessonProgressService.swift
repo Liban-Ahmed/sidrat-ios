@@ -11,6 +11,7 @@ import SwiftData
 
 // MARK: - Lesson Progress Service
 
+@MainActor
 @Observable
 final class LessonProgressService {
     
