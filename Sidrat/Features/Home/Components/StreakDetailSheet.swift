@@ -22,6 +22,8 @@ struct StreakDetailSheet: View {
     
     // MARK: - State
     
+    @State private var animateFlame = false
+    
     // MARK: - Computed Properties
     
     private var streakService: StreakService {
@@ -36,242 +38,124 @@ struct StreakDetailSheet: View {
         streakService.getNextMilestone(currentStreak: child.currentStreak)
     }
     
-    private var completedMilestones: [AchievementType] {
-        child.achievements
-            .map { $0.achievementType }
-            .filter { [.streak3, .streak7, .streak30, .streak100].contains($0) }
-    }
-    
-    private var allMilestones: [(type: AchievementType, days: Int, unlocked: Bool)] {
-        let milestoneTypes: [(AchievementType, Int)] = [
-            (.streak3, 3),
-            (.streak7, 7),
-            (.streak30, 30),
-            (.streak100, 100)
-        ]
-        
-        return milestoneTypes.map { type, days in
-            (type: type, days: days, unlocked: completedMilestones.contains(type))
-        }
-    }
-    
     // MARK: - Body
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: Spacing.lg) {
-                    // Current streak display
-                    currentStreakSection
-                    
-                    // Milestone progress
-                    if nextMilestone != nil {
-                        milestoneProgressSection
-                    }
-                    
-                    // All milestones
-                    allMilestonesSection
-                    
-                    // Stats
-                    statsSection
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Spacer()
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(.textSecondary)
                 }
-                .padding(Spacing.lg)
+                .accessibilityLabel("Close")
             }
-            .background(Color.backgroundSecondary)
-            .navigationTitle("Streak Details")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-    
-    // MARK: - Current Streak Section
-    
-    private var currentStreakSection: some View {
-        VStack(spacing: Spacing.md) {
-            // Large flame icon with animation
+            .padding(.top, Spacing.md)
+            .padding(.horizontal, Spacing.lg)
+            
+            Spacer()
+            
+            // Pulse Animation Flame
             ZStack {
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [.brandAccent.opacity(0.3), .brandAccent.opacity(0.1)],
-                            center: .center,
-                            startRadius: 20,
-                            endRadius: 80
+                // Glow circles
+                ForEach(0..<3) { index in
+                    Circle()
+                        .fill(Color.brandAccent.opacity(0.2))
+                        .frame(width: 50, height: 50)
+                        .scaleEffect(animateFlame ? 3.0 : 1.0)
+                        .opacity(animateFlame ? 0 : 0.5)
+                        .animation(
+                            .easeOut(duration: 2.0)
+                            .repeatForever(autoreverses: false)
+                            .delay(Double(index) * 0.4),
+                            value: animateFlame
                         )
-                    )
-                    .frame(width: 120, height: 120)
+                }
                 
+                // Main flame
                 Image(systemName: "flame.fill")
-                    .font(.system(size: 60))
+                    .font(.system(size: 80))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [.brandAccent, .orange],
+                            colors: [Color.brandAccent, Color.orange, Color.red],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
+                    .shadow(color: Color.brandAccent.opacity(0.6), radius: 20, y: 10)
+                    .scaleEffect(animateFlame ? 1.05 : 0.95)
+                    .animation(
+                        .easeInOut(duration: 1.0)
+                        .repeatForever(autoreverses: true),
+                        value: animateFlame
+                    )
             }
+            .frame(height: 180)
             
-            Text("\(child.currentStreak)")
-                .font(.system(size: 48, weight: .bold, design: .rounded))
-                .foregroundStyle(.textPrimary)
-            
-            Text(child.currentStreak == 1 ? "Day Streak" : "Days Streak")
-                .font(.title3)
-                .foregroundStyle(.textSecondary)
-            
-            if hoursRemaining > 0 && hoursRemaining <= 12 {
-                HStack(spacing: Spacing.xs) {
-                    Image(systemName: "clock.fill")
-                        .font(.caption)
-                    Text("\(hoursRemaining) hours left today")
-                        .font(.bodySmall)
-                }
-                .foregroundStyle(.textSecondary)
-                .padding(.horizontal, Spacing.md)
-                .padding(.vertical, Spacing.xs)
-                .background(Color.backgroundSecondary)
-                .clipShape(Capsule())
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(Spacing.xl)
-        .background(Color.backgroundPrimary)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
-        .cardShadow()
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Current streak: \(child.currentStreak) days")
-    }
-    
-    // MARK: - Milestone Progress Section
-    
-    private var milestoneProgressSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            Text("Next Milestone")
-                .font(.title3)
-                .foregroundStyle(.textPrimary)
-            
-            StreakMilestoneProgress(
-                currentStreak: child.currentStreak,
-                nextMilestone: nextMilestone
-            )
-        }
-    }
-    
-    // MARK: - All Milestones Section
-    
-    private var allMilestonesSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            Text("Milestones")
-                .font(.title3)
-                .foregroundStyle(.textPrimary)
-            
-            VStack(spacing: Spacing.sm) {
-                ForEach(allMilestones, id: \.type) { milestone in
-                    milestoneBadge(milestone)
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    
-    private func milestoneBadge(_ milestone: (type: AchievementType, days: Int, unlocked: Bool)) -> some View {
-        HStack(spacing: Spacing.md) {
-            // Icon
-            ZStack {
-                Circle()
-                    .fill(milestone.unlocked ? Color.success.opacity(0.1) : Color.backgroundSecondary)
-                    .frame(width: 48, height: 48)
+            // Streak Count
+            VStack(spacing: Spacing.xs) {
+                Text("\(child.currentStreak)")
+                    .font(.system(size: 64, weight: .bold, design: .rounded))
+                    .foregroundStyle(.textPrimary)
+                    .contentTransition(.numericText())
                 
-                Image(systemName: milestone.unlocked ? "checkmark.circle.fill" : "lock.fill")
-                    .font(.title3)
-                    .foregroundStyle(milestone.unlocked ? .success : .textSecondary.opacity(0.5))
-            }
-            
-            // Text
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text(milestone.type.title)
-                    .font(.labelLarge)
-                    .foregroundStyle(milestone.unlocked ? .textPrimary : .textSecondary)
-                
-                Text("\(milestone.days) days")
-                    .font(.bodySmall)
+                Text(child.currentStreak == 1 ? "Day Streak" : "Days Streak")
+                    .font(.title2)
                     .foregroundStyle(.textSecondary)
             }
+            .padding(.bottom, Spacing.lg)
             
-            Spacer()
-            
-            // XP reward
-            if milestone.unlocked {
-                Image(systemName: "star.fill")
-                    .foregroundStyle(.brandAccent)
-            } else {
-                Text("+\(milestone.type.xpReward) XP")
+            // Footer Info
+            VStack(spacing: Spacing.md) {
+                if let milestone = nextMilestone {
+                    VStack(spacing: Spacing.sm) {
+                        Text("Next Milestone: \(milestone.days) Days")
+                            .font(.labelLarge)
+                            .foregroundStyle(.brandPrimary)
+                        
+                        // Simple progress bar
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                Capsule()
+                                    .fill(Color.backgroundSecondary)
+                                    .frame(height: 8)
+                                
+                                Capsule()
+                                    .fill(Color.brandAccent)
+                                    .frame(width: min(CGFloat(child.currentStreak) / CGFloat(milestone.days) * geometry.size.width, geometry.size.width), height: 8)
+                            }
+                        }
+                        .frame(height: 8)
+                        .padding(.horizontal, Spacing.xxl)
+                    }
+                }
+                
+                if hoursRemaining > 0 && hoursRemaining <= 24 {
+                    HStack(spacing: Spacing.xs) {
+                        Image(systemName: "clock")
+                        Text("\(hoursRemaining) hours left today")
+                    }
                     .font(.caption)
                     .foregroundStyle(.textSecondary)
+                    .padding(.top, Spacing.sm)
+                }
             }
+            .padding(.bottom, Spacing.xl)
+            
+            Spacer()
         }
-        .padding(Spacing.md)
         .background(Color.backgroundPrimary)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
-        .opacity(milestone.unlocked ? 1.0 : 0.6)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(milestone.type.title), \(milestone.days) days, \(milestone.unlocked ? "unlocked" : "locked")")
-    }
-    
-    // MARK: - Stats Section
-    
-    private var statsSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            Text("Statistics")
-                .font(.title3)
-                .foregroundStyle(.textPrimary)
-            
-            HStack(spacing: Spacing.md) {
-                statCard(
-                    title: "Longest",
-                    value: "\(child.longestStreak)",
-                    icon: "trophy.fill",
-                    color: .brandAccent
-                )
-                
-                statCard(
-                    title: "Lessons",
-                    value: "\(child.totalLessonsCompleted)",
-                    icon: "book.fill",
-                    color: .brandPrimary
-                )
-            }
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
+        .onAppear {
+            animateFlame = true
         }
     }
     
-    private func statCard(title: String, value: String, icon: String, color: Color) -> some View {
-        VStack(spacing: Spacing.sm) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundStyle(color)
-            
-            Text(value)
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundStyle(.textPrimary)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.textSecondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(Spacing.md)
-        .background(Color.backgroundPrimary)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
-        .cardShadow()
-    }
 }
 
 // MARK: - Preview
