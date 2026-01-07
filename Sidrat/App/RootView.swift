@@ -42,6 +42,11 @@ struct RootView: View {    private enum Constants {
         }
         .task {
             let startedAt = Date()
+            
+            // Auto-complete onboarding if credentials and children exist
+            // Prevents lockout when parent account + children exist but flag was cleared
+            appState.checkAndCompleteOnboardingIfNeeded(modelContext: modelContext)
+            
             await seedTestDataIfNeeded()
 
             // Keep the splash visible briefly to cover launch + initial work.
