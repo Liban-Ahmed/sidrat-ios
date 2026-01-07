@@ -524,11 +524,16 @@ struct AddChildSheetView: View {
                                 .textFieldStyle(.plain)
                                 .font(.bodyLarge)
                                 .padding()
+                                .frame(height: 56)
                                 .background(Color.backgroundTertiary)
                                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
                                 .focused($isNameFocused)
                                 .autocorrectionDisabled()
                                 .textInputAutocapitalization(.words)
+                                .submitLabel(.done)
+                                .onSubmit {
+                                    isNameFocused = false
+                                }
                         }
                         
                         // Avatar selection
@@ -686,6 +691,7 @@ struct AddChildSheetView: View {
                 }
                 .padding()
             }
+            .scrollDismissesKeyboard(.interactively)
             .background(Color.backgroundSecondary)
             .navigationTitle("Add Child")
             .navigationBarTitleDisplayMode(.inline)

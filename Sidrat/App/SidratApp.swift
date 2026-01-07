@@ -116,6 +116,13 @@ struct SidratApp: App {
             RootView()
                 .environment(appState)
                 .modelContainer(modelContainer)
+                .onAppear {
+                    // Initialize keyboard manager
+                    _ = KeyboardManager.shared
+                    
+                    // Suppress RTI Input System warning logs (cosmetic only)
+                    UserDefaults.standard.set(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
+                }
                 #if DEBUG
                 .onShake {
                     // Shake device or Cmd+Ctrl+Z in simulator to reset
@@ -267,6 +274,60 @@ final class AppState {
         #if DEBUG
         print("👤 Parent account set: \(result.userIdentifier.prefix(8))... (local: \(result.isLocalOnly))")
         #endif
+    }
+    
+    /// Automatically completes onboarding if credentials and children exist
+    /// Prevents lockout scenarios where credentials persist but onboarding flag was cleared
+    /// Call this on app launch before showing onboarding UI
+    @MainActor
+    func checkAndCompleteOnboardingIfNeeded(modelContext: ModelContext) {
+        // If already complete, nothing to do
+        guard !isOnboardingComplete else {
+            #if DEBUG
+            print("ℹ️ Onboarding already complete")
+            #endif
+            return
+        }
+        
+        // Check if parent account exists
+        guard hasParentAccount else {
+            #if DEBUG
+            print("ℹ️ No parent account found, onboarding needed")
+            #endif
+            return
+        }
+        
+        // Check if at least one child exists
+        do {
+            let descriptor = FetchDescriptor<Child>()
+            let children = try modelContext.fetch(descriptor)
+            
+            if !children.isEmpty {
+                // We have credentials + children but onboarding not marked complete
+                // This can happen after data cleanup or app reinstall
+                isOnboardingComplete = true
+                
+                // Set current child if not already set
+                if currentChildId == nil, let firstChild = children.first {
+                    currentChildId = firstChild.id.uuidString
+                }
+                
+                #if DEBUG
+                print("🔄 Auto-completed onboarding: Found \(children.count) existing children")
+                for child in children {
+                    print("  - \(child.name) (Age \(child.currentAge))")
+                }
+                #endif
+            } else {
+                #if DEBUG
+                print("ℹ️ Parent account exists but no children, continue onboarding")
+                #endif
+            }
+        } catch {
+            #if DEBUG
+            print("❌ Error checking children: \(error)")
+            #endif
+        }
     }
     
     #if DEBUG

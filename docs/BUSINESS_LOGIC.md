@@ -4,11 +4,7 @@
 
 ### Calculation Rules
 - **Increment**: Streak increases by 1 when daily lesson completed before 11:59 PM local time
-- **Reset**: Streak resets to 0 after one missed day (unless freeze used)
-- **Freeze**: Parent can grant 1 freeze per week
-  - Consumed automatically on first missed day
-  - Does not roll over to next week
-  - Only available if earned through weekly activity
+- **Reset**: Streak resets to 0 after one missed day
 
 ### Streak Milestones
 | Days | Achievement | Reward |
@@ -19,7 +15,7 @@
 
 ### Edge Cases
 - **Lesson completed at 11:58 PM**: Counts for current day
-- **Lesson completed at 12:01 AM**: Counts for new day (yesterday's streak broken unless freeze)
+- **Lesson completed at 12:01 AM**: Counts for new day (yesterday's streak broken)
 - **Multiple lessons in one day**: Only first completion counts for streak
 - **Timezone changes**: Use device local time, no retroactive adjustments
 

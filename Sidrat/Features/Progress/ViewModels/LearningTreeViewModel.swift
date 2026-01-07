@@ -110,6 +110,10 @@ final class LearningTreeViewModel {
     func loadTreeData(for child: Child, lessons: [Lesson]) async {
         isLoading = true
         
+        // Extract necessary data from child on main actor before detached task
+        let childName = child.name
+        let childAchievements = child.achievements
+        
         // Perform heavy computation off main thread
         let result: (nodes: [TreeNode], segments: [TreePathSegment], growth: TreeGrowthState, completion: Double) = await Task.detached(priority: .userInitiated) { [weak self] in
             guard let self = self else { 
@@ -136,13 +140,13 @@ final class LearningTreeViewModel {
             // Calculate animation delays (fast operation, safe on main thread)
             self.calculateAnimationDelays()
             
-            // Check for new achievements
-            self.checkForNewAchievements(child: child)
+            // Check for new achievements using extracted data
+            self.checkForNewAchievements(achievements: childAchievements)
             
             self.isLoading = false
             
             #if DEBUG
-            print("[LearningTreeViewModel] Loaded \(self.treeNodes.count) nodes for \(child.name)")
+            print("[LearningTreeViewModel] Loaded \(self.treeNodes.count) nodes for \(childName)")
             print("[LearningTreeViewModel] Growth: \(self.growthState), Completion: \(Int(result.completion * 100))%")
             #endif
         }
@@ -317,8 +321,8 @@ final class LearningTreeViewModel {
     }
     
     /// Check for new achievements
-    private func checkForNewAchievements(child: Child) {
-        let newAchievements = child.achievements.filter { $0.isNew }
+    private func checkForNewAchievements(achievements: [Achievement]) {
+        let newAchievements = achievements.filter { $0.isNew }
         
         #if DEBUG
         if !newAchievements.isEmpty {

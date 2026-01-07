@@ -122,18 +122,15 @@ struct NodeDetailSheet: View {
     // MARK: - Data Loading
     
     private func loadContent() async {
-        // Perform lookup off main thread if dataset is large
-        await Task.detached(priority: .userInitiated) {
-            let foundLesson = lessons.first { $0.id == node.lessonId }
-            let foundProgress = child.lessonProgress.first { $0.lessonId == node.lessonId }
-            
-            // Update UI on main thread
-            await MainActor.run {
-                cachedLesson = foundLesson
-                cachedProgress = foundProgress
-                isContentReady = true
-            }
-        }.value
+        // For this use case, the dataset is likely small enough that we don't need
+        // to perform the lookup off the main thread. SwiftData models must stay
+        // on the main actor context.
+        let lessonIdToFind = node.lessonId
+        
+        // Perform lookup on main actor (where SwiftData models live)
+        cachedLesson = lessons.first { $0.id == lessonIdToFind }
+        cachedProgress = child.lessonProgress.first { $0.lessonId == lessonIdToFind }
+        isContentReady = true
     }
     
     // MARK: - Subviews

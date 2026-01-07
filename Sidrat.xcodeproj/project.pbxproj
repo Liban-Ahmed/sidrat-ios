@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ACH0001 /* AchievementUnlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0090 /* AchievementUnlockView.swift */; };
+		ACH0002 /* AchievementGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0091 /* AchievementGridView.swift */; };
+		ACH0003 /* AchievementDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0092 /* AchievementDetailView.swift */; };
 		APP0001 /* SidratApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0001 /* SidratApp.swift */; };
 		APP0002 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0002 /* RootView.swift */; };
 		APP0003 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0003 /* MainTabView.swift */; };
@@ -20,19 +23,14 @@
 		AUTH0002 /* SignInWithAppleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0041 /* SignInWithAppleButton.swift */; };
 		DE0FD7522EFFA10700673B6F /* SidratModelsAvatarOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0FD7512EFFA10700673B6F /* SidratModelsAvatarOption.swift */; };
 		FEA0001 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0020 /* OnboardingView.swift */; };
-		FEA0002 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0021 /* HomeView.swift */; };
 		FEA0003 /* LearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0022 /* LearnView.swift */; };
 		FEA0004 /* FamilyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0023 /* FamilyView.swift */; };
 		FEA0005 /* ProgressDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0024 /* ProgressDashboardView.swift */; };
-		FEA0006 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0025 /* SettingsView.swift */; };
 		FEA0007 /* LessonDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0026 /* LessonDetailView.swift */; };
 		FEA0008 /* LessonPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0027 /* LessonPlayerView.swift */; };
 		FEA0009 /* LessonCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0028 /* LessonCompletionView.swift */; };
 		FEA0010 /* FamilyActivityDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0029 /* FamilyActivityDetailView.swift */; };
-		FEA0011 /* ProfileSwitcherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0032 /* ProfileSwitcherView.swift */; };
 		FEA0012 /* ChildProfileCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0035 /* ChildProfileCreationView.swift */; };
-		FEA0013 /* ProfileSwitcherViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0037 /* ProfileSwitcherViewModel.swift */; };
-		FEA0014 /* DailyLessonCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0042 /* DailyLessonCard.swift */; };
 		LEX0001 /* LessonPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0050 /* LessonPhase.swift */; };
 		LEX0002 /* AudioNarrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0051 /* AudioNarrationService.swift */; };
 		LEX0003 /* LessonPhaseIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0052 /* LessonPhaseIndicator.swift */; };
@@ -50,17 +48,6 @@
 		MOD0003 /* LessonProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0012 /* LessonProgress.swift */; };
 		MOD0004 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0013 /* Achievement.swift */; };
 		MOD0005 /* FamilyActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0014 /* FamilyActivity.swift */; };
-		UI0001 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0030 /* Theme.swift */; };
-		UI0002 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0031 /* Components.swift */; };
-		UI0003 /* ColorShowcase.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0033 /* ColorShowcase.swift */; };
-		UI0004 /* AvatarSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0034 /* AvatarSelector.swift */; };
-		UI0005 /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0036 /* AvatarView.swift */; };
-		UI0006 /* ParentalGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0038 /* ParentalGateView.swift */; };
-		UI0007 /* ParentalGateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0039 /* ParentalGateModifier.swift */; };
-		ACH0001 /* AchievementUnlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0090 /* AchievementUnlockView.swift */; };
-		ACH0002 /* AchievementGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0091 /* AchievementGridView.swift */; };
-		ACH0003 /* AchievementDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0092 /* AchievementDetailView.swift */; };
-		UI0008 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0093 /* ConfettiView.swift */; };
 		PRG0001 /* StatsOverviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0100 /* StatsOverviewCard.swift */; };
 		PRG0002 /* LearningTreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0101 /* LearningTreeView.swift */; };
 		PRG0003 /* TreeLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0102 /* TreeLegendView.swift */; };
@@ -71,6 +58,14 @@
 		PRG0008 /* NodeDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0107 /* NodeDetailSheet.swift */; };
 		PRG0009 /* CelebrationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0108 /* CelebrationOverlay.swift */; };
 		PRG0010 /* LearningTreeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0109 /* LearningTreeViewModel.swift */; };
+		UI0001 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0030 /* Theme.swift */; };
+		UI0002 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0031 /* Components.swift */; };
+		UI0003 /* ColorShowcase.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0033 /* ColorShowcase.swift */; };
+		UI0004 /* AvatarSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0034 /* AvatarSelector.swift */; };
+		UI0005 /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0036 /* AvatarView.swift */; };
+		UI0006 /* ParentalGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0038 /* ParentalGateView.swift */; };
+		UI0007 /* ParentalGateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0039 /* ParentalGateModifier.swift */; };
+		UI0008 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0093 /* ConfettiView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,34 +77,28 @@
 		SRC0001 /* SidratApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidratApp.swift; sourceTree = "<group>"; };
 		SRC0002 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		SRC0003 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
-		SRC0110 /* LaunchSplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSplashView.swift; sourceTree = "<group>"; };
 		SRC0010 /* Child.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Child.swift; sourceTree = "<group>"; };
 		SRC0011 /* Lesson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lesson.swift; sourceTree = "<group>"; };
 		SRC0012 /* LessonProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonProgress.swift; sourceTree = "<group>"; };
 		SRC0013 /* Achievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievement.swift; sourceTree = "<group>"; };
 		SRC0014 /* FamilyActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyActivity.swift; sourceTree = "<group>"; };
 		SRC0020 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
-		SRC0021 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		SRC0022 /* LearnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnView.swift; sourceTree = "<group>"; };
 		SRC0023 /* FamilyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyView.swift; sourceTree = "<group>"; };
 		SRC0024 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
-		SRC0025 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		SRC0026 /* LessonDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonDetailView.swift; sourceTree = "<group>"; };
 		SRC0027 /* LessonPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonPlayerView.swift; sourceTree = "<group>"; };
 		SRC0028 /* LessonCompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonCompletionView.swift; sourceTree = "<group>"; };
 		SRC0029 /* FamilyActivityDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyActivityDetailView.swift; sourceTree = "<group>"; };
 		SRC0030 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		SRC0031 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
-		SRC0032 /* ProfileSwitcherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSwitcherView.swift; sourceTree = "<group>"; };
 		SRC0033 /* ColorShowcase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorShowcase.swift; sourceTree = "<group>"; };
 		SRC0034 /* AvatarSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarSelector.swift; sourceTree = "<group>"; };
 		SRC0035 /* ChildProfileCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProfileCreationView.swift; sourceTree = "<group>"; };
 		SRC0036 /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarView.swift; sourceTree = "<group>"; };
-		SRC0037 /* ProfileSwitcherViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSwitcherViewModel.swift; sourceTree = "<group>"; };
 		SRC0038 /* ParentalGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentalGateView.swift; sourceTree = "<group>"; };
 		SRC0039 /* ParentalGateModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentalGateModifier.swift; sourceTree = "<group>"; };
 		SRC0041 /* SignInWithAppleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInWithAppleButton.swift; sourceTree = "<group>"; };
-		SRC0042 /* DailyLessonCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyLessonCard.swift; sourceTree = "<group>"; };
 		SRC0050 /* LessonPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonPhase.swift; sourceTree = "<group>"; };
 		SRC0051 /* AudioNarrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioNarrationService.swift; sourceTree = "<group>"; };
 		SRC0052 /* LessonPhaseIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonPhaseIndicator.swift; sourceTree = "<group>"; };
@@ -139,10 +128,13 @@
 		SRC0107 /* NodeDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDetailSheet.swift; sourceTree = "<group>"; };
 		SRC0108 /* CelebrationOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationOverlay.swift; sourceTree = "<group>"; };
 		SRC0109 /* LearningTreeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningTreeViewModel.swift; sourceTree = "<group>"; };
+		SRC0110 /* LaunchSplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSplashView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D86E73B32F077FC700DBE381 /* Services */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Services; sourceTree = "<group>"; };
+		D8E9ED312F0B695F00D09DD1 /* Home */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Home; sourceTree = "<group>"; };
+		D8E9ED3B2F0B69DB00D09DD1 /* Settings */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Settings; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -212,12 +204,12 @@
 		GRP0030 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				D8E9ED3B2F0B69DB00D09DD1 /* Settings */,
+				D8E9ED312F0B695F00D09DD1 /* Home */,
 				GRP0031 /* Onboarding */,
-				GRP0032 /* Home */,
 				GRP0033 /* Learn */,
 				GRP0034 /* Family */,
 				GRP0035 /* Progress */,
-				GRP0036 /* Settings */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -229,17 +221,6 @@
 				SRC0020 /* OnboardingView.swift */,
 			);
 			path = Onboarding;
-			sourceTree = "<group>";
-		};
-		GRP0032 /* Home */ = {
-			isa = PBXGroup;
-			children = (
-				SRC0042 /* DailyLessonCard.swift */,
-				SRC0021 /* HomeView.swift */,
-				SRC0032 /* ProfileSwitcherView.swift */,
-				SRC0037 /* ProfileSwitcherViewModel.swift */,
-			);
-			path = Home;
 			sourceTree = "<group>";
 		};
 		GRP0033 /* Learn */ = {
@@ -280,38 +261,6 @@
 				GRP0138 /* ViewModels */,
 			);
 			path = Progress;
-			sourceTree = "<group>";
-		};
-		GRP0137 /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				SRC0100 /* StatsOverviewCard.swift */,
-				SRC0101 /* LearningTreeView.swift */,
-				SRC0102 /* TreeLegendView.swift */,
-				SRC0103 /* LearningHistoryList.swift */,
-				SRC0104 /* CategoryBranchNode.swift */,
-				SRC0105 /* TreeBackgroundView.swift */,
-				SRC0106 /* WindingPathView.swift */,
-				SRC0107 /* NodeDetailSheet.swift */,
-				SRC0108 /* CelebrationOverlay.swift */,
-			);
-			path = Components;
-			sourceTree = "<group>";
-		};
-		GRP0138 /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				SRC0109 /* LearningTreeViewModel.swift */,
-			);
-			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		GRP0036 /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				SRC0025 /* SettingsView.swift */,
-			);
-			path = Settings;
 			sourceTree = "<group>";
 		};
 		GRP0037 /* LessonExperience */ = {
@@ -388,6 +337,30 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		GRP0137 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0100 /* StatsOverviewCard.swift */,
+				SRC0101 /* LearningTreeView.swift */,
+				SRC0102 /* TreeLegendView.swift */,
+				SRC0103 /* LearningHistoryList.swift */,
+				SRC0104 /* CategoryBranchNode.swift */,
+				SRC0105 /* TreeBackgroundView.swift */,
+				SRC0106 /* WindingPathView.swift */,
+				SRC0107 /* NodeDetailSheet.swift */,
+				SRC0108 /* CelebrationOverlay.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		GRP0138 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0109 /* LearningTreeViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		ROOT0001 = {
 			isa = PBXGroup;
 			children = (
@@ -413,6 +386,8 @@
 			);
 			fileSystemSynchronizedGroups = (
 				D86E73B32F077FC700DBE381 /* Services */,
+				D8E9ED312F0B695F00D09DD1 /* Home */,
+				D8E9ED3B2F0B69DB00D09DD1 /* Settings */,
 			);
 			name = Sidrat;
 			productName = Sidrat;
@@ -481,16 +456,13 @@
 				MOD0005 /* FamilyActivity.swift in Sources */,
 				FEA0001 /* OnboardingView.swift in Sources */,
 				DE0FD7522EFFA10700673B6F /* SidratModelsAvatarOption.swift in Sources */,
-				FEA0002 /* HomeView.swift in Sources */,
 				FEA0003 /* LearnView.swift in Sources */,
 				FEA0004 /* FamilyView.swift in Sources */,
 				FEA0005 /* ProgressDashboardView.swift in Sources */,
-				FEA0006 /* SettingsView.swift in Sources */,
 				FEA0007 /* LessonDetailView.swift in Sources */,
 				FEA0008 /* LessonPlayerView.swift in Sources */,
 				FEA0009 /* LessonCompletionView.swift in Sources */,
 				FEA0010 /* FamilyActivityDetailView.swift in Sources */,
-				FEA0011 /* ProfileSwitcherView.swift in Sources */,
 				UI0001 /* Theme.swift in Sources */,
 				UI0002 /* Components.swift in Sources */,
 				UI0003 /* ColorShowcase.swift in Sources */,
@@ -506,10 +478,8 @@
 				UI0004 /* AvatarSelector.swift in Sources */,
 				FEA0012 /* ChildProfileCreationView.swift in Sources */,
 				UI0005 /* AvatarView.swift in Sources */,
-				FEA0013 /* ProfileSwitcherViewModel.swift in Sources */,
 				UI0006 /* ParentalGateView.swift in Sources */,
 				UI0007 /* ParentalGateModifier.swift in Sources */,
-				FEA0014 /* DailyLessonCard.swift in Sources */,
 				LEX0070 /* LessonPlayerViewModel.swift in Sources */,
 				LEX0071 /* PhaseIndicator.swift in Sources */,
 				LEX0072 /* QuizView.swift in Sources */,

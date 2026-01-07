@@ -182,6 +182,10 @@ struct ChildProfileCreationView: View {
             .padding(.horizontal, Spacing.lg)
         }
         .scrollDismissesKeyboard(.interactively)
+        .onTapGesture {
+            // Dismiss keyboard when tapping outside TextField
+            isNameFocused = false
+        }
     }
     
     // MARK: - Header Section
@@ -243,9 +247,16 @@ struct ChildProfileCreationView: View {
             TextField("Enter a name", text: $displayName)
                 .font(.bodyLarge)
                 .padding()
-                .frame(minHeight: 56)
+                .frame(height: 56)
                 .background(Color.backgroundTertiary)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+                .focused($isNameFocused)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.words)
+                .submitLabel(.done)
+                .onSubmit {
+                    isNameFocused = false
+                }
                 .overlay {
                     RoundedRectangle(cornerRadius: CornerRadius.medium)
                         .stroke(isNameFocused ? Color.brandPrimary : Color.clear, lineWidth: 2)

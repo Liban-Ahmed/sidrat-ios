@@ -408,7 +408,7 @@ struct EditProfileView: View {
                             TextField("Enter a name", text: $name)
                                 .font(.bodyLarge)
                                 .padding()
-                                .frame(minHeight: 56)
+                                .frame(height: 56)
                                 .background(Color.backgroundTertiary)
                                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
                                 .overlay {
@@ -416,6 +416,12 @@ struct EditProfileView: View {
                                         .stroke(isNameFocused ? Color.brandPrimary : Color.clear, lineWidth: 2)
                                 }
                                 .focused($isNameFocused)
+                                .autocorrectionDisabled()
+                                .textInputAutocapitalization(.words)
+                                .submitLabel(.done)
+                                .onSubmit {
+                                    isNameFocused = false
+                                }
                         }
                         
                         // Avatar selection
@@ -486,6 +492,7 @@ struct EditProfileView: View {
                 }
                 .padding()
             }
+            .scrollDismissesKeyboard(.interactively)
             .background(Color.backgroundSecondary)
             .navigationTitle("Edit Profile")
             .navigationBarTitleDisplayMode(.inline)
@@ -713,7 +720,7 @@ struct AddChildView: View {
                         TextField("Enter a name", text: $name)
                             .font(.bodyLarge)
                             .padding()
-                            .frame(minHeight: 56)
+                            .frame(height: 56)
                             .background(Color.backgroundTertiary)
                             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
                             .overlay {
@@ -721,6 +728,12 @@ struct AddChildView: View {
                                     .stroke(isNameFocused ? Color.brandPrimary : Color.clear, lineWidth: 2)
                             }
                             .focused($isNameFocused)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.words)
+                            .submitLabel(.done)
+                            .onSubmit {
+                                isNameFocused = false
+                            }
                             .accessibilityLabel("Child's display name")
                             .accessibilityHint("Enter your child's name (not required to be real name)")
                     }
@@ -838,6 +851,7 @@ struct AddChildView: View {
             }
             .padding()
         }
+        .scrollDismissesKeyboard(.interactively)
         .background(Color.backgroundSecondary)
         .navigationTitle("Add Child")
         .navigationBarTitleDisplayMode(.inline)

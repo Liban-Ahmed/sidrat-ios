@@ -103,6 +103,7 @@ enum AchievementType: String, Codable, CaseIterable {
     case streak3 = "streak_3"
     case streak7 = "streak_7"
     case streak30 = "streak_30"
+    case streak100 = "streak_100"
     case perfectWeek = "perfect_week"
     case earlyBird = "early_bird"
     case nightOwl = "night_owl"
@@ -140,6 +141,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return "3 Day Streak"
         case .streak7: return "Week Warrior"
         case .streak30: return "Monthly Master"
+        case .streak100: return "Dedication Master"
         case .perfectWeek: return "Perfect Week"
         case .earlyBird: return "Early Bird"
         case .nightOwl: return "Night Owl"
@@ -179,6 +181,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return "Learned for 3 days in a row"
         case .streak7: return "Learned for 7 days in a row"
         case .streak30: return "Learned for 30 days in a row"
+        case .streak100: return "Learned for 100 days in a row!"
         case .perfectWeek: return "Completed lessons all 7 days this week"
         case .earlyBird: return "Completed a lesson before 9 AM"
         case .nightOwl: return "Completed a lesson after 7 PM"
@@ -218,6 +221,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return "flame.fill"
         case .streak7: return "flame.fill"
         case .streak30: return "flame.fill"
+        case .streak100: return "flame.fill"
         case .perfectWeek: return "calendar.badge.checkmark"
         case .earlyBird: return "sunrise.fill"
         case .nightOwl: return "moon.stars.fill"
@@ -253,7 +257,7 @@ enum AchievementType: String, Codable, CaseIterable {
     var category: AchievementCategory {
         switch self {
         // Progress
-        case .firstLesson, .streak3, .streak7, .streak30, .perfectWeek,
+        case .firstLesson, .streak3, .streak7, .streak30, .streak100, .perfectWeek,
              .earlyBird, .nightOwl, .streakSaver, .superLearner,
              .xpMilestone1000, .xpMilestone2500:
             return .progress
@@ -293,7 +297,7 @@ enum AchievementType: String, Codable, CaseIterable {
             return .gold
             
         // Platinum (Ultra Rare)
-        case .streakSaver, .xpMilestone2500, .allCategoriesMaster:
+        case .streak100, .streakSaver, .xpMilestone2500, .allCategoriesMaster:
             return .platinum
         }
     }
@@ -315,6 +319,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .streak3: return .streak(days: 3)
         case .streak7: return .streak(days: 7)
         case .streak30: return .streak(days: 30)
+        case .streak100: return .streak(days: 100)
         case .perfectWeek: return .perfectWeek
             
         // XP milestones
@@ -387,6 +392,7 @@ enum AchievementType: String, Codable, CaseIterable {
         case .laylatAlQadr: return 400
             
         // Platinum rewards
+        case .streak100: return 2000
         case .streakSaver: return 100
         case .xpMilestone2500: return 500
         case .allCategoriesMaster: return 1000

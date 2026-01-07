@@ -99,7 +99,12 @@ struct ProgressDashboardView: View {
             // Achievement unlock celebration overlay
             if showingAchievementUnlock, let achievement = pendingAchievements.first {
                 AchievementUnlockView(achievement: achievement) {
-                    // Remove the shown achievement from pending
+                    // Remove the shown achievement from pending (safe check)
+                    guard !pendingAchievements.isEmpty else {
+                        showingAchievementUnlock = false
+                        return
+                    }
+                    
                     pendingAchievements.removeFirst()
                     
                     // If more achievements pending, keep showing

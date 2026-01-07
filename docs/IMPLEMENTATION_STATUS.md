@@ -113,6 +113,32 @@ This document tracks what's implemented, in progress, and not started.
 - [x] Streak tracking visualization
 - [x] Learning history timeline
 - [x] Tab selector for Tree/Badges/History
+- [x] **US-303: Streak Tracking** (Complete - All 5 Phases)
+  - [x] Child model extended with freeze properties
+  - [x] streak100 achievement type added
+  - [x] StreakService - centralized streak management
+  - [x] Freeze grant/consumption logic
+  - [x] Milestone detection and awards
+  - [x] LessonPlayerViewModel refactored to use StreakService
+  - [x] HomeView checks expired streaks on app launch
+  - [x] Child.recordLessonCompletion deprecated in favor of StreakService
+  - [x] EnhancedStreakBadge with freeze indicator and time remaining
+  - [x] StreakMilestoneProgress component with animated progress bar
+  - [x] StreakDetailSheet - full streak information modal
+  - [x] HomeView updated with enhanced streak display and detail sheet
+  - [x] Settings integration (Phase 4)
+    - [x] StreakFreezeCard component with grant UI
+    - [x] SettingsView integration with parental gate
+    - [x] Weekly grant limit enforcement
+    - [x] Next availability countdown
+  - [x] Milestone celebrations (Phase 5)
+    - [x] StreakMilestoneCelebrationView - full-screen overlay
+    - [x] Confetti animation and flame icon
+    - [x] Milestone-specific messages (Amazing/Incredible/Outstanding/Legendary)
+    - [x] Badge reveal with rotation animation
+    - [x] XP earned display
+    - [x] NotificationCenter integration for real-time celebrations
+    - [x] HomeView listener for milestone notifications
 - [x] **US-301: Learning Tree View** (Complete)
   - [x] LearningTreeViewModel - tree data and state management
   - [x] TreeBackgroundView - organic tree trunk and branches
@@ -191,6 +217,7 @@ Sidrat/
 │       ├── AudioQueueService.swift ✅
 │       ├── ElevenLabsService.swift ✅
 │       ├── SoundEffectsService.swift ✅
+│       ├── StreakService.swift ✅ (US-303)
 │       ├── LessonProgressService.swift ✅ (US-204)
 │       └── CloudKitSyncService.swift ✅ (stub for Phase 2)
 ├── Features/
@@ -201,7 +228,10 @@ Sidrat/
 │   │   ├── HomeView.swift
 │   │   ├── DailyLessonCard.swift
 │   │   ├── ProfileSwitcherView.swift
-│   │   └── ProfileSwitcherViewModel.swift
+│   │   ├── ProfileSwitcherViewModel.swift
+│   │   └── Components/
+│   │       ├── StreakDetailSheet.swift ✅ (US-303)
+│   │       └── StreakMilestoneCelebrationView.swift ✅ (US-303)
 │   ├── Learn/ ✅
 │   │   ├── LearnView.swift
 │   │   ├── LessonDetailView.swift
@@ -235,7 +265,9 @@ Sidrat/
 │   │   └── ViewModels/
 │   │       └── LearningTreeViewModel.swift ✅ (US-301)
 │   └── Settings/ ✅
-│       └── SettingsView.swift
+│       ├── SettingsView.swift
+│       └── Components/
+│           └── StreakFreezeCard.swift ✅ (US-303)
 ├── UI/
 │   ├── Theme/
 │   │   └── Theme.swift ✅
