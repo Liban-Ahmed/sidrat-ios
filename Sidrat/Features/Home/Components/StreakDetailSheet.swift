@@ -78,7 +78,7 @@ struct StreakDetailSheet: View {
                 
                 // Main flame
                 Image(systemName: "flame.fill")
-                    .font(.system(size: 80))
+                    .font(.heroLarge)
                     .foregroundStyle(
                         LinearGradient(
                             colors: [Color.brandAccent, Color.orange, Color.red],
@@ -95,11 +95,13 @@ struct StreakDetailSheet: View {
                     )
             }
             .frame(height: 180)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Streak flame animation")
             
             // Streak Count
             VStack(spacing: Spacing.xs) {
                 Text("\(child.currentStreak)")
-                    .font(.system(size: 64, weight: .bold, design: .rounded))
+                    .font(.heroMedium)
                     .foregroundStyle(.textPrimary)
                     .contentTransition(.numericText())
                 
@@ -131,6 +133,8 @@ struct StreakDetailSheet: View {
                         }
                         .frame(height: 8)
                         .padding(.horizontal, Spacing.xxl)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Progress to next milestone: \(child.currentStreak) out of \(milestone.days) days")
                     }
                 }
                 

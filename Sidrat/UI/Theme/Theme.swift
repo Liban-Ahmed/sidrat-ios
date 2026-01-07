@@ -234,6 +234,10 @@ extension Font {
     static let displayLarge = Font.system(size: 40, weight: .bold, design: .rounded)
     static let displayMedium = Font.system(size: 34, weight: .bold, design: .rounded)
     
+    // Hero Sizes (for decorative/celebration elements)
+    static let heroLarge = Font.system(size: 80, weight: .bold, design: .rounded)
+    static let heroMedium = Font.system(size: 64, weight: .bold, design: .rounded)
+    
     // Headings
     static let largeTitle = Font.system(size: 34, weight: .bold, design: .rounded)
     static let title1 = Font.system(size: 28, weight: .bold, design: .rounded)
