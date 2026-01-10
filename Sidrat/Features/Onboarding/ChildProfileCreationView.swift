@@ -139,7 +139,9 @@ struct ChildProfileCreationView: View {
                 onDismiss: {
                     showParentalGate = false
                     if !hasPassedParentalGate {
-                        dismiss()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                            dismiss()
+                        }
                     }
                 },
                 context: "Parent verification is required to create a child profile."

@@ -18,6 +18,9 @@ struct AchievementGridView: View {
     let child: Child
     let achievementService: AchievementService
     
+    /// Callback to replay the unlock animation for an achievement
+    var onReplayAnimation: ((AchievementType) -> Void)? = nil
+    
     @State private var selectedCategory: AchievementCategory? = nil
     @State private var selectedAchievement: AchievementType? = nil
     @State private var showingDetail = false
@@ -98,13 +101,25 @@ struct AchievementGridView: View {
                     spacing: Spacing.md
                 ) {
                     ForEach(filteredAchievements, id: \.self) { achievement in
+                        let isUnlocked = unlockedAchievements.contains(achievement)
                         AchievementBadgeCell(
                             achievement: achievement,
-                            isUnlocked: unlockedAchievements.contains(achievement),
+                            isUnlocked: isUnlocked,
                             progress: achievementProgress[achievement],
-                            isNew: child.achievements.first { $0.achievementType == achievement }?.isNew ?? false
+                            isNew: child.achievements.first { $0.achievementType == achievement }?.isNew ?? false,
+                            onReplayAnimation: isUnlocked ? {
+                                // Mark as no longer new when viewed
+                                if let achievementRecord = child.achievements.first(where: { $0.achievementType == achievement }) {
+                                    achievementRecord.isNew = false
+                                }
+                                onReplayAnimation?(achievement)
+                            } : nil
                         )
                         .onTapGesture {
+                            // Mark as no longer new when tapped
+                            if let achievementRecord = child.achievements.first(where: { $0.achievementType == achievement }) {
+                                achievementRecord.isNew = false
+                            }
                             selectedAchievement = achievement
                             showingDetail = true
                         }
@@ -226,6 +241,9 @@ struct AchievementBadgeCell: View {
     let progress: AchievementProgress?
     let isNew: Bool
     
+    /// Callback to replay the unlock animation (only available for unlocked achievements)
+    var onReplayAnimation: (() -> Void)? = nil
+    
     @State private var isPressed = false
     
     var body: some View {
@@ -308,17 +326,32 @@ struct AchievementBadgeCell: View {
                         .foregroundStyle(Color.textTertiary)
                 }
             }
+            
+            // Replay hint for unlocked achievements
+            if isUnlocked && onReplayAnimation != nil {
+                Text("Hold to replay")
+                    .font(.system(size: 8, weight: .medium))
+                    .foregroundStyle(Color.textTertiary)
+                    .opacity(0.7)
+            }
         }
         .padding(.vertical, Spacing.xs)
         .scaleEffect(isPressed ? 0.95 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
-        .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity) { pressing in
+        .onLongPressGesture(minimumDuration: 0.5) {
+            // Long press triggers replay animation for unlocked achievements
+            if isUnlocked, let replay = onReplayAnimation {
+                let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                impactFeedback.impactOccurred()
+                replay()
+            }
+        } onPressingChanged: { pressing in
             isPressed = pressing
-        } perform: {}
+        }
         // Accessibility
         .accessibilityElement(children: .combine)
         .accessibilityLabel(achievementAccessibilityLabel)
-        .accessibilityHint("Double tap for details")
+        .accessibilityHint(isUnlocked ? "Double tap for details, hold to replay celebration" : "Double tap for details")
         .accessibilityAddTraits(.isButton)
     }
     

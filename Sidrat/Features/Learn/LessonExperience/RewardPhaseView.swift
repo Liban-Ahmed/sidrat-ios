@@ -281,57 +281,85 @@ struct RewardPhaseView: View {
     // MARK: - Action Buttons
     
     private var actionButtons: some View {
-        VStack(spacing: Spacing.md) {
-            // Share with family button
-            Button(action: onShare) {
-                HStack(spacing: Spacing.sm) {
-                    Image(systemName: "person.2.fill")
-                        .font(.headline)
+        VStack(spacing: Spacing.lg) {
+            // Completion Card
+            VStack(spacing: Spacing.md) {
+                // Checkmark success icon
+                ZStack {
+                    Circle()
+                        .fill(Color.brandSecondary.opacity(0.15))
+                        .frame(width: 60, height: 60)
                     
-                    Text("Share with Family")
-                        .font(.headline.weight(.semibold))
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.brandSecondary)
                 }
-                .foregroundStyle(lesson.category.color)
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(
-                    Capsule()
-                        .fill(lesson.category.color.opacity(0.15))
-                )
-            }
-            .buttonStyle(.plain)
-            .opacity(showShareButton ? 1.0 : 0)
-            .offset(y: showShareButton ? 0 : 10)
-            .accessibilityHint("Double tap to share your achievement with family members")
-            
-            // Continue button
-            Button(action: onContinue) {
-                HStack(spacing: Spacing.sm) {
-                    Text("Continue Learning")
-                        .font(.headline.weight(.bold))
-                    
-                    Image(systemName: "arrow.right")
-                        .font(.headline)
-                }
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(
-                    Capsule()
-                        .fill(
+                
+                Text("Lesson Complete!")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.textPrimary)
+                
+                Text("Ready to continue your learning journey?")
+                    .font(.subheadline)
+                    .foregroundStyle(.textSecondary)
+                    .multilineTextAlignment(.center)
+                
+                // Action buttons inside card
+                VStack(spacing: Spacing.sm) {
+                    // Continue button - primary action
+                    Button(action: onContinue) {
+                        HStack(spacing: Spacing.sm) {
+                            Image(systemName: "arrow.right.circle.fill")
+                                .font(.title3)
+                            
+                            Text("Continue to Home")
+                                .font(.headline.weight(.semibold))
+                        }
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
+                        .background(
                             LinearGradient(
-                                colors: [lesson.category.color, lesson.category.color.opacity(0.8)],
+                                colors: [Color.brandPrimary, Color.brandPrimary.opacity(0.85)],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
                         )
-                        .shadow(color: lesson.category.color.opacity(0.3), radius: 10, y: 5)
-                )
+                        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+                        .shadow(color: Color.brandPrimary.opacity(0.25), radius: 8, y: 4)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("Double tap to go back home and see your next lesson")
+                    
+                    // Share button - secondary action
+                    Button(action: onShare) {
+                        HStack(spacing: Spacing.sm) {
+                            Image(systemName: "person.2.fill")
+                                .font(.subheadline)
+                            
+                            Text("Share with Family")
+                                .font(.subheadline.weight(.medium))
+                        }
+                        .foregroundStyle(.textSecondary)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(Color.surfaceTertiary.opacity(0.5))
+                        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.small))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("Double tap to share your achievement with family members")
+                }
+                .padding(.top, Spacing.xs)
             }
-            .buttonStyle(.plain)
+            .padding(Spacing.lg)
+            .background(
+                RoundedRectangle(cornerRadius: CornerRadius.extraLarge)
+                    .fill(Color.surfaceSecondary)
+                    .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
+            )
             .opacity(showShareButton ? 1.0 : 0)
-            .offset(y: showShareButton ? 0 : 10)
-            .accessibilityHint("Double tap to return to your lessons")
+            .offset(y: showShareButton ? 0 : 20)
+            .scaleEffect(showShareButton ? 1.0 : 0.95)
         }
     }
     

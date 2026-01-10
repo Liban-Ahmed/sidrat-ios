@@ -192,6 +192,12 @@ final class AppState {
         return AppearanceMode(rawValue: rawValue) ?? .system
     }()
     
+    /// Transient: signals a lesson was just completed and the next lesson should be prompted
+    var lastCompletedLessonId: String? = nil
+    
+    /// Transient: whether to show the "next lesson" prompt on HomeView
+    var showNextLessonPrompt: Bool = false
+    
     var isOnboardingComplete: Bool {
         get { _isOnboardingComplete }
         set { 
