@@ -108,8 +108,8 @@ struct LessonDetailView: View {
                             // Close player immediately
                             showingLessonPlayer = false
                             
-                            // Flag to close detail view slightly later to allow player animation to finish
-                            // but actually we want to chain them.
+                            // Flag that the detail view was dismissed as part of a completed lesson
+                            // so onDismiss does not refresh partial progress in this case.
                             shouldDismissAfterLesson = true
                             dismiss()
                         }

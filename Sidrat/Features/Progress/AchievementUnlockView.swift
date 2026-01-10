@@ -44,6 +44,14 @@ struct AchievementUnlockView: View {
     @State private var rotationAngle: Double = 0
     @State private var textOpacity: Double = 0
     
+    // Animation tasks that need to be cancelled if view is dismissed early
+    @State private var autoDismissTask: DispatchWorkItem?
+    @State private var badgeSettleTask: DispatchWorkItem?
+    @State private var confettiTask: DispatchWorkItem?
+    @State private var textAppearTask: DispatchWorkItem?
+    @State private var glowPulseTask: DispatchWorkItem?
+    @State private var finalDismissTask: DispatchWorkItem?
+    
     // MARK: - Body
     
     var body: some View {
@@ -247,9 +255,13 @@ struct AchievementUnlockView: View {
             startCelebration()
             
             // Auto-dismiss after 4 seconds if user doesn't interact
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.autoDismissDelay) {
+            let task = DispatchWorkItem {
                 if showText {
                     dismissWithAnimation()
+                }
+            }
+            autoDismissTask = task
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.autoDismissDelay, execute: task)
                 }
             }
         }
@@ -319,32 +331,41 @@ struct AchievementUnlockView: View {
             }
             
             // 3. Settle badge to final size with medium haptic
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.badgeSettleDelay) {
+            let settleTask = DispatchWorkItem {
                 impactMedium.impactOccurred()
             }
+            badgeSettleTask = settleTask
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.badgeSettleDelay, execute: settleTask)
+            
             withAnimation(.spring(response: Constants.badgeSettleResponse, dampingFraction: Constants.badgeSettleDamping).delay(Constants.badgeSettleDelay)) {
                 badgeScale = 1.0
                 glowScale = 1.0
             }
             
             // 4. Show confetti
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.confettiDelay) {
+            let confTask = DispatchWorkItem {
                 showConfetti = true
             }
+            confettiTask = confTask
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.confettiDelay, execute: confTask)
             
             // 5. Show text with success haptic
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.textAppearDelay) {
+            let textTask = DispatchWorkItem {
                 notificationGenerator.notificationOccurred(.success)
                 withAnimation(.easeOut(duration: Constants.textFadeDuration)) {
                     showText = true
                     textOpacity = 1.0
                 }
             }
+            textAppearTask = textTask
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.textAppearDelay, execute: textTask)
             
             // 6. Start subtle glow pulsing
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            let pulseTask = DispatchWorkItem {
                 startGlowPulse()
             }
+            glowPulseTask = pulseTask
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8, execute: pulseTask)
         }
     }
     
@@ -356,6 +377,14 @@ struct AchievementUnlockView: View {
     }
     
     private func dismissWithAnimation() {
+        // Cancel all pending animation tasks
+        autoDismissTask?.cancel()
+        badgeSettleTask?.cancel()
+        confettiTask?.cancel()
+        textAppearTask?.cancel()
+        glowPulseTask?.cancel()
+        finalDismissTask?.cancel()
+        
         // Light haptic on dismiss
         let impactLight = UIImpactFeedbackGenerator(style: .light)
         impactLight.impactOccurred()
@@ -370,8 +399,11 @@ struct AchievementUnlockView: View {
                 glowPulse = 1.0 // Stop pulsing
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.dismissDelay) {
+            let task = DispatchWorkItem {
                 onDismiss()
+            }
+            finalDismissTask = task
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.dismissDelay, execute: task)
             }
         }
     }
