@@ -262,8 +262,6 @@ struct AchievementUnlockView: View {
             }
             autoDismissTask = task
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.autoDismissDelay, execute: task)
-                }
-            }
         }
         .onTapGesture {
             // Allow tap anywhere to dismiss after animation completes
@@ -407,7 +405,7 @@ struct AchievementUnlockView: View {
             }
         }
     }
-}
+
 
 
 
