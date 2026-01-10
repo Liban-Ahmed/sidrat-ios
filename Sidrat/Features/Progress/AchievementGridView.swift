@@ -18,6 +18,8 @@ struct AchievementGridView: View {
     let child: Child
     let achievementService: AchievementService
     
+    @Environment(\.modelContext) private var modelContext
+    
     /// Callback to replay the unlock animation for an achievement
     var onReplayAnimation: ((AchievementType) -> Void)? = nil
     
@@ -111,6 +113,7 @@ struct AchievementGridView: View {
                                 // Mark as no longer new when viewed
                                 if let achievementRecord = child.achievements.first(where: { $0.achievementType == achievement }) {
                                     achievementRecord.isNew = false
+                                    try? modelContext.save()
                                 }
                                 onReplayAnimation?(achievement)
                             } : nil
@@ -119,6 +122,7 @@ struct AchievementGridView: View {
                             // Mark as no longer new when tapped
                             if let achievementRecord = child.achievements.first(where: { $0.achievementType == achievement }) {
                                 achievementRecord.isNew = false
+                                try? modelContext.save()
                             }
                             selectedAchievement = achievement
                             showingDetail = true

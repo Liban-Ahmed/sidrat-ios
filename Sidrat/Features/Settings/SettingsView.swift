@@ -738,8 +738,12 @@ struct EditProfileView: View {
             
             // If we deleted the current profile, switch to another one
             if isDeletingCurrentProfile {
-                // Find another profile to switch to
-                if let anotherChild = allChildren.first(where: { $0.id.uuidString != deletedChildId }) {
+                // Fetch children after deletion to ensure we have the latest state
+                let descriptor = FetchDescriptor<Child>(sortBy: [SortDescriptor(\.lastAccessedAt, order: .reverse)])
+                let remainingChildren = try modelContext.fetch(descriptor)
+                
+                // Find another profile to switch to (excluding the deleted one)
+                if let anotherChild = remainingChildren.first(where: { $0.id.uuidString != deletedChildId }) {
                     appState.currentChildId = anotherChild.id.uuidString
                     anotherChild.lastAccessedAt = Date()
                     try? modelContext.save()

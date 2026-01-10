@@ -30,6 +30,7 @@ struct HomeView: View {
     @State private var milestoneObserver: NSObjectProtocol?
     @State private var showNextLessonBanner = false
     @State private var bannerLessonTitle: String?
+    @State private var bannerDismissTask: DispatchWorkItem?
     
     // MARK: - Computed Properties
     
@@ -124,12 +125,14 @@ struct HomeView: View {
                             lesson: nextLesson,
                             previousLessonTitle: bannerLessonTitle,
                             onStart: {
+                                bannerDismissTask?.cancel()
                                 withAnimation(.easeOut(duration: 0.2)) {
                                     showNextLessonBanner = false
                                 }
                                 selectedLesson = nextLesson
                             },
                             onDismiss: {
+                                bannerDismissTask?.cancel()
                                 withAnimation(.easeOut(duration: 0.2)) {
                                     showNextLessonBanner = false
                                 }
@@ -278,12 +281,17 @@ struct HomeView: View {
             showNextLessonBanner = true
         }
         
+        // Cancel any existing auto-dismiss task
+        bannerDismissTask?.cancel()
+        
         // Auto-dismiss after 8 seconds if not interacted with
-        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+        let task = DispatchWorkItem {
             withAnimation(.easeOut(duration: 0.3)) {
                 showNextLessonBanner = false
             }
         }
+        bannerDismissTask = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8, execute: task)
     }
     
     // MARK: - Header Section
@@ -412,6 +420,7 @@ struct NextLessonBanner: View {
     let onDismiss: () -> Void
     
     @State private var iconBounce = false
+    @State private var bounceTask: DispatchWorkItem?
     
     var body: some View {
         VStack(spacing: Spacing.sm) {
@@ -492,12 +501,18 @@ struct NextLessonBanner: View {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.5).repeatCount(2)) {
                 iconBounce = true
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            
+            let task = DispatchWorkItem {
                 iconBounce = false
             }
+            bounceTask = task
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8, execute: task)
             
             // Haptic feedback
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        }
+        .onDisappear {
+            bounceTask?.cancel()
         }
     }
 }
