@@ -359,6 +359,8 @@ struct SettingsView: View {
 struct EditProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppState.self) private var appState
+    @Query private var allChildren: [Child]
     
     let child: Child?
     
@@ -366,6 +368,8 @@ struct EditProfileView: View {
     @State private var selectedBirthYear: Int = Calendar.current.component(.year, from: Date()) - 6
     @State private var selectedAvatar: AvatarOption = .cat
     @State private var showParentalGate = false
+    @State private var showDeleteGate = false
+    @State private var showDeleteConfirmation = false
     @FocusState private var isNameFocused: Bool
     
     // Birth year options for ages 4-10
@@ -489,6 +493,9 @@ struct EditProfileView: View {
                     .background(Color.backgroundPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: CornerRadius.extraLarge))
                     .cardShadow()
+                    
+                    // Delete Profile Section
+                    deleteProfileSection
                 }
                 .padding()
             }
@@ -530,8 +537,169 @@ struct EditProfileView: View {
                 )
                 .interactiveDismissDisabled()
             }
+            .sheet(isPresented: $showDeleteGate) {
+                ParentalGateView(
+                    onSuccess: {
+                        showDeleteGate = false
+                        // Show confirmation after parental gate
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            showDeleteConfirmation = true
+                        }
+                    },
+                    onDismiss: {
+                        showDeleteGate = false
+                    },
+                    context: "Parent verification is required to delete a child profile. This action cannot be undone."
+                )
+                .interactiveDismissDisabled()
+            }
+            .alert("Delete Profile?", isPresented: $showDeleteConfirmation) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    deleteProfile()
+                }
+            } message: {
+                if let child = child {
+                    Text("Are you sure you want to delete \(child.name)'s profile? All progress, achievements, and lesson history will be permanently deleted. This action cannot be undone.")
+                }
+            }
         }
     }
+    
+    // MARK: - Delete Profile Section
+    
+    private var deleteProfileSection: some View {
+        VStack(spacing: Spacing.md) {
+            // Only show delete if there's more than one profile
+            if allChildren.count > 1 {
+                VStack(spacing: Spacing.md) {
+                    // Warning icon and header
+                    HStack(spacing: Spacing.sm) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.error.opacity(0.1))
+                                .frame(width: 36, height: 36)
+                            
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.body)
+                                .foregroundStyle(.error)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Delete Profile")
+                                .font(.labelMedium)
+                                .foregroundStyle(.textPrimary)
+                            
+                            Text("This action cannot be undone")
+                                .font(.caption)
+                                .foregroundStyle(.textTertiary)
+                        }
+                        
+                        Spacer()
+                    }
+                    
+                    Divider()
+                        .padding(.vertical, Spacing.xxs)
+                    
+                    // What will be deleted
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        Text("This will permanently delete:")
+                            .font(.caption)
+                            .foregroundStyle(.textSecondary)
+                        
+                        HStack(spacing: Spacing.sm) {
+                            ForEach([
+                                ("star.fill", "XP"),
+                                ("book.fill", "Lessons"),
+                                ("trophy.fill", "Badges")
+                            ], id: \.0) { icon, label in
+                                HStack(spacing: 4) {
+                                    Image(systemName: icon)
+                                        .font(.caption2)
+                                    Text(label)
+                                        .font(.caption)
+                                }
+                                .foregroundStyle(.textTertiary)
+                            }
+                        }
+                    }
+                    
+                    // Delete button
+                    Button {
+                        showDeleteGate = true
+                    } label: {
+                        HStack(spacing: Spacing.sm) {
+                            Image(systemName: "trash.fill")
+                                .font(.subheadline)
+                            
+                            Text("Delete \(child?.name ?? "Profile")")
+                                .font(.labelMedium)
+                            
+                            Spacer()
+                            
+                            // Lock icon indicating parental gate
+                            Image(systemName: "lock.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.error.opacity(0.6))
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, Spacing.md)
+                        .padding(.vertical, Spacing.sm + 2)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.error, Color.error.opacity(0.85)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(Spacing.lg)
+                .background(Color.backgroundPrimary)
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.extraLarge))
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.extraLarge)
+                        .stroke(Color.error.opacity(0.15), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.04), radius: 8, y: 4)
+            } else {
+                // Show message when only one profile exists
+                VStack(spacing: Spacing.md) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.surfaceTertiary.opacity(0.5))
+                            .frame(width: 48, height: 48)
+                        
+                        Image(systemName: "person.crop.circle.badge.checkmark")
+                            .font(.title3)
+                            .foregroundStyle(.textTertiary)
+                    }
+                    
+                    VStack(spacing: Spacing.xxs) {
+                        Text("Only Profile")
+                            .font(.labelMedium)
+                            .foregroundStyle(.textSecondary)
+                        
+                        Text("Create another profile first to enable deletion")
+                            .font(.caption)
+                            .foregroundStyle(.textTertiary)
+                            .multilineTextAlignment(.center)
+                    }
+                }
+                .padding(Spacing.xl)
+                .frame(maxWidth: .infinity)
+                .background(Color.backgroundPrimary)
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.extraLarge))
+                .shadow(color: .black.opacity(0.04), radius: 8, y: 4)
+            }
+        }
+        .padding(.top, Spacing.lg)
+    }
+    
+    // MARK: - Actions
     
     private func saveChanges() {
         guard let child = child else { return }
@@ -543,13 +711,66 @@ struct EditProfileView: View {
         do {
             try modelContext.save()
             #if DEBUG
-            print(" Profile updated: \(child.name)")
+            print("✅ Profile updated: \(child.name)")
             #endif
             dismiss()
         } catch {
             #if DEBUG
-            print(" Error saving profile: \(error)")
+            print("❌ Error saving profile: \(error)")
             #endif
+        }
+    }
+    
+    private func deleteProfile() {
+        guard let child = child else { return }
+        
+        let deletedChildId = child.id.uuidString
+        let childName = child.name
+        
+        // Check if we're deleting the currently active profile
+        let isDeletingCurrentProfile = appState.currentChildId == deletedChildId
+        
+        // Delete the child (cascade delete will handle LessonProgress and Achievements)
+        modelContext.delete(child)
+        
+        do {
+            try modelContext.save()
+            
+            // If we deleted the current profile, switch to another one
+            if isDeletingCurrentProfile {
+                // Fetch children after deletion to ensure we have the latest state
+                let descriptor = FetchDescriptor<Child>(sortBy: [SortDescriptor(\.lastAccessedAt, order: .reverse)])
+                let remainingChildren = try modelContext.fetch(descriptor)
+                
+                // Find another profile to switch to (excluding the deleted one)
+                if let anotherChild = remainingChildren.first(where: { $0.id.uuidString != deletedChildId }) {
+                    appState.currentChildId = anotherChild.id.uuidString
+                    anotherChild.lastAccessedAt = Date()
+                    try? modelContext.save()
+                    #if DEBUG
+                    print("🔄 Switched to profile: \(anotherChild.name)")
+                    #endif
+                } else {
+                    // No other profiles exist (shouldn't happen due to UI guard)
+                    appState.currentChildId = nil
+                }
+            }
+            
+            // Haptic feedback
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            
+            #if DEBUG
+            print("🗑️ Profile deleted: \(childName)")
+            #endif
+            
+            dismiss()
+        } catch {
+            #if DEBUG
+            print("❌ Error deleting profile: \(error)")
+            #endif
+            
+            // Error haptic
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
         }
     }
 }

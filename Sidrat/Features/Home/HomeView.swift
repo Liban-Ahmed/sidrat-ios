@@ -28,6 +28,9 @@ struct HomeView: View {
     @State private var showingMilestoneCelebration = false
     @State private var celebrationMilestone: StreakMilestone?
     @State private var milestoneObserver: NSObjectProtocol?
+    @State private var showNextLessonBanner = false
+    @State private var bannerLessonTitle: String?
+    @State private var bannerDismissTask: DispatchWorkItem?
     
     // MARK: - Computed Properties
     
@@ -116,6 +119,31 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: Spacing.lg) {
+                    // Next lesson ready banner (shown after completing a lesson)
+                    if showNextLessonBanner, let nextLesson = todaysLesson {
+                        NextLessonBanner(
+                            lesson: nextLesson,
+                            previousLessonTitle: bannerLessonTitle,
+                            onStart: {
+                                bannerDismissTask?.cancel()
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    showNextLessonBanner = false
+                                }
+                                selectedLesson = nextLesson
+                            },
+                            onDismiss: {
+                                bannerDismissTask?.cancel()
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    showNextLessonBanner = false
+                                }
+                            }
+                        )
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .top).combined(with: .opacity),
+                            removal: .opacity
+                        ))
+                    }
+                    
                     // Header with streak
                     headerSection
                     
@@ -161,6 +189,14 @@ struct HomeView: View {
                 
                 // Listen for milestone achievements (US-303 Phase 5)
                 setupMilestoneNotificationListener()
+                
+                // Check if we're returning from a completed lesson
+                checkForLessonCompletionPrompt()
+            }
+            .onChange(of: appState.showNextLessonPrompt) { _, newValue in
+                if newValue {
+                    checkForLessonCompletionPrompt()
+                }
             }
             .onDisappear {
                 // Remove notification observer to prevent memory leak
@@ -221,6 +257,41 @@ struct HomeView: View {
             celebrationMilestone = milestone
             showingMilestoneCelebration = true
         }
+    }
+    
+    // MARK: - Lesson Completion Prompt
+    
+    /// Check if we should show the "next lesson" prompt after completing a lesson
+    private func checkForLessonCompletionPrompt() {
+        guard appState.showNextLessonPrompt,
+              let completedLessonId = appState.lastCompletedLessonId else {
+            return
+        }
+        
+        // Find the completed lesson's title
+        let completedLesson = lessons.first { $0.id.uuidString == completedLessonId }
+        bannerLessonTitle = completedLesson?.title
+        
+        // Reset AppState flags
+        appState.showNextLessonPrompt = false
+        appState.lastCompletedLessonId = nil
+        
+        // Show the banner with animation
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+            showNextLessonBanner = true
+        }
+        
+        // Cancel any existing auto-dismiss task
+        bannerDismissTask?.cancel()
+        
+        // Auto-dismiss after 8 seconds if not interacted with
+        let task = DispatchWorkItem {
+            withAnimation(.easeOut(duration: 0.3)) {
+                showNextLessonBanner = false
+            }
+        }
+        bannerDismissTask = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8, execute: task)
     }
     
     // MARK: - Header Section
@@ -338,17 +409,111 @@ struct HomeView: View {
         }
     }
 }
-// MARK: - Previews
 
-#Preview("Home View - Light") {
-    HomeView()
-        .environment(AppState())
-        .preferredColorScheme(.light)
-}
+// MARK: - Next Lesson Banner
 
-#Preview("Home View - Dark") {
-    HomeView()
-        .environment(AppState())
-        .preferredColorScheme(.dark)
+/// Banner shown after completing a lesson to prompt the next one
+struct NextLessonBanner: View {
+    let lesson: Lesson
+    let previousLessonTitle: String?
+    let onStart: () -> Void
+    let onDismiss: () -> Void
+    
+    @State private var iconBounce = false
+    @State private var bounceTask: DispatchWorkItem?
+    
+    var body: some View {
+        VStack(spacing: Spacing.sm) {
+            HStack(spacing: Spacing.md) {
+                // Success checkmark with celebration
+                ZStack {
+                    Circle()
+                        .fill(Color.brandSecondary.opacity(0.15))
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(.brandSecondary)
+                        .scaleEffect(iconBounce ? 1.1 : 1.0)
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    if let previousTitle = previousLessonTitle {
+                        Text("Great job completing \(previousTitle)!")
+                            .font(.caption)
+                            .foregroundStyle(.textSecondary)
+                            .lineLimit(1)
+                    }
+                    
+                    Text("Next up: \(lesson.title)")
+                        .font(.labelMedium)
+                        .foregroundStyle(.textPrimary)
+                        .lineLimit(1)
+                }
+                
+                Spacer()
+                
+                // Dismiss button
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.textTertiary)
+                        .padding(8)
+                        .background(Circle().fill(Color.surfaceTertiary.opacity(0.5)))
+                }
+                .buttonStyle(.plain)
+            }
+            
+            // Start button
+            Button(action: onStart) {
+                HStack(spacing: Spacing.xs) {
+                    Image(systemName: "play.fill")
+                        .font(.caption)
+                    Text("Start Next Lesson")
+                        .font(.labelMedium)
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Spacing.sm)
+                .background(
+                    LinearGradient(
+                        colors: [Color.brandPrimary, Color.brandPrimary.opacity(0.85)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.small))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: CornerRadius.large)
+                .fill(Color.backgroundPrimary)
+                .shadow(color: Color.brandSecondary.opacity(0.15), radius: 12, y: 4)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.large)
+                .stroke(Color.brandSecondary.opacity(0.2), lineWidth: 1)
+        )
+        .onAppear {
+            // Bounce animation
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.5).repeatCount(2)) {
+                iconBounce = true
+            }
+            
+            let task = DispatchWorkItem {
+                iconBounce = false
+            }
+            bounceTask = task
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8, execute: task)
+            
+            // Haptic feedback
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        }
+        .onDisappear {
+            bounceTask?.cancel()
+        }
+    }
 }
 

@@ -18,6 +18,12 @@ struct ProgressDashboardView: View {
     @State private var showingAchievementUnlock = false
     @State private var pendingAchievements: [AchievementType] = []
     
+    /// Tracks achievements that have been shown this session to avoid re-showing
+    @State private var shownAchievementsThisSession: Set<AchievementType> = []
+    
+    /// Achievement selected for replay animation from grid
+    @State private var replayAchievement: AchievementType? = nil
+    
     private var currentChild: Child? {
         guard let childId = appState.currentChildId,
               let uuid = UUID(uuidString: childId) else { return nil }
@@ -88,17 +94,24 @@ struct ProgressDashboardView: View {
                 // Check for new achievements when view appears
                 if let child = currentChild, let service = achievementService {
                     let newAchievements = service.checkAndUnlockAchievements(for: child)
-                    if !newAchievements.isEmpty {
-                        pendingAchievements = newAchievements
+                    
+                    // Only show achievements that haven't been shown this session
+                    let unseenAchievements = newAchievements.filter { !shownAchievementsThisSession.contains($0) }
+                    
+                    if !unseenAchievements.isEmpty {
+                        pendingAchievements = unseenAchievements
                         showingAchievementUnlock = true
                     }
                 }
             }
         }
         .overlay {
-            // Achievement unlock celebration overlay
+            // Achievement unlock celebration overlay (for new unlocks)
             if showingAchievementUnlock, let achievement = pendingAchievements.first {
                 AchievementUnlockView(achievement: achievement) {
+                    // Mark as shown this session
+                    shownAchievementsThisSession.insert(achievement)
+                    
                     // Remove the shown achievement from pending (safe check)
                     guard !pendingAchievements.isEmpty else {
                         showingAchievementUnlock = false
@@ -111,6 +124,15 @@ struct ProgressDashboardView: View {
                     if pendingAchievements.isEmpty {
                         showingAchievementUnlock = false
                     }
+                }
+                .transition(.opacity.combined(with: .scale))
+                .zIndex(999)
+            }
+            
+            // Replay achievement animation (for badge click)
+            if let achievement = replayAchievement {
+                AchievementUnlockView(achievement: achievement) {
+                    replayAchievement = nil
                 }
                 .transition(.opacity.combined(with: .scale))
                 .zIndex(999)
@@ -202,7 +224,13 @@ struct ProgressDashboardView: View {
     private var achievementsSection: some View {
         VStack {
             if let child = currentChild, let service = achievementService {
-                AchievementGridView(child: child, achievementService: service)
+                AchievementGridView(
+                    child: child,
+                    achievementService: service,
+                    onReplayAnimation: { achievement in
+                        replayAchievement = achievement
+                    }
+                )
             } else {
                 EmptyState(
                     icon: "star.circle",

@@ -25,8 +25,10 @@ import SwiftData
 struct EnhancedLessonPlayerView: View {
     let lesson: Lesson
     let child: Child
+    var onLessonCompleted: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppState.self) private var appState
     
     /// Whether reduced motion is enabled system-wide
     private var isReduceMotionEnabled: Bool {
@@ -445,8 +447,17 @@ struct EnhancedLessonPlayerView: View {
             print("Error saving lesson completion: \(error)")
         }
         
-        // Dismiss
-        dismiss()
+        // Signal to show next lesson prompt on home
+        appState.lastCompletedLessonId = lesson.id.uuidString
+        appState.showNextLessonPrompt = true
+        
+        // Notify parent - if parent handles dismissal, we don't need to dismiss ourselves
+        if let onLessonCompleted = onLessonCompleted {
+            onLessonCompleted()
+        } else {
+            // Default behavior: just dismiss the player
+            dismiss()
+        }
     }
     
     private func updateStreak() {

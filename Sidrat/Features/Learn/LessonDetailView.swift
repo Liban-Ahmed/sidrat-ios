@@ -17,6 +17,7 @@ struct LessonDetailView: View {
     @Query private var children: [Child]
     @State private var showingLessonPlayer = false
     @State private var hasPartialProgress = false
+    @State private var shouldDismissAfterLesson = false
     
     private var currentChild: Child? {
         guard let childId = appState.currentChildId,
@@ -91,9 +92,28 @@ struct LessonDetailView: View {
             .onAppear {
                 checkForPartialProgress()
             }
-            .fullScreenCover(isPresented: $showingLessonPlayer) {
+            .fullScreenCover(isPresented: $showingLessonPlayer, onDismiss: {
+                // If lesson was just completed, we already handled the dismissal in the callback
+                // But if the user just closed the player without completing, we want to stay here
+                if !shouldDismissAfterLesson {
+                    // Refresh partial progress status
+                    checkForPartialProgress()
+                }
+            }) {
                 if let child = currentChild {
-                    EnhancedLessonPlayerView(lesson: lesson, child: child)
+                    EnhancedLessonPlayerView(
+                        lesson: lesson,
+                        child: child,
+                        onLessonCompleted: {
+                            // Close player immediately
+                            showingLessonPlayer = false
+                            
+                            // Flag that the detail view was dismissed as part of a completed lesson
+                            // so onDismiss does not refresh partial progress in this case.
+                            shouldDismissAfterLesson = true
+                            dismiss()
+                        }
+                    )
                 } else {
                     // Fallback for edge case where no child is selected
                     Text("Please select a profile first")
