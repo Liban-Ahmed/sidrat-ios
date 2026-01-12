@@ -214,7 +214,9 @@ final class ParentProgressDashboardViewModel {
             
             let result = self.pdfService.exportProgressReport(report)
             
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                
                 self.isExporting = false
                 
                 switch result {

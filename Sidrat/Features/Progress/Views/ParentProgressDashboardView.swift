@@ -278,12 +278,15 @@ struct ParentProgressDashboardView: View {
     // MARK: - Stats Overview Section
     
     private func statsOverviewSection(report: ProgressReport) -> some View {
-        StatsOverviewCard(
+        // Weekly goal: configurable per child, defaults to 7
+        let weeklyGoal = viewModel?.selectedChild?.weeklyLearningGoal ?? 7
+        
+        return StatsOverviewCard(
             totalXP: report.totalXP,
             currentStreak: report.currentStreak,
             totalLessons: report.totalLessonsCompleted,
             weeklyCompleted: report.periodLessonsCompleted,
-            weeklyGoal: 7 // TODO: Make configurable
+            weeklyGoal: weeklyGoal
         )
     }
     

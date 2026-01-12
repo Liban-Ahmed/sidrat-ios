@@ -52,6 +52,10 @@ final class Child {
     /// Current week number in curriculum
     var currentWeekNumber: Int = 1
     
+    /// Weekly learning goal (number of lessons per week)
+    /// Configurable per child, defaults to 7 (1 per day)
+    var weeklyLearningGoal: Int = 7
+    
     // MARK: - Relationships
     
     /// Lesson progress history
