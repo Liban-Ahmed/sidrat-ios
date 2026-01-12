@@ -94,7 +94,9 @@ struct ParentProgressDashboardView: View {
                 }
                 .overlay {
                     if viewModel?.isExporting == true {
-                        exportingOverlay
+                        DashboardExportingOverlay()
+                            .transition(.opacity)
+                            .animation(.easeInOut(duration: 0.2), value: viewModel?.isExporting)
                     }
                 }
         }
@@ -106,20 +108,26 @@ struct ParentProgressDashboardView: View {
     private var content: some View {
         if let viewModel {
             if viewModel.isLoadingReport {
-                loadingState
+                DashboardLoadingState()
             } else if let errorMessage = viewModel.errorMessage {
-                errorState(message: errorMessage)
+                DashboardErrorState(message: errorMessage) {
+                    Task {
+                        viewModel.refreshReport()
+                    }
+                }
             } else if let report = viewModel.currentReport {
                 if report.hasEnoughData {
                     reportContent(report: report)
                 } else {
-                    emptyState
+                    DashboardEmptyState {
+                        dismiss()
+                    }
                 }
             } else {
-                noChildState
+                DashboardNoChildState()
             }
         } else {
-            loadingState
+            DashboardLoadingState()
         }
     }
     
@@ -367,116 +375,6 @@ struct ParentProgressDashboardView: View {
         .padding(.horizontal, Spacing.xs)
     }
     
-    // MARK: - Loading State
-    
-    private var loadingState: some View {
-        VStack(spacing: Spacing.lg) {
-            Spacer()
-            
-            ProgressView()
-                .scaleEffect(1.5)
-                .tint(.brandPrimary)
-            
-            Text("Generating report...")
-                .font(.bodyMedium)
-                .foregroundStyle(.textSecondary)
-            
-            Spacer()
-        }
-    }
-    
-    // MARK: - Error State
-    
-    private func errorState(message: String) -> some View {
-        VStack(spacing: Spacing.lg) {
-            Spacer()
-            
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.displayLarge)
-                .foregroundStyle(.warning)
-            
-            Text("Oops!")
-                .font(.title2)
-                .foregroundStyle(.textPrimary)
-            
-            Text(message)
-                .font(.bodyMedium)
-                .foregroundStyle(.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, Spacing.xl)
-            
-            Button {
-                Task {
-                    viewModel?.refreshReport()
-                }
-            } label: {
-                Label("Try Again", systemImage: "arrow.clockwise")
-                    .font(.labelMedium)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.brandPrimary)
-            
-            Spacer()
-        }
-    }
-    
-    // MARK: - Empty State
-    
-    private var emptyState: some View {
-        VStack(spacing: Spacing.lg) {
-            Spacer()
-            
-            Image(systemName: "chart.bar.doc.horizontal")
-                .font(.celebrationIcon)
-                .foregroundStyle(.textTertiary)
-            
-            Text("No Learning Data Yet")
-                .font(.title2)
-                .foregroundStyle(.textPrimary)
-            
-            Text("Complete some lessons to see progress reports here!")
-                .font(.bodyMedium)
-                .foregroundStyle(.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, Spacing.xl)
-            
-            Button {
-                dismiss()
-            } label: {
-                Text("Start Learning")
-                    .font(.labelMedium)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.brandPrimary)
-            
-            Spacer()
-        }
-    }
-    
-    // MARK: - No Child State
-    
-    private var noChildState: some View {
-        VStack(spacing: Spacing.lg) {
-            Spacer()
-            
-            Image(systemName: "person.crop.circle.badge.questionmark")
-                .font(.celebrationIcon)
-                .foregroundStyle(.textTertiary)
-            
-            Text("No Child Profile")
-                .font(.title2)
-                .foregroundStyle(.textPrimary)
-            
-            Text("Create a child profile to track their learning progress.")
-                .font(.bodyMedium)
-                .foregroundStyle(.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, Spacing.xl)
-            
-            Spacer()
-        }
-    }
-    
     // MARK: - Export Button Section
     
     private var exportButtonSection: some View {
@@ -527,32 +425,6 @@ struct ParentProgressDashboardView: View {
         .padding(.top, Spacing.md)
     }
     
-    // MARK: - Exporting Overlay
-    
-    private var exportingOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.4)
-                .ignoresSafeArea()
-            
-            VStack(spacing: Spacing.md) {
-                ProgressView()
-                    .scaleEffect(1.3)
-                    .tint(.white)
-                
-                Text("Generating PDF...")
-                    .font(.labelMedium)
-                    .foregroundStyle(.white)
-            }
-            .padding(Spacing.xl)
-            .background(
-                RoundedRectangle(cornerRadius: CornerRadius.large)
-                    .fill(Color.brandPrimary.opacity(0.9))
-            )
-        }
-        .transition(.opacity)
-        .animation(.easeInOut(duration: 0.2), value: viewModel?.isExporting)
-    }
-    
     // MARK: - Setup
     
     private func setupViewModel() {
@@ -560,134 +432,6 @@ struct ParentProgressDashboardView: View {
             viewModel = ParentProgressDashboardViewModel(modelContext: modelContext)
             viewModel?.setup(children: children, currentChildId: appState.currentChildId)
         }
-    }
-}
-
-// MARK: - Category Detail Sheet
-
-private struct CategoryDetailSheet: View {
-    let categoryStats: CategoryStats
-    
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: Spacing.lg) {
-                    // Category header
-                    categoryHeader
-                    
-                    // Progress summary
-                    progressSummary
-                    
-                    // Recent lessons
-                    if !categoryStats.recentLessons.isEmpty {
-                        recentLessonsSection
-                    }
-                }
-                .padding(Spacing.md)
-            }
-            .background(Color.backgroundSecondary)
-            .navigationTitle(categoryStats.category.rawValue)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .foregroundStyle(.brandPrimary)
-                }
-            }
-        }
-        .presentationDetents([.medium, .large])
-    }
-    
-    private var categoryHeader: some View {
-        VStack(spacing: Spacing.md) {
-            ZStack {
-                Circle()
-                    .fill(categoryStats.category.color.opacity(0.2))
-                    .frame(width: 80, height: 80)
-                
-                Image(systemName: categoryStats.category.iconName)
-                    .font(.largeTitle)
-                    .foregroundStyle(categoryStats.category.color)
-            }
-            
-            Text(categoryStats.category.rawValue)
-                .font(.title2)
-                .foregroundStyle(.textPrimary)
-        }
-        .padding(.top, Spacing.md)
-    }
-    
-    private var progressSummary: some View {
-        VStack(spacing: Spacing.sm) {
-            // Progress ring would go here
-            Text(categoryStats.formattedPercentage)
-                .font(.displayMedium)
-                .foregroundStyle(.brandPrimary)
-            
-            Text("\(categoryStats.completedCount) of \(categoryStats.totalCount) lessons completed")
-                .font(.bodyMedium)
-                .foregroundStyle(.textSecondary)
-            
-            if categoryStats.remainingCount > 0 {
-                Text("\(categoryStats.remainingCount) remaining")
-                    .font(.bodySmall)
-                    .foregroundStyle(.textTertiary)
-            }
-        }
-        .padding(Spacing.lg)
-        .frame(maxWidth: .infinity)
-        .background(Color.backgroundPrimary)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
-        .cardShadow()
-    }
-    
-    private var recentLessonsSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            Text("Recent Lessons")
-                .font(.labelLarge)
-                .foregroundStyle(.textPrimary)
-            
-            ForEach(categoryStats.recentLessons) { lesson in
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(lesson.title)
-                            .font(.labelMedium)
-                            .foregroundStyle(.textPrimary)
-                        
-                        Text(lesson.formattedDate)
-                            .font(.caption)
-                            .foregroundStyle(.textTertiary)
-                    }
-                    
-                    Spacer()
-                    
-                    HStack(spacing: Spacing.xxs) {
-                        Image(systemName: "star.fill")
-                            .font(.caption)
-                            .foregroundStyle(.brandAccent)
-                        
-                        Text("+\(lesson.xpEarned)")
-                            .font(.labelSmall)
-                            .foregroundStyle(.textSecondary)
-                    }
-                }
-                .padding(Spacing.sm)
-                .background(Color.backgroundPrimary)
-                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.small))
-            }
-        }
-    }
-}
-
-// MARK: - Make CategoryStats Identifiable for sheet
-
-extension CategoryStats: Equatable {
-    static func == (lhs: CategoryStats, rhs: CategoryStats) -> Bool {
-        lhs.id == rhs.id
     }
 }
 
