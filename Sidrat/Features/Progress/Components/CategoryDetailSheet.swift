@@ -132,14 +132,6 @@ struct CategoryDetailSheet: View {
     }
 }
 
-// MARK: - Make CategoryStats Identifiable for sheet
-
-extension CategoryStats: Equatable {
-    static func == (lhs: CategoryStats, rhs: CategoryStats) -> Bool {
-        lhs.id == rhs.id
-    }
-}
-
 // MARK: - Preview
 
 #Preview {
