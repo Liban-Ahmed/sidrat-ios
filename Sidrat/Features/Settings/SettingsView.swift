@@ -76,7 +76,7 @@ struct SettingsView: View {
                 CurriculumOverviewView()
             }
             .navigationDestination(isPresented: $navigateToParentDashboard) {
-                ParentDashboardView()
+                ParentProgressDashboardView()
             }
             .navigationDestination(isPresented: $navigateToAddChild) {
                 AddChildView()
@@ -819,58 +819,6 @@ struct CurriculumOverviewView: View {
             }
         }
         .navigationTitle("Curriculum")
-    }
-}
-
-// MARK: - Parent Dashboard View
-
-struct ParentDashboardView: View {
-    @Environment(AppState.self) private var appState
-    @Query private var children: [Child]
-    
-    private var currentChild: Child? {
-        guard let childId = appState.currentChildId,
-              let uuid = UUID(uuidString: childId) else { return nil }
-        return children.first { $0.id == uuid }
-    }
-    
-    var body: some View {
-        List {
-            Section {
-                StatRow(label: "Total Lessons", value: "\(currentChild?.totalLessonsCompleted ?? 0)")
-                StatRow(label: "Total XP Earned", value: "\(currentChild?.totalXP ?? 0)")
-                StatRow(label: "Current Streak", value: "\(currentChild?.currentStreak ?? 0) days")
-                StatRow(label: "Longest Streak", value: "\(currentChild?.longestStreak ?? 0) days")
-                StatRow(label: "Achievements", value: "\(currentChild?.achievements.count ?? 0)")
-            } header: {
-                Text("Learning Statistics")
-            }
-            
-            Section {
-                Text("Your child is making great progress! Keep encouraging daily learning.")
-                    .font(.bodySmall)
-                    .foregroundStyle(.textSecondary)
-            } header: {
-                Text("Insights")
-            }
-        }
-        .navigationTitle("Parent Dashboard")
-    }
-}
-
-struct StatRow: View {
-    let label: String
-    let value: String
-    
-    var body: some View {
-        HStack {
-            Text(label)
-                .foregroundStyle(.textPrimary)
-            Spacer()
-            Text(value)
-                .foregroundStyle(.brandPrimary)
-                .fontWeight(.semibold)
-        }
     }
 }
 

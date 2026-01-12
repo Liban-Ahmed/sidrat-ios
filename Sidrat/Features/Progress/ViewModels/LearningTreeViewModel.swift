@@ -112,7 +112,10 @@ final class LearningTreeViewModel {
         
         // Extract necessary data from child on main actor before detached task
         let childName = child.name
-        let childAchievements = child.achievements
+        // Extract only the isNew flags we need, avoiding capturing non-Sendable Achievement objects
+        let hasNewAchievements = child.achievements.contains(where: { $0.isNew })
+        let newAchievementCount = child.achievements.filter { $0.isNew }.count
+        let newAchievementTitles = child.achievements.filter { $0.isNew }.map { $0.achievementType.title }
         
         // Perform heavy computation off main thread
         let result: (nodes: [TreeNode], segments: [TreePathSegment], growth: TreeGrowthState, completion: Double) = await Task.detached(priority: .userInitiated) { [weak self] in
@@ -141,7 +144,17 @@ final class LearningTreeViewModel {
             self.calculateAnimationDelays()
             
             // Check for new achievements using extracted data
-            self.checkForNewAchievements(achievements: childAchievements)
+            #if DEBUG
+            if hasNewAchievements {
+                print("[LearningTreeViewModel] Found \(newAchievementCount) new achievement(s):")
+                for title in newAchievementTitles {
+                    print("  - \(title)")
+                }
+            }
+            #endif
+            
+            self.hasNewAchievement = hasNewAchievements
+            self.shouldShowCelebration = hasNewAchievements
             
             self.isLoading = false
             
@@ -318,22 +331,5 @@ final class LearningTreeViewModel {
             let delay = Double(node.branchLevel) * 0.05
             nodeAnimationDelays[node.id] = delay
         }
-    }
-    
-    /// Check for new achievements
-    private func checkForNewAchievements(achievements: [Achievement]) {
-        let newAchievements = achievements.filter { $0.isNew }
-        
-        #if DEBUG
-        if !newAchievements.isEmpty {
-            print("[LearningTreeViewModel] Found \(newAchievements.count) new achievement(s):")
-            for achievement in newAchievements {
-                print("  - \(achievement.achievementType.title)")
-            }
-        }
-        #endif
-        
-        hasNewAchievement = !newAchievements.isEmpty
-        shouldShowCelebration = hasNewAchievement
     }
 }

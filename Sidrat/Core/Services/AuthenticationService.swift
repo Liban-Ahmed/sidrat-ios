@@ -327,7 +327,7 @@ extension AuthenticationService: ASAuthorizationControllerDelegate {
                     authError = .notInteractive
                 case .unknown:
                     authError = .unknown
-                @unknown default:
+                default:
                     authError = .unknown
                 }
             } else {

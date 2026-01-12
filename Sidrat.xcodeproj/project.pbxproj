@@ -48,6 +48,7 @@
 		MOD0003 /* LessonProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0012 /* LessonProgress.swift */; };
 		MOD0004 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0013 /* Achievement.swift */; };
 		MOD0005 /* FamilyActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0014 /* FamilyActivity.swift */; };
+		MOD0006 /* ProgressReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0120 /* ProgressReport.swift */; };
 		PRG0001 /* StatsOverviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0100 /* StatsOverviewCard.swift */; };
 		PRG0002 /* LearningTreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0101 /* LearningTreeView.swift */; };
 		PRG0003 /* TreeLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0102 /* TreeLegendView.swift */; };
@@ -58,6 +59,11 @@
 		PRG0008 /* NodeDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0107 /* NodeDetailSheet.swift */; };
 		PRG0009 /* CelebrationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0108 /* CelebrationOverlay.swift */; };
 		PRG0010 /* LearningTreeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0109 /* LearningTreeViewModel.swift */; };
+		PRG0011 /* ParentProgressDashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0121 /* ParentProgressDashboardViewModel.swift */; };
+		PRG0012 /* CategoryProgressCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0122 /* CategoryProgressCard.swift */; };
+		PRG0013 /* WeekComparisonCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0123 /* WeekComparisonCard.swift */; };
+		PRG0014 /* ActivityRecommendationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0124 /* ActivityRecommendationCard.swift */; };
+		PRG0015 /* ParentProgressDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0125 /* ParentProgressDashboardView.swift */; };
 		UI0001 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0030 /* Theme.swift */; };
 		UI0002 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0031 /* Components.swift */; };
 		UI0003 /* ColorShowcase.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0033 /* ColorShowcase.swift */; };
@@ -129,6 +135,12 @@
 		SRC0108 /* CelebrationOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationOverlay.swift; sourceTree = "<group>"; };
 		SRC0109 /* LearningTreeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningTreeViewModel.swift; sourceTree = "<group>"; };
 		SRC0110 /* LaunchSplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSplashView.swift; sourceTree = "<group>"; };
+		SRC0120 /* ProgressReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressReport.swift; sourceTree = "<group>"; };
+		SRC0121 /* ParentProgressDashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentProgressDashboardViewModel.swift; sourceTree = "<group>"; };
+		SRC0122 /* CategoryProgressCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryProgressCard.swift; sourceTree = "<group>"; };
+		SRC0123 /* WeekComparisonCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekComparisonCard.swift; sourceTree = "<group>"; };
+		SRC0124 /* ActivityRecommendationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityRecommendationCard.swift; sourceTree = "<group>"; };
+		SRC0125 /* ParentProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentProgressDashboardView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -197,6 +209,7 @@
 				SRC0013 /* Achievement.swift */,
 				SRC0014 /* FamilyActivity.swift */,
 				DE0FD7512EFFA10700673B6F /* SidratModelsAvatarOption.swift */,
+				SRC0120 /* ProgressReport.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -259,6 +272,7 @@
 				SRC0092 /* AchievementDetailView.swift */,
 				GRP0137 /* Components */,
 				GRP0138 /* ViewModels */,
+				GRP0139 /* Views */,
 			);
 			path = Progress;
 			sourceTree = "<group>";
@@ -349,6 +363,9 @@
 				SRC0106 /* WindingPathView.swift */,
 				SRC0107 /* NodeDetailSheet.swift */,
 				SRC0108 /* CelebrationOverlay.swift */,
+				SRC0122 /* CategoryProgressCard.swift */,
+				SRC0123 /* WeekComparisonCard.swift */,
+				SRC0124 /* ActivityRecommendationCard.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -357,8 +374,17 @@
 			isa = PBXGroup;
 			children = (
 				SRC0109 /* LearningTreeViewModel.swift */,
+				SRC0121 /* ParentProgressDashboardViewModel.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		GRP0139 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				SRC0125 /* ParentProgressDashboardView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		ROOT0001 = {
@@ -501,6 +527,12 @@
 				PRG0008 /* NodeDetailSheet.swift in Sources */,
 				PRG0009 /* CelebrationOverlay.swift in Sources */,
 				PRG0010 /* LearningTreeViewModel.swift in Sources */,
+				PRG0011 /* ParentProgressDashboardViewModel.swift in Sources */,
+				PRG0012 /* CategoryProgressCard.swift in Sources */,
+				PRG0013 /* WeekComparisonCard.swift in Sources */,
+				PRG0014 /* ActivityRecommendationCard.swift in Sources */,
+				PRG0015 /* ParentProgressDashboardView.swift in Sources */,
+				MOD0006 /* ProgressReport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
