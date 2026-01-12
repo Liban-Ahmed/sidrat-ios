@@ -392,7 +392,7 @@ struct ParentProgressDashboardView: View {
             Spacer()
             
             Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 48))
+                .font(.displayLarge)
                 .foregroundStyle(.warning)
             
             Text("Oops!")
@@ -427,7 +427,7 @@ struct ParentProgressDashboardView: View {
             Spacer()
             
             Image(systemName: "chart.bar.doc.horizontal")
-                .font(.system(size: 56))
+                .font(.celebrationIcon)
                 .foregroundStyle(.textTertiary)
             
             Text("No Learning Data Yet")
@@ -460,7 +460,7 @@ struct ParentProgressDashboardView: View {
             Spacer()
             
             Image(systemName: "person.crop.circle.badge.questionmark")
-                .font(.system(size: 56))
+                .font(.celebrationIcon)
                 .foregroundStyle(.textTertiary)
             
             Text("No Child Profile")

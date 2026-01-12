@@ -168,7 +168,7 @@ struct ProgressDashboardView: View {
                 withAnimation { selectedTab = 2 }
             }
         }
-        .padding(4)
+        .padding(Spacing.xxs)
         .background(Color.backgroundTertiary)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
     }

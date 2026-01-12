@@ -212,6 +212,15 @@ final class ParentProgressDashboardViewModel {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self = self else { return }
             
+            // Thread-safety: Ensure pdfService is still valid
+            guard self.pdfService != nil else {
+                DispatchQueue.main.async {
+                    self.isExporting = false
+                    self.exportError = "PDF service is unavailable"
+                }
+                return
+            }
+            
             let result = self.pdfService.exportProgressReport(report)
             
             DispatchQueue.main.async {
