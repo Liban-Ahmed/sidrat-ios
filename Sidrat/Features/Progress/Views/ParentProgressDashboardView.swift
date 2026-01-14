@@ -150,8 +150,8 @@ struct ParentProgressDashboardView: View {
                 // Stats overview
                 statsOverviewSection(report: report)
                 
-                // Week comparison
-                weekComparisonSection(report: report)
+                // Activity Chart (replaces Week Comparison)
+                activityChartSection(report: report)
                 
                 // Category progress
                 categoryProgressSection(report: report)
@@ -290,14 +290,13 @@ struct ParentProgressDashboardView: View {
         )
     }
     
-    // MARK: - Week Comparison Section
+    // MARK: - Activity Chart Section
     
-    private func weekComparisonSection(report: ProgressReport) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            sectionHeader(title: "This Week vs Last", icon: "chart.bar")
-            
-            WeekComparisonCard(comparison: report.weekComparison)
-        }
+    private func activityChartSection(report: ProgressReport) -> some View {
+        ActivityChartCard(
+            dailyActivity: report.dailyActivity,
+            periodLessons: report.periodLessonsCompleted
+        )
     }
     
     // MARK: - Category Progress Section

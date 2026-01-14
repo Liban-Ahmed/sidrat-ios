@@ -63,6 +63,7 @@ final class ProgressReportService {
         let recentLessons = getRecentLessons(for: child, period: period, lessons: allLessons)
         let recentAchievements = getRecentAchievements(for: child)
         let recommendations = recommendActivities(for: child, activities: allActivities)
+        let dailyActivity = calculateDailyActivity(for: child)
         
         let report = ProgressReport(
             childId: child.id,
@@ -78,6 +79,7 @@ final class ProgressReportService {
             periodXPEarned: periodXP,
             estimatedLearningTimeMinutes: learningTime,
             weekComparison: weekComparison,
+            dailyActivity: dailyActivity,
             categoryProgress: categoryProgress,
             recentAchievements: recentAchievements,
             recentLessons: recentLessons,
@@ -265,6 +267,36 @@ final class ProgressReportService {
             .sorted { $0.relevanceScore > $1.relevanceScore }
             .prefix(3)
             .map { $0 }
+    }
+    
+    // MARK: - Daily Activity Calculation
+    
+    /// Calculate daily activity for the last 7 days
+    /// - Parameter child: The child to calculate activity for
+    /// - Returns: Array of DailyActivity
+    func calculateDailyActivity(for child: Child) -> [DailyActivity] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        var activities: [DailyActivity] = []
+        
+        // Loop through last 7 days (including today)
+        for i in 0..<7 {
+            guard let date = calendar.date(byAdding: .day, value: -6 + i, to: today) else { continue }
+            let nextDate = calendar.date(byAdding: .day, value: 1, to: date)!
+            
+            // Filter lessons completed on this day
+            let completedOnDay = child.lessonProgress.filter { progress in
+                guard progress.isCompleted, let completedAt = progress.completedAt else { return false }
+                return completedAt >= date && completedAt < nextDate
+            }
+            
+            let count = completedOnDay.count
+            let xp = completedOnDay.reduce(0) { $0 + $1.xpEarned }
+            
+            activities.append(DailyActivity(date: date, lessonsCompleted: count, xpEarned: xp))
+        }
+        
+        return activities
     }
     
     // MARK: - Private Helpers

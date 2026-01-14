@@ -199,6 +199,23 @@ struct ActivityRecommendation: Identifiable {
     var id: UUID { activity.id }
 }
 
+// MARK: - Daily Activity
+
+/// Daily activity stats for charting
+struct DailyActivity: Identifiable {
+    let id = UUID()
+    let date: Date
+    let lessonsCompleted: Int
+    let xpEarned: Int
+    
+    /// Day abbreviation (e.g., "Mon")
+    var dayAbbreviation: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE"
+        return formatter.string(from: date)
+    }
+}
+
 // MARK: - Progress Report
 
 /// Comprehensive progress report for a child
@@ -239,6 +256,9 @@ struct ProgressReport {
     
     /// Week-over-week comparison data
     let weekComparison: WeekComparison
+    
+    /// Daily activity for the last 7 days (for charts)
+    let dailyActivity: [DailyActivity]
     
     // MARK: - Category Breakdown
     
@@ -342,6 +362,7 @@ extension ProgressReport {
                 thisWeekXP: 0,
                 lastWeekXP: 0
             ),
+            dailyActivity: [],
             categoryProgress: [],
             recentAchievements: [],
             recentLessons: [],

@@ -23,6 +23,7 @@
 		AUTH0002 /* SignInWithAppleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0041 /* SignInWithAppleButton.swift */; };
 		D8FD7A402F1576340043CA08 /* DashboardStateViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FD7A3F2F1576340043CA08 /* DashboardStateViews.swift */; };
 		D8FD7A412F1576340043CA08 /* CategoryDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FD7A3E2F1576340043CA08 /* CategoryDetailSheet.swift */; };
+		D8FD7A752F17419E0043CA08 /* ActivityChartCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FD7A742F17419E0043CA08 /* ActivityChartCard.swift */; };
 		DE0FD7522EFFA10700673B6F /* SidratModelsAvatarOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0FD7512EFFA10700673B6F /* SidratModelsAvatarOption.swift */; };
 		FEA0001 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0020 /* OnboardingView.swift */; };
 		FEA0003 /* LearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0022 /* LearnView.swift */; };
@@ -79,6 +80,7 @@
 /* Begin PBXFileReference section */
 		D8FD7A3E2F1576340043CA08 /* CategoryDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryDetailSheet.swift; sourceTree = "<group>"; };
 		D8FD7A3F2F1576340043CA08 /* DashboardStateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardStateViews.swift; sourceTree = "<group>"; };
+		D8FD7A742F17419E0043CA08 /* ActivityChartCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityChartCard.swift; sourceTree = "<group>"; };
 		DE0FD7512EFFA10700673B6F /* SidratModelsAvatarOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidratModelsAvatarOption.swift; sourceTree = "<group>"; };
 		PROD001 /* Sidrat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sidrat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		RES0001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -358,6 +360,7 @@
 		GRP0137 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				D8FD7A742F17419E0043CA08 /* ActivityChartCard.swift */,
 				D8FD7A3E2F1576340043CA08 /* CategoryDetailSheet.swift */,
 				D8FD7A3F2F1576340043CA08 /* DashboardStateViews.swift */,
 				SRC0100 /* StatsOverviewCard.swift */,
@@ -537,6 +540,7 @@
 				PRG0012 /* CategoryProgressCard.swift in Sources */,
 				PRG0013 /* WeekComparisonCard.swift in Sources */,
 				PRG0014 /* ActivityRecommendationCard.swift in Sources */,
+				D8FD7A752F17419E0043CA08 /* ActivityChartCard.swift in Sources */,
 				D8FD7A402F1576340043CA08 /* DashboardStateViews.swift in Sources */,
 				D8FD7A412F1576340043CA08 /* CategoryDetailSheet.swift in Sources */,
 				PRG0015 /* ParentProgressDashboardView.swift in Sources */,
