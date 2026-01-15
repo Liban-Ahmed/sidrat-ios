@@ -26,6 +26,7 @@ struct ParentProgressDashboardView: View {
     @State private var showingActivityDetail: FamilyActivity?
     @State private var showingCategoryDetail: CategoryStats?
     @State private var showingExportSheet = false
+    @State private var expandedSections: Set<String> = []
     
     // MARK: - Body
     
@@ -146,6 +147,29 @@ struct ParentProgressDashboardView: View {
                 
                 // Last updated
                 lastUpdatedLabel(report: report)
+                
+                // Scannable Summary (Quick Glance)
+                ScannableSummaryCard(report: report)
+                
+                // This Week's Focus (Actionable Items)
+                if !report.suggestedActions.isEmpty {
+                    ThisWeeksFocusCard(actions: report.suggestedActions)
+                }
+                
+                // Engagement Quality Score
+                EngagementScoreCard(
+                    score: report.engagementScore,
+                    insights: report.engagementInsights
+                )
+                
+                // Learning Velocity Chart
+                LearningVelocityCard(
+                    weeklyLessonCounts: report.weeklyLessonCounts,
+                    trend: report.velocityTrend,
+                    isExpanded: expandedSections.contains("velocity")
+                ) {
+                    toggleSection("velocity")
+                }
                 
                 // Stats overview
                 statsOverviewSection(report: report)
@@ -425,6 +449,16 @@ struct ParentProgressDashboardView: View {
                 .multilineTextAlignment(.center)
         }
         .padding(.top, Spacing.md)
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func toggleSection(_ section: String) {
+        if expandedSections.contains(section) {
+            expandedSections.remove(section)
+        } else {
+            expandedSections.insert(section)
+        }
     }
     
     // MARK: - Setup

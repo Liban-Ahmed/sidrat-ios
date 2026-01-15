@@ -64,6 +64,23 @@ final class ProgressReportService {
         let recentAchievements = getRecentAchievements(for: child)
         let recommendations = recommendActivities(for: child, activities: allActivities)
         let dailyActivity = calculateDailyActivity(for: child)
+        let suggestedActions = generatePersonalizedActions(
+            for: child,
+            weekComparison: weekComparison,
+            categoryProgress: categoryProgress,
+            recentAchievements: recentAchievements,
+            allActivities: allActivities
+        )
+        let (engagementScore, engagementInsights) = calculateEngagementScore(
+            for: child,
+            weekComparison: weekComparison,
+            periodLessons: periodLessons
+        )
+        let completedLessons = child.lessonProgress.filter { $0.isCompleted }
+        let (weeklyLessonCounts, velocityTrend) = calculateLearningVelocity(
+            for: child,
+            completedLessons: completedLessons
+        )
         
         let report = ProgressReport(
             childId: child.id,
@@ -83,7 +100,12 @@ final class ProgressReportService {
             categoryProgress: categoryProgress,
             recentAchievements: recentAchievements,
             recentLessons: recentLessons,
-            suggestedActivities: recommendations
+            suggestedActivities: recommendations,
+            suggestedActions: suggestedActions,
+            engagementScore: engagementScore,
+            engagementInsights: engagementInsights,
+            weeklyLessonCounts: weeklyLessonCounts,
+            velocityTrend: velocityTrend
         )
         
         // Cache the report
@@ -434,5 +456,356 @@ final class ProgressReportService {
         let reason = reasons.isEmpty ? "Recommended activity" : reasons.first ?? "Recommended"
         
         return (score, reason)
+    }
+    
+    // MARK: - Personalized Action Generation (Quick Win #2)
+    
+    /// Generate 1-3 prioritized action items for parents
+    /// Based on: weekly goals, struggling topics, streak status, achievements
+    func generatePersonalizedActions(
+        for child: Child,
+        weekComparison: WeekComparison,
+        categoryProgress: [CategoryStats],
+        recentAchievements: [AchievementType],
+        allActivities: [FamilyActivity]
+    ) -> [PersonalizedAction] {
+        var actions: [PersonalizedAction] = []
+        
+        // Priority 1: Streak at risk (most urgent)
+        if child.currentStreak > 0 {
+            let calendar = Calendar.current
+            if let lastCompleted = child.lastLessonCompletedDate,
+               !calendar.isDateInToday(lastCompleted) {
+                actions.append(PersonalizedAction(
+                    priority: .high,
+                    title: "Complete today's lesson to maintain streak",
+                    description: "\(child.name) has a \(child.currentStreak)-day streak at risk",
+                    estimatedMinutes: 5,
+                    impact: "Keep \(child.currentStreak)-day streak alive",
+                    actionType: .streakMaintenance
+                ))
+            }
+        }
+        
+        // Priority 2: Behind on weekly goal
+        let weeklyGoal = child.weeklyLearningGoal
+        let completed = weekComparison.thisWeekCount
+        if completed < weeklyGoal {
+            let remaining = weeklyGoal - completed
+            let calendar = Calendar.current
+            let dayOfWeek = calendar.component(.weekday, from: Date())
+            
+            // Only suggest if we're past Wednesday (day 4)
+            if dayOfWeek >= 4 && remaining > 0 {
+                let urgency: ActionPriority = remaining >= 4 ? .high : .medium
+                actions.append(PersonalizedAction(
+                    priority: urgency,
+                    title: "Complete \(remaining) more lesson\(remaining == 1 ? "" : "s") this week",
+                    description: "\(completed)/\(weeklyGoal) lessons completed. Let's reach the weekly goal!",
+                    estimatedMinutes: remaining * 5,
+                    impact: "Reach weekly goal",
+                    actionType: .completeLesson
+                ))
+            }
+        }
+        
+        // Priority 3: Struggling topics (based on low scores in recent lessons)
+        // TODO: Implement once we track per-lesson scores
+        // For now, we'll check if any category has very low progress
+        if let strugglingCategory = categoryProgress.first(where: { 
+            $0.completedCount > 0 && $0.completionPercentage < 0.3 
+        }) {
+            actions.append(PersonalizedAction(
+                priority: .medium,
+                title: "Review \(strugglingCategory.category.rawValue) concepts",
+                description: "\(child.name) may benefit from revisiting this topic",
+                estimatedMinutes: 10,
+                impact: "Strengthen understanding",
+                actionType: .reviewCategory
+            ))
+        }
+        
+        // Priority 4: Family activity reminder
+        let incompleteFamilyActivities = allActivities.filter { !$0.isCompleted }
+        if let nextActivity = incompleteFamilyActivities.first,
+           weekComparison.thisWeekCount > 0 { // Only if child has done some lessons
+            actions.append(PersonalizedAction(
+                priority: .medium,
+                title: "Complete this week's family activity",
+                description: nextActivity.title,
+                estimatedMinutes: 15,
+                impact: "Strengthen family bond",
+                actionType: .familyActivity
+            ))
+        }
+        
+        // Priority 5: Celebrate recent achievements
+        if let recentAchievement = recentAchievements.first {
+            actions.append(PersonalizedAction(
+                priority: .low,
+                title: "Celebrate \(child.name)'s achievement",
+                description: "Earned the '\(recentAchievement.title)' badge!",
+                estimatedMinutes: 5,
+                impact: "Boost motivation",
+                actionType: .celebrateMilestone
+            ))
+        }
+        
+        // Priority 6: Get started (if no progress this week)
+        if weekComparison.thisWeekCount == 0 && actions.isEmpty {
+            actions.append(PersonalizedAction(
+                priority: .high,
+                title: "Start this week's learning",
+                description: "Complete today's lesson to begin the week",
+                estimatedMinutes: 5,
+                impact: "Build momentum",
+                actionType: .completeLesson
+            ))
+        }
+        
+        // Return top 3 actions, prioritized
+        return Array(actions
+            .sorted { action1, action2 in
+                // Sort by priority (high > medium > low)
+                let priorityOrder: [ActionPriority: Int] = [.high: 3, .medium: 2, .low: 1]
+                return (priorityOrder[action1.priority] ?? 0) > (priorityOrder[action2.priority] ?? 0)
+            }
+            .prefix(3))
+    }
+    
+    // MARK: - Engagement Score Calculation (Quick Win #3)
+    
+    /// Calculate engagement quality score (0-100) based on multiple factors
+    /// Returns: (score, insights breakdown)
+    func calculateEngagementScore(
+        for child: Child,
+        weekComparison: WeekComparison,
+        periodLessons: Int
+    ) -> (score: Int, insights: EngagementInsights) {
+        
+        // Factor 1: Consistency (40 points) - Streak maintenance
+        let consistencyScore = calculateConsistencyScore(for: child)
+        
+        // Factor 2: Frequency (30 points) - Lessons per week
+        let frequencyScore = calculateFrequencyScore(weeklyLessons: weekComparison.thisWeekCount, goal: child.weeklyLearningGoal)
+        
+        // Factor 3: Completion Rate (30 points) - Finishing started lessons
+        let completionScore = calculateCompletionScore(for: child)
+        
+        // Calculate weighted total (0-100)
+        let totalScore = Int(
+            (Double(consistencyScore) * 0.4) +
+            (Double(frequencyScore) * 0.3) +
+            (Double(completionScore) * 0.3)
+        )
+        
+        // Generate recommendation
+        let recommendation = generateEngagementRecommendation(
+            score: totalScore,
+            consistency: consistencyScore,
+            frequency: frequencyScore,
+            completion: completionScore
+        )
+        
+        let insights = EngagementInsights(
+            consistencyScore: consistencyScore,
+            frequencyScore: frequencyScore,
+            completionScore: completionScore,
+            recommendation: recommendation
+        )
+        
+        return (totalScore, insights)
+    }
+    
+    /// Calculate consistency score based on streak maintenance
+    private func calculateConsistencyScore(for child: Child) -> Int {
+        let currentStreak = child.currentStreak
+        let longestStreak = child.longestStreak
+        
+        // Score based on current streak
+        var score: Int
+        if currentStreak >= 30 {
+            score = 100
+        } else if currentStreak >= 14 {
+            score = 90
+        } else if currentStreak >= 7 {
+            score = 75
+        } else if currentStreak >= 3 {
+            score = 60
+        } else if currentStreak >= 1 {
+            score = 40
+        } else {
+            score = 20
+        }
+        
+        // Bonus: If close to longest streak (shows sustained effort)
+        if longestStreak > 0 {
+            let streakRatio = Double(currentStreak) / Double(longestStreak)
+            if streakRatio >= 0.8 {
+                score = min(100, score + 10) // Bonus for maintaining near-peak
+            }
+        }
+        
+        return score
+    }
+    
+    /// Calculate frequency score based on lessons per week vs goal
+    private func calculateFrequencyScore(weeklyLessons: Int, goal: Int) -> Int {
+        guard goal > 0 else { return weeklyLessons > 0 ? 50 : 0 }
+        
+        let percentage = Double(weeklyLessons) / Double(goal)
+        
+        if percentage >= 1.0 {
+            return 100 // Met or exceeded goal
+        } else if percentage >= 0.8 {
+            return 85 // Very close
+        } else if percentage >= 0.6 {
+            return 70 // On track
+        } else if percentage >= 0.4 {
+            return 50 // Some progress
+        } else if percentage >= 0.2 {
+            return 30 // Minimal progress
+        } else if weeklyLessons > 0 {
+            return 15 // At least started
+        } else {
+            return 0 // No lessons
+        }
+    }
+    
+    /// Calculate completion score based on finished vs started lessons
+    private func calculateCompletionScore(for child: Child) -> Int {
+        let allProgress = child.lessonProgress
+        
+        guard !allProgress.isEmpty else { return 0 }
+        
+        let completedCount = allProgress.filter { $0.isCompleted }.count
+        let totalStarted = allProgress.count
+        
+        guard totalStarted > 0 else { return 0 }
+        
+        let completionRate = Double(completedCount) / Double(totalStarted)
+        
+        // Convert to 0-100 score
+        let score = Int(completionRate * 100)
+        
+        // Bonus for high total completions (shows sustained engagement)
+        if child.totalLessonsCompleted >= 30 {
+            return min(100, score + 10)
+        } else if child.totalLessonsCompleted >= 15 {
+            return min(100, score + 5)
+        }
+        
+        return score
+    }
+    
+    /// Generate personalized recommendation based on scores
+    private func generateEngagementRecommendation(
+        score: Int,
+        consistency: Int,
+        frequency: Int,
+        completion: Int
+    ) -> String {
+        // Identify weakest area
+        let scores = [
+            ("consistency", consistency),
+            ("frequency", frequency),
+            ("completion", completion)
+        ].sorted { $0.1 < $1.1 }
+        
+        guard let weakest = scores.first else {
+            return "Keep up the great work!"
+        }
+        
+        // High engagement - just encourage
+        if score >= 80 {
+            return "Excellent engagement! Consistent daily practice is building strong habits."
+        }
+        
+        // Medium-high engagement - gentle nudge
+        if score >= 60 {
+            switch weakest.0 {
+            case "consistency":
+                return "Try completing lessons at the same time each day to build consistency."
+            case "frequency":
+                return "Aim for one more lesson per week to reach your learning goal."
+            case "completion":
+                return "Great start! Focus on finishing each lesson for maximum benefit."
+            default:
+                return "You're doing well! Keep up the steady pace."
+            }
+        }
+        
+        // Medium engagement - specific guidance
+        if score >= 40 {
+            switch weakest.0 {
+            case "consistency":
+                return "Set a daily reminder to help maintain a learning routine."
+            case "frequency":
+                return "Try shorter, more frequent sessions (5 min daily vs 30 min once)."
+            case "completion":
+                return "Focus on one lesson at a time until complete before starting another."
+            default:
+                return "Consider shorter sessions and more variety to boost interest."
+            }
+        }
+        
+        // Low engagement - supportive intervention
+        return "Consider more parental involvement and shorter sessions to rebuild engagement."
+    }
+    
+    // MARK: - Learning Velocity Calculation
+    
+    /// Calculate weekly lesson counts and velocity trend over the past 8 weeks
+    private func calculateLearningVelocity(
+        for child: Child,
+        completedLessons: [LessonProgress]
+    ) -> (weeklyLessonCounts: [Int], trend: VelocityTrend) {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // Calculate weekly counts for past 8 weeks
+        var weeklyLessonCounts: [Int] = []
+        
+        for weekOffset in (0..<8).reversed() {
+            guard let weekStart = calendar.date(byAdding: .weekOfYear, value: -weekOffset, to: now),
+                  let weekEnd = calendar.date(byAdding: .day, value: 7, to: weekStart) else {
+                weeklyLessonCounts.append(0)
+                continue
+            }
+            
+            let lessonsThisWeek = completedLessons.filter { progress in
+                guard let completedAt = progress.completedAt else { return false }
+                return completedAt >= weekStart && completedAt < weekEnd
+            }.count
+            
+            weeklyLessonCounts.append(lessonsThisWeek)
+        }
+        
+        // Calculate trend based on recent weeks vs earlier weeks
+        let trend = determineTrend(from: weeklyLessonCounts)
+        
+        return (weeklyLessonCounts: weeklyLessonCounts, trend: trend)
+    }
+    
+    /// Determine velocity trend by comparing recent 4 weeks to previous 4 weeks
+    private func determineTrend(from weeklyLessonCounts: [Int]) -> VelocityTrend {
+        guard weeklyLessonCounts.count == 8 else { return .stable }
+        
+        let earlierWeeks = weeklyLessonCounts[0..<4]
+        let recentWeeks = weeklyLessonCounts[4..<8]
+        
+        let earlierAverage = Double(earlierWeeks.reduce(0, +)) / 4.0
+        let recentAverage = Double(recentWeeks.reduce(0, +)) / 4.0
+        
+        let percentageChange = earlierAverage > 0 ? ((recentAverage - earlierAverage) / earlierAverage) : 0
+        
+        // Thresholds for trend determination
+        if percentageChange > 0.15 {  // 15% increase
+            return .increasing
+        } else if percentageChange < -0.15 {  // 15% decrease
+            return .declining
+        } else {
+            return .stable
+        }
     }
 }

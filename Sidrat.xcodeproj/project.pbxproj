@@ -21,6 +21,10 @@
 		AUD0003 /* AudioPlayingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0082 /* AudioPlayingIndicator.swift */; };
 		AUD0004 /* AudioComponentsShowcase.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0083 /* AudioComponentsShowcase.swift */; };
 		AUTH0002 /* SignInWithAppleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC0041 /* SignInWithAppleButton.swift */; };
+		D8092D072F18972F00B193C4 /* ScannableSummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8092D062F18972F00B193C4 /* ScannableSummaryCard.swift */; };
+		D8092D092F1898F900B193C4 /* ThisWeeksFocusCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8092D082F1898F900B193C4 /* ThisWeeksFocusCard.swift */; };
+		D8092D0B2F189B0C00B193C4 /* EngagementScoreCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8092D0A2F189B0C00B193C4 /* EngagementScoreCard.swift */; };
+		D8092D0D2F189C8800B193C4 /* LearningVelocityCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8092D0C2F189C8800B193C4 /* LearningVelocityCard.swift */; };
 		D8FD7A402F1576340043CA08 /* DashboardStateViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FD7A3F2F1576340043CA08 /* DashboardStateViews.swift */; };
 		D8FD7A412F1576340043CA08 /* CategoryDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FD7A3E2F1576340043CA08 /* CategoryDetailSheet.swift */; };
 		D8FD7A752F17419E0043CA08 /* ActivityChartCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FD7A742F17419E0043CA08 /* ActivityChartCard.swift */; };
@@ -78,6 +82,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D8092D062F18972F00B193C4 /* ScannableSummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannableSummaryCard.swift; sourceTree = "<group>"; };
+		D8092D082F1898F900B193C4 /* ThisWeeksFocusCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThisWeeksFocusCard.swift; sourceTree = "<group>"; };
+		D8092D0A2F189B0C00B193C4 /* EngagementScoreCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngagementScoreCard.swift; sourceTree = "<group>"; };
+		D8092D0C2F189C8800B193C4 /* LearningVelocityCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningVelocityCard.swift; sourceTree = "<group>"; };
 		D8FD7A3E2F1576340043CA08 /* CategoryDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryDetailSheet.swift; sourceTree = "<group>"; };
 		D8FD7A3F2F1576340043CA08 /* DashboardStateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardStateViews.swift; sourceTree = "<group>"; };
 		D8FD7A742F17419E0043CA08 /* ActivityChartCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityChartCard.swift; sourceTree = "<group>"; };
@@ -360,6 +368,10 @@
 		GRP0137 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				D8092D0C2F189C8800B193C4 /* LearningVelocityCard.swift */,
+				D8092D0A2F189B0C00B193C4 /* EngagementScoreCard.swift */,
+				D8092D082F1898F900B193C4 /* ThisWeeksFocusCard.swift */,
+				D8092D062F18972F00B193C4 /* ScannableSummaryCard.swift */,
 				D8FD7A742F17419E0043CA08 /* ActivityChartCard.swift */,
 				D8FD7A3E2F1576340043CA08 /* CategoryDetailSheet.swift */,
 				D8FD7A3F2F1576340043CA08 /* DashboardStateViews.swift */,
@@ -487,19 +499,23 @@
 				MOD0001 /* Child.swift in Sources */,
 				MOD0002 /* Lesson.swift in Sources */,
 				MOD0003 /* LessonProgress.swift in Sources */,
+				D8092D072F18972F00B193C4 /* ScannableSummaryCard.swift in Sources */,
 				MOD0004 /* Achievement.swift in Sources */,
 				MOD0005 /* FamilyActivity.swift in Sources */,
+				D8092D092F1898F900B193C4 /* ThisWeeksFocusCard.swift in Sources */,
 				FEA0001 /* OnboardingView.swift in Sources */,
 				DE0FD7522EFFA10700673B6F /* SidratModelsAvatarOption.swift in Sources */,
 				FEA0003 /* LearnView.swift in Sources */,
 				FEA0004 /* FamilyView.swift in Sources */,
 				FEA0005 /* ProgressDashboardView.swift in Sources */,
+				D8092D0B2F189B0C00B193C4 /* EngagementScoreCard.swift in Sources */,
 				FEA0007 /* LessonDetailView.swift in Sources */,
 				FEA0008 /* LessonPlayerView.swift in Sources */,
 				FEA0009 /* LessonCompletionView.swift in Sources */,
 				FEA0010 /* FamilyActivityDetailView.swift in Sources */,
 				UI0001 /* Theme.swift in Sources */,
 				UI0002 /* Components.swift in Sources */,
+				D8092D0D2F189C8800B193C4 /* LearningVelocityCard.swift in Sources */,
 				UI0003 /* ColorShowcase.swift in Sources */,
 				AUTH0002 /* SignInWithAppleButton.swift in Sources */,
 				LEX0001 /* LessonPhase.swift in Sources */,

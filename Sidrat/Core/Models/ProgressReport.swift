@@ -278,6 +278,21 @@ struct ProgressReport {
     /// Suggested family activities based on recent progress
     let suggestedActivities: [ActivityRecommendation]
     
+    /// Personalized action items for parents (Quick Win #2)
+    let suggestedActions: [PersonalizedAction]
+    
+    /// Engagement quality score 0-100 (Quick Win #3)
+    let engagementScore: Int
+    
+    /// Detailed engagement metrics breakdown
+    let engagementInsights: EngagementInsights
+    
+    /// Weekly lesson counts for past 8 weeks (Quick Win #4)
+    let weeklyLessonCounts: [Int]
+    
+    /// Learning velocity trend (Quick Win #4)
+    let velocityTrend: VelocityTrend
+    
     // MARK: - Computed Properties
     
     /// Average score across completed lessons in period
@@ -366,7 +381,16 @@ extension ProgressReport {
             categoryProgress: [],
             recentAchievements: [],
             recentLessons: [],
-            suggestedActivities: []
+            suggestedActivities: [],
+            suggestedActions: [],
+            engagementScore: 0,
+            engagementInsights: EngagementInsights(
+                consistencyScore: 0,
+                frequencyScore: 0,
+                completionScore: 0
+            ),
+            weeklyLessonCounts: [0, 0, 0, 0, 0, 0, 0, 0],
+            velocityTrend: .stable
         )
     }
 }
